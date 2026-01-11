@@ -84,7 +84,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
 
     // 2. Use Riverpod to save (calls UseCase -> Repository -> Hive)
     // Note: You need to add an 'addHabit' method to your HabitNotifier in habit_provider.dart
-    ref.read(habitNotifierProvider.notifier).addHabit(newHabit);
+    ref.read(habitNotifierProvider.notifier).addHabit(newHabit,DateTime.now());
 
     // 3. Close screen
     Navigator.pop(context);
@@ -108,7 +108,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
     );
 
     // 2. Use Riverpod to update (calls UseCase -> Repository -> Hive)
-    ref.read(habitNotifierProvider.notifier).updateHabit(updatedHabit);
+    ref.read(habitNotifierProvider.notifier).updateHabit(updatedHabit,DateTime.now());
 
     // 3. Close screen
     Navigator.pop(context);
