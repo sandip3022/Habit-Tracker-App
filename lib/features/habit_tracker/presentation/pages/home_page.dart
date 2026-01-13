@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/domain/entities/habit_entity.dart';
+import 'package:habit_tracker_app_2026/features/timer/presentation/timer_home.dart';
 import 'package:habit_tracker_app_2026/main.dart';
 import '../state_management/habit_provider.dart';
 import '../widgets/habit_tile.dart';
@@ -47,6 +48,17 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
+        actions: [
+          InkWell(
+            onTap: (){
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const TimerHome()));
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: Icon(Icons.punch_clock_outlined),
+            ),
+          ),
+        ],
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
