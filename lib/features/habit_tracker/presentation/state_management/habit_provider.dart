@@ -1,68 +1,65 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:habit_tracker_app_2026/features/habit_tracker/domain/usecases/delete_habit.dart';
-import 'package:habit_tracker_app_2026/features/habit_tracker/domain/usecases/update_habit.dart';
 import '../../domain/entities/habit_entity.dart';
 import '../../domain/usecases/get_habits_for_date.dart';
 import '../../domain/usecases/toggle_habit_completion.dart';
-import '../../domain/usecases/create_habit.dart'; // Import this!
+import '../../domain/usecases/create_habit.dart';
+import '../../domain/usecases/delete_habit.dart';
+import '../../domain/usecases/update_habit.dart';
 
-// 1. Define State
+// --- NEW: DATE PROVIDER ---
+// Stores the currently selected date (Defaults to Today)
+final selectedDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
+
 class HabitState {
   final List<HabitEntity> habits;
   HabitState(this.habits);
 }
 
-// 2. Define Notifier
 class HabitNotifier extends StateNotifier<HabitState> {
-  // Define the use cases as properties
   final GetHabitsForDate _getHabitsUseCase;
   final ToggleHabitCompletion _toggleUseCase;
   final CreateHabit _createUseCase;
-  final UpdateHabit _updateHabitUseCase;
-  final DeleteHabit _deleteHabitUseCase;
+  final DeleteHabit _deleteUseCase;
+  final UpdateHabit _updateUseCase;
 
-  // Constructor using NAMED parameters (Fixes the main.dart error)
   HabitNotifier({
     required GetHabitsForDate getHabitsUseCase,
     required ToggleHabitCompletion toggleUseCase,
     required CreateHabit createUseCase,
-    required UpdateHabit updateHabitUseCase,
-    required DeleteHabit deleteHabitUseCase,
+    required DeleteHabit deleteUseCase,
+    required UpdateHabit updateUseCase,
   })  : _getHabitsUseCase = getHabitsUseCase,
         _toggleUseCase = toggleUseCase,
         _createUseCase = createUseCase,
-        _updateHabitUseCase = updateHabitUseCase,
-        _deleteHabitUseCase = deleteHabitUseCase,
+        _deleteUseCase = deleteUseCase,
+        _updateUseCase = updateUseCase,
         super(HabitState([]));
 
-  void loadHabits() async {
-    final habits = await _getHabitsUseCase.call(DateTime.now());
+  // --- UPDATED: Accepts 'date' parameter ---
+  void loadHabits(DateTime date) async {
+    final habits = await _getHabitsUseCase.call(date);
     state = HabitState(habits);
   }
 
-  void toggle(HabitEntity habit) async {
-    await _toggleUseCase.call(habit, DateTime.now());
-    loadHabits(); 
+  // --- UPDATED: Accepts 'date' parameter ---
+  void toggle(HabitEntity habit, DateTime date) async {
+    await _toggleUseCase.call(habit, date); // Toggle for the SPECIFIC date
+    loadHabits(date); // Reload that date's data
   }
 
-  void addHabit(HabitEntity habit) async {
-  print("DEBUG: Adding habit '${habit.title}'"); // Check 1
-  print("DEBUG: Frequency: ${habit.frequency}"); // Check 2
-  print("DEBUG: Days: ${habit.targetDays}");     // Check 3
-  
-  await _createUseCase.call(habit);
-  
-  print("DEBUG: Saved to Hive!");                // Check 4
-  loadHabits();
+  // Habits are always created for "Lifecycle", so we usually reload the *current* view
+  void addHabit(HabitEntity habit, DateTime currentDate) async {
+    await _createUseCase.call(habit);
+    loadHabits(currentDate);
   }
 
-  void updateHabit(HabitEntity habit) async {
-    await _updateHabitUseCase.call(habit);
-    loadHabits();
+  void updateHabit(HabitEntity habit, DateTime currentDate) async {
+    await _updateUseCase.call(habit);
+    loadHabits(currentDate);
   }
 
-   void deleteHabit(HabitEntity habit) async {
-    await _deleteHabitUseCase.call(habit);
-    loadHabits();
+  void deleteHabit(HabitEntity habit, DateTime currentDate) async {
+    await _deleteUseCase.call(habit);
+    loadHabits(currentDate);
   }
 }

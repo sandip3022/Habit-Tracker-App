@@ -1,5 +1,4 @@
 import 'package:hive/hive.dart';
-import 'package:flutter/material.dart'; 
 import '../../domain/entities/habit_entity.dart';
 
 part 'habit_model.g.dart';

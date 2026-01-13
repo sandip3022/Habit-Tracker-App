@@ -75,8 +75,8 @@ final habitNotifierProvider = StateNotifierProvider<HabitNotifier, HabitState>((
     getHabitsUseCase: ref.watch(getHabitsUseCaseProvider),
     toggleUseCase: ref.watch(toggleHabitUseCaseProvider),
     createUseCase: ref.watch(createHabitUseCaseProvider),
-    updateHabitUseCase: ref.watch(updateHabitUseCaseProvider),
-    deleteHabitUseCase: ref.watch(deleteHabitUseCaseProvider)
+    updateUseCase: ref.watch(updateHabitUseCaseProvider),
+    deleteUseCase: ref.watch(deleteHabitUseCaseProvider)
   );
 });
 
