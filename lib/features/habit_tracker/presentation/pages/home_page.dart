@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/Journal_page.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/account_page.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/progress_page.dart';
+import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/widgets/app_bar.dart';
 import 'package:habit_tracker_app_2026/features/timer/presentation/timer_home.dart';
 import 'package:habit_tracker_app_2026/main.dart';
 import '../state_management/habit_provider.dart';
@@ -39,28 +40,11 @@ class _HomePageState extends ConsumerState<HomePage> {
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        actions: [
-          InkWell(
-            onTap: (){
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const TimerHome()));
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: Icon(Icons.punch_clock_outlined),
-            ),
-          ),
-        ],
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-
-             Text("Hello $username, Welcome to....",
-             style: TextStyle(fontSize: 16),),
-            const Text("Habit Tracker"),
-          ],
-        ),
-        backgroundColor: Colors.black,
+      appBar: HomeAppBar(
+        userName: username,
+        onTimerTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const TimerHome()));
+        },
       ),
      
       body: pagelist[_selectedIndex],
@@ -72,17 +56,17 @@ class _HomePageState extends ConsumerState<HomePage> {
             _selectedIndex = index;
           });
         },
-        items: const [
+        items:  [
           BottomNavigationBarItem(
-            icon: Icon(Icons.book),
+            icon: _selectedIndex == 0 ? Icon(Icons.book) : Icon(Icons.book_outlined),
             label: 'Journal',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
+            icon:_selectedIndex == 1 ? Icon(Icons.bar_chart) :  Icon(Icons.bar_chart_outlined),
             label: 'Progress',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
+            icon: _selectedIndex == 2 ? Icon(Icons.account_circle) : Icon(Icons.account_circle_outlined),
             label: 'Account',
           ),
         ],

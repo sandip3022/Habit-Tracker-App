@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/habit_entity.dart';
+import '../../../../core/theme/app_colors.dart';
 
 class HabitTile extends StatelessWidget {
   final HabitEntity habit;
   final bool isCompletedToday;
   final VoidCallback onToggle;
-  final VoidCallback onTapBody; // Opens History
-  final VoidCallback onEdit;    // NEW: Triggers Edit Sheet
-  final VoidCallback onDelete;  // NEW: Triggers Delete Dialog
+  final VoidCallback onTapBody;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   const HabitTile({
     super.key,
@@ -21,65 +22,110 @@ class HabitTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Convert int color to Color object
-    final baseColor = Color(habit.colorValue);
+    // 1. Get the base color (User selected color)
+    final habitColor = Color(habit.colorValue);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Material(
-        color: Colors.white,
-        elevation: 2,
+    // 2. Access Theme Data
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      decoration: BoxDecoration(
+        color: AppColors.surface, // Use the Theme Surface (White)
         borderRadius: BorderRadius.circular(16),
+
+        border: isCompletedToday
+            ? Border.all(color: habitColor.withValues(alpha: 0.5), width: 2)
+            : null,
+
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(
+              alpha: 0.05,
+            ), // Very subtle modern shadow
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: onTapBody, 
-          child: Container(
-            padding: const EdgeInsets.all(12.0), // Reduced padding slightly for better density
-            decoration: BoxDecoration(
-              border: isCompletedToday 
-                  ? Border.all(color: baseColor.withValues(alpha: 0.5), width: 2)
-                  : null,
-              borderRadius: BorderRadius.circular(16),
-            ),
+          onTap: onTapBody,
+          child: Padding(
+            padding: const EdgeInsets.all(
+              16.0,
+            ), // Generous padding for a "clean" look
             child: Row(
               children: [
-                // 1. Icon Box
-                _buildIconBox(baseColor),
-                
+                // --- 1. THEMED ICON BOX ---
+                _buildIconBox(habitColor),
+
                 const SizedBox(width: 16),
 
-                // 2. Title Section (Expands to fill space)
+                // --- 2. TITLE & STREAK INFO ---
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Title using the "Serif" font from your Theme
                       Text(
                         habit.title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 16,
+                        style: textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.w600,
-                          decoration: isCompletedToday 
-                              ? TextDecoration.lineThrough 
+                          fontSize: 18,
+                          decoration: isCompletedToday
+                              ? TextDecoration.lineThrough
                               : null,
-                          color: isCompletedToday ? Colors.grey : Colors.black87,
+                          color: isCompletedToday
+                              ? AppColors.textSecondary.withValues(alpha: 0.5)
+                              : AppColors.textPrimary,
                         ),
                       ),
-                      // Optional: Tiny date range or streak text can go here
+
+                      const SizedBox(height: 6),
+
+                      // Streak Badge (Uses Secondary Color for "Action/Heat")
+                      if (habit.currentStreak > 0)
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.local_fire_department_rounded,
+                              size: 14,
+                              color: AppColors.secondary,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              "${habit.currentStreak} Day Streak",
+                              style: textTheme.labelSmall?.copyWith(
+                                color: AppColors.secondary,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
+                        )
+                      else
+                        Text(
+                          "Start your journey today",
+                          style: textTheme.bodySmall?.copyWith(fontSize: 12),
+                        ),
                     ],
                   ),
                 ),
 
-                // 3. Check Button (The Primary Action)
+                // --- 3. CHECK BUTTON (ACTION) ---
                 GestureDetector(
-                  onTap: onToggle, 
-                  child: _buildCheckButton(baseColor),
+                  onTap: onToggle,
+                  child: _buildCheckButton(habitColor),
                 ),
 
-                const SizedBox(width: 4),
+                const SizedBox(width: 8),
 
-                // 4. More Options Menu (The "Edit/Delete" UX)
+                // --- 4. MENU (EDIT/DELETE) ---
                 _buildOptionsMenu(context),
               ],
             ),
@@ -91,32 +137,37 @@ class HabitTile extends StatelessWidget {
 
   Widget _buildIconBox(Color color) {
     return Container(
-      height: 48, // Slightly more compact
-      width: 48,
+      height: 50,
+      width: 50,
       decoration: BoxDecoration(
+        // Dynamic Tint: Uses 10% opacity of the habit's own color
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Icon(
         IconData(habit.iconCode, fontFamily: 'MaterialIcons'),
-        color: color,
-        size: 24,
+        color: color, // Icon is full strength color
+        size: 26,
       ),
     );
   }
 
   Widget _buildCheckButton(Color color) {
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
-      height: 34,
-      width: 34,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutBack,
+      height: 32,
+      width: 32,
       decoration: BoxDecoration(
+        // If completed, fill with color. If not, transparent with border.
         color: isCompletedToday ? color : Colors.transparent,
         shape: BoxShape.circle,
         border: Border.all(
-          color: isCompletedToday ? color : Colors.grey.shade300,
-          width: 2,
+          // Border is Grey when unchecked, Color when checked
+          color: isCompletedToday
+              ? color
+              : AppColors.textSecondary.withValues(alpha: 0.3),
+          width: 2.5,
         ),
       ),
       child: isCompletedToday
@@ -127,35 +178,41 @@ class HabitTile extends StatelessWidget {
 
   Widget _buildOptionsMenu(BuildContext context) {
     return PopupMenuButton<String>(
-      icon: Icon(Icons.more_vert, color: Colors.grey[400]),
-      color: const Color.fromARGB(255, 4, 158, 229),
+      icon: Icon(
+        Icons.more_vert,
+        color: AppColors.textSecondary.withValues(alpha: 0.5),
+      ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: AppColors.surface,
+      elevation: 4,
       onSelected: (value) {
-        if (value == 'edit') {
-          onEdit();
-        } else if (value == 'delete') {
-          onDelete();
-        }
+        if (value == 'edit') onEdit();
+        if (value == 'delete') onDelete();
       },
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: 'edit',
           child: Row(
             children: [
-              Icon(Icons.edit, size: 20, color: Colors.white70),
-              SizedBox(width: 12),
-              Text('Edit'),
+              const Icon(Icons.edit_outlined, size: 20),
+              const SizedBox(width: 12),
+              Text('Edit', style: Theme.of(context).textTheme.bodyMedium),
             ],
           ),
         ),
         const PopupMenuDivider(),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: 'delete',
           child: Row(
             children: [
-              Icon(Icons.delete, size: 20, color: Colors.red),
-              SizedBox(width: 12),
-              Text('Delete', style: TextStyle(color: Colors.red)),
+              Icon(Icons.delete_outline, size: 20, color: AppColors.error),
+              const SizedBox(width: 12),
+              Text(
+                'Delete',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: AppColors.error),
+              ),
             ],
           ),
         ),

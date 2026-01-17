@@ -50,4 +50,31 @@ class HabitEntity {
 
     return true;
   }
+
+  int get currentStreak {
+    int streak = 0;
+    DateTime checkDate = DateTime.now();
+
+    // Check up to 365 days back
+    for (int i = 0; i < 365; i++) {
+      if (isScheduledFor(checkDate)) {
+        if (isCompletedOn(checkDate)) {
+          streak++;
+        } else {
+          // If it's today and not done yet, streak isn't broken.
+          // But if it's a past scheduled day and we missed it, break.
+          if (!_isSameDay(checkDate, DateTime.now())) {
+            break; 
+          }
+        }
+      }
+      // Go back one day
+      checkDate = checkDate.subtract(const Duration(days: 1));
+    }
+    return streak;
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
 }

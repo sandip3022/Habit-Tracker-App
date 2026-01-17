@@ -9,7 +9,7 @@ import 'package:habit_tracker_app_2026/main.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class JournalPage extends ConsumerStatefulWidget {
-   JournalPage({super.key});
+   const JournalPage({super.key});
 
   @override
   ConsumerState<JournalPage> createState() => _JournalPageState();
@@ -86,7 +86,7 @@ void _changeDate(int days) {
                           },
                           onEdit: () {
                              Navigator.push(context, MaterialPageRoute(
-                               builder: (_) => AddHabitPage(habit: habit,) 
+                               builder: (_) => AddHabitPage(habitToEdit: habit,) 
                              ));
                           },
                           onDelete: () {
