@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:habit_tracker_app_2026/core/theme/app_colors.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:uuid/uuid.dart';
 
@@ -117,13 +118,13 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
           "Create HabitModel",
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: AppColors.primary),
         ),
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: AppColors.primary),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -136,7 +137,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
-                color: Colors.grey,
+                color: AppColors.primary,
               ),
             ),
             const SizedBox(height: 8),
@@ -160,7 +161,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
-                color: Colors.grey,
+                color: AppColors.primary,
               ),
             ),
             const SizedBox(height: 8),
@@ -173,7 +174,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
-                color: Colors.grey,
+                color: AppColors.primary,
               ),
             ),
             const SizedBox(height: 8),
@@ -196,14 +197,14 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
           height: 50,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
+              backgroundColor: AppColors.secondary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
             onPressed: widget.habit == null ? _saveHabit : _updateHabit,
             child: Text(
-              widget.habit == null ? "Save HabitModel" : "Update HabitModel",
+              widget.habit == null ? "Save Habit" : "Update Habit",
               style: TextStyle(fontSize: 16, color: Colors.white),
             ),
           ),
@@ -233,7 +234,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
             ),
             child: Icon(
               IconData(iconCode, fontFamily: 'MaterialIcons'),
-              color: isSelected ? _selectedColor : Colors.grey,
+              color: isSelected ? _selectedColor : AppColors.primary,
             ),
           ),
         );
@@ -275,7 +276,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 12,
-            color: Colors.grey,
+            color: AppColors.primary,
           ),
         ),
         const SizedBox(height: 8),
@@ -343,7 +344,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
                   ),
                 ),
                 if (_startDate != null)
-                  const Icon(Icons.edit, size: 16, color: Colors.grey),
+                  const Icon(Icons.edit, size: 16, color: AppColors.primary),
               ],
             ),
           ),
@@ -363,7 +364,7 @@ Widget _frequencyDropdown() {
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 12,
-            color: Colors.grey,
+            color: AppColors.primary,
           ),
         ),
         const SizedBox(height: 8),
@@ -414,7 +415,7 @@ Widget _frequencyDropdown() {
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 12,
-            color: Colors.grey,
+            color: AppColors.primary,
           ),
         ),
         const SizedBox(height: 8),

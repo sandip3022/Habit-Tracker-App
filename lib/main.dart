@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:habit_tracker_app_2026/core/theme/app_theme.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/domain/usecases/delete_habit.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/domain/usecases/update_habit.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -120,33 +121,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Clean HabitModel Tracker',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        // Modern Material 3 Theme
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.black, 
-          brightness: Brightness.light,
-        ),
-        scaffoldBackgroundColor: Colors.grey[100],
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          titleTextStyle: TextStyle(
-            color: Colors.black, 
-            fontSize: 20, 
-            fontWeight: FontWeight.bold
-          ),
-        ),
-      ),
-      // Dark Mode Support (User Story #10)
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.black, 
-          brightness: Brightness.dark,
-        ),
-      ),
-      themeMode: ThemeMode.system, 
+      theme: AppTheme.lightTheme,
       
       // Start at Home Page
       home: const HomePage(),
