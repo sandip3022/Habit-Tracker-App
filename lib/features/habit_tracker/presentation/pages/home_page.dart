@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:habit_tracker_app_2026/features/habit_tracker/domain/entities/habit_entity.dart';
+import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/Journal_page.dart';
+import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/account_page.dart';
+import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/progress_page.dart';
+import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/widgets/app_bar.dart';
 import 'package:habit_tracker_app_2026/features/timer/presentation/timer_home.dart';
 import 'package:habit_tracker_app_2026/main.dart';
 import '../state_management/habit_provider.dart';
-import '../widgets/habit_tile.dart';
-import '../widgets/date_selector.dart';
-import 'add_habit_page.dart';
-import 'habit_history_page.dart';
+
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -16,8 +16,14 @@ class HomePage extends ConsumerStatefulWidget {
   ConsumerState<HomePage> createState() => _HomePageState();
 }
 
+final pagelist = [
+  JournalPage(),
+  const ProgressPage(),
+  const AccountPage()
+];
+
 class _HomePageState extends ConsumerState<HomePage> {
-  
+  var _selectedIndex = 0;
   @override
   void initState() {
     super.initState();
@@ -28,146 +34,45 @@ class _HomePageState extends ConsumerState<HomePage> {
     });
   }
 
-  void _changeDate(int days) {
-    // 1. Update the Date Provider
-    final currentDate = ref.read(selectedDateProvider);
-    final newDate = currentDate.add(Duration(days: days));
-    
-    ref.read(selectedDateProvider.notifier).state = newDate;
-
-    // 2. Reload Habits for the NEW date
-    ref.read(habitNotifierProvider.notifier).loadHabits(newDate);
-  }
-
   @override
   Widget build(BuildContext context) {
-    final habitState = ref.watch(habitNotifierProvider);
     var username = 'Sandip';
-    final selectedDate = ref.watch(selectedDateProvider); // Watch for UI updates
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        actions: [
-          InkWell(
-            onTap: (){
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const TimerHome()));
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: Icon(Icons.punch_clock_outlined),
-            ),
-          ),
-        ],
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-
-             Text("Hello $username, Welcome to....",
-             style: TextStyle(fontSize: 16),),
-            const Text("Habit Tracker"),
-          ],
-        ),
-        backgroundColor: Colors.black,
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // --- 1. DATE NAVIGATOR ---
-            DateSelector(
-              selectedDate: selectedDate,
-              onPrevious: () => _changeDate(-1),
-              onNext: () => _changeDate(1),
-            ),
-            
-            // --- 2. PROGRESS BAR (Optional - keep or remove) ---
-            // If you keep it, make sure it calculates based on 'habitState.habits'
-            
-            const SizedBox(height: 10),
-
-            // --- 3. HABIT LIST ---
-            Expanded(
-              child: habitState.habits.isEmpty
-                  ? _buildEmptyState()
-                  : ListView.builder(
-                      itemCount: habitState.habits.length,
-                      itemBuilder: (context, index) {
-                        final habit = habitState.habits[index];
-                        
-                        // Check if completed on the SELECTED date
-                        final isCompleted = habit.isCompletedOn(selectedDate);
-
-                        return HabitTile(
-                          habit: habit,
-                          isCompletedToday: isCompleted,
-                          onToggle: () {
-                            // Pass selectedDate so we toggle the correct day!
-                            ref.read(habitNotifierProvider.notifier).toggle(habit, selectedDate);
-                          },
-                          onTapBody: () {
-                            Navigator.push(context, MaterialPageRoute(
-                              builder: (_) => HabitHistoryPage(habit: habit)
-                            ));
-                          },
-                          onEdit: () {
-                             Navigator.push(context, MaterialPageRoute(
-                               builder: (_) => AddHabitPage(habit: habit,) 
-                             ));
-                          },
-                          onDelete: () {
-                             _showDeleteConfirmation(context, habit, habit.title);
-                          },
-                        );
-                      },
-                    ),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.black,
-        child: const Icon(Icons.add, color: Colors.white),
-        onPressed: () async {
-          // Pass selectedDate to refresh properly after adding
-          final current = ref.read(selectedDateProvider);
-          await Navigator.push(context, MaterialPageRoute(builder: (_) => const AddHabitPage()));
-          ref.read(habitNotifierProvider.notifier).loadHabits(current);
+      appBar: HomeAppBar(
+        userName: username,
+        onTimerTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const TimerHome()));
         },
       ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.calendar_today, size: 60, color: Colors.grey[300]),
-          const SizedBox(height: 16),
-          Text("No habits for this day", style: TextStyle(color: Colors.grey[500])),
-        ],
-      ),
-    );
-  }
-
-  void _showDeleteConfirmation(BuildContext context, HabitEntity habit, String title) {
-     showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Delete Habit?"),
-        content: Text("Delete '$title'?"),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
-          TextButton(
-            onPressed: () {
-              final date = ref.read(selectedDateProvider);
-              ref.read(habitNotifierProvider.notifier).deleteHabit( habit, date);
-              Navigator.pop(context);
-            }, 
-            child: const Text("Delete", style: TextStyle(color: Colors.red))
+     
+      body: pagelist[_selectedIndex],
+      
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        items:  [
+          BottomNavigationBarItem(
+            icon: _selectedIndex == 0 ? Icon(Icons.book) : Icon(Icons.book_outlined),
+            label: 'Journal',
+          ),
+          BottomNavigationBarItem(
+            icon:_selectedIndex == 1 ? Icon(Icons.bar_chart) :  Icon(Icons.bar_chart_outlined),
+            label: 'Progress',
+          ),
+          BottomNavigationBarItem(
+            icon: _selectedIndex == 2 ? Icon(Icons.account_circle) : Icon(Icons.account_circle_outlined),
+            label: 'Account',
           ),
         ],
       ),
     );
   }
+
+
 }

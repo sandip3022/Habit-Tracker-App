@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:habit_tracker_app_2026/features/common/utils.dart';
 import 'package:habit_tracker_app_2026/features/timer/presentation/clock_tab.dart';
-import 'package:habit_tracker_app_2026/features/timer/presentation/timer_tab.dart';
 
 class TimerHome extends StatefulWidget {
-  const TimerHome({Key? key}) : super(key: key);
+  const TimerHome({super.key});
 
   @override
   State<TimerHome> createState() => _TimerHomeState();
@@ -14,7 +14,8 @@ class _TimerHomeState extends State<TimerHome> {
 
   static const List<Widget> _pages = <Widget>[
     ClockTab(),
-    TimerTab(),
+    // TimerTab(),
+    ComingSoonPage(),
     Center(child: Text('Stopwatch', style: TextStyle(fontSize: 32))),
   ];
 

@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart' show DateFormat;
+import 'package:habit_tracker_app_2026/main.dart';
 import 'package:uuid/uuid.dart';
-
-// Import Provider & Entity
-import '../../../../main.dart';
 import '../../domain/entities/habit_entity.dart';
+import '../../../../core/theme/app_colors.dart'; 
 
 class AddHabitPage extends ConsumerStatefulWidget {
-  const AddHabitPage({super.key, this.habit});
+  final HabitEntity? habitToEdit;
 
-  final HabitEntity? habit;
+  const AddHabitPage({super.key, this.habitToEdit});
 
   @override
   ConsumerState<AddHabitPage> createState() => _AddHabitPageState();
@@ -18,193 +16,292 @@ class AddHabitPage extends ConsumerStatefulWidget {
 
 class _AddHabitPageState extends ConsumerState<AddHabitPage> {
   final _titleController = TextEditingController();
-  final isColorSelected = true;
+  
+  // Default State
+  late Color _selectedColor;
+  late int _selectedIconCode;
+  HabitFrequency _frequency = HabitFrequency.daily;
+  List<int> _selectedDays = [];
 
-
-  // Default values
-  Color _selectedColor = Colors.blue;
-  DateTime? _startDate = DateTime.now();
-  DateTime? _endDate;
-  int _selectedIconCode = 0xe198; 
-  HabitFrequency _selectedFrequency = HabitFrequency.daily;
-  // water_drop
-  // You can extend Entity to include frequency, for now we stick to basic fields
-
+  // Curated "Modern Journal" Palette
   final List<Color> _colorOptions = [
-    Colors.blue,
-    Colors.red,
-    Colors.green,
-    Colors.orange,
-    Colors.purple,
+    const Color(0xFF2C3E50), // Midnight (Primary)
+    const Color(0xFFFF6B6B), // Coral (Secondary)
+    const Color(0xFF6C5CE7), // Soft Purple
+    const Color(0xFF00B894), // Teal
+    const Color(0xFF0984E3), // Bright Blue
+    const Color(0xFFE17055), // Burnt Orange
+    const Color(0xFFFD79A8), // Pink
   ];
 
-  final List<int> _iconOptions = [
-    0xe198,
-    0xeb43,
-    0xe0b0,
-    0xe156,
-    0xe318,
-    0xe52f,
+  // Common Habit Icons
+ final List<IconData> _iconOptions = [
+    Icons.auto_stories,      // Reading
+    Icons.fitness_center,    // Gym
+    Icons.water_drop,        // Water
+    Icons.code,              // Coding
+    Icons.self_improvement,  // Meditation
+    Icons.directions_run,    // Running
+    Icons.restaurant,        // Diet
+    Icons.bed,               // Sleep
+    Icons.savings,           // Finance
+    Icons.palette,           // Art
+    Icons.music_note,        // Music
+    Icons.check_circle,      // General Task
   ];
 
   @override
   void initState() {
-    if(widget.habit != null) {
-      _titleController.text = widget.habit!.title;
-      _selectedColor = Color(widget.habit!.colorValue);
-      _selectedIconCode = widget.habit!.iconCode;
-      _startDate = widget.habit!.createdAt;
-      _endDate = widget.habit!.validUntil;
-    }
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    super.dispose();
+    if (widget.habitToEdit != null) {
+      // EDIT MODE: Pre-fill
+      _titleController.text = widget.habitToEdit!.title;
+      _selectedColor = Color(widget.habitToEdit!.colorValue);
+      _selectedIconCode = widget.habitToEdit!.iconCode;
+      _frequency = widget.habitToEdit!.frequency;
+      _selectedDays = List.from(widget.habitToEdit!.targetDays);
+    } else {
+      // CREATE MODE: Defaults
+      _selectedColor = _colorOptions[0];
+      _selectedIconCode = _iconOptions[0].codePoint;
+    }
   }
 
   void _saveHabit() {
-    if (_titleController.text.isEmpty) return;
+    if (_titleController.text.trim().isEmpty) return;
 
-    // 1. Create the new Entity
-    final newHabit = HabitEntity(
-      id: const Uuid().v4(), // Generate ID
-      title: _titleController.text,
-      iconCode: _selectedIconCode,
-      colorValue: _selectedColor.value,
-      createdAt: _startDate,
-      validUntil: _endDate,
-      completedDates: [],
-      frequency: _selectedFrequency, // Default frequency
-      targetDays: [], // Start empty
-      // Add other fields like frequency here if Entity supports it
-    );
+    // Safety: If Specific Days selected but list is empty, force Daily
+    if (_frequency == HabitFrequency.specificDays && _selectedDays.isEmpty) {
+      _frequency = HabitFrequency.daily;
+    }
 
-    // 2. Use Riverpod to save (calls UseCase -> Repository -> Hive)
-    // Note: You need to add an 'addHabit' method to your HabitNotifier in habit_provider.dart
-    ref.read(habitNotifierProvider.notifier).addHabit(newHabit,DateTime.now());
-
-    // 3. Close screen
-    Navigator.pop(context);
-  }
-
-  void _updateHabit() {
-    if (_titleController.text.isEmpty || widget.habit == null) return;
-
-    // 1. Create the updated Entity
-    final updatedHabit = HabitEntity(
-      id: widget.habit!.id, // Keep same ID
-      title: _titleController.text,
-      iconCode: _selectedIconCode,
-      colorValue: _selectedColor.value,
-      createdAt: _startDate,
-      validUntil: _endDate,
-      frequency: widget.habit?.frequency ?? HabitFrequency.daily,
-      targetDays: widget.habit?.targetDays ?? [],
-      completedDates: widget.habit!.completedDates, // Preserve completed dates
-      // Add other fields like frequency here if Entity supports it
-    );
-
-    // 2. Use Riverpod to update (calls UseCase -> Repository -> Hive)
-    ref.read(habitNotifierProvider.notifier).updateHabit(updatedHabit,DateTime.now());
-
-    // 3. Close screen
+    if (widget.habitToEdit != null) {
+      // UPDATE
+      final updatedHabit = HabitEntity(
+        id: widget.habitToEdit!.id,
+        title: _titleController.text.trim(),
+        iconCode: _selectedIconCode,
+        colorValue: _selectedColor.value,
+        completedDates: widget.habitToEdit!.completedDates,
+        frequency: _frequency,
+        targetDays: _selectedDays,
+        createdAt: widget.habitToEdit!.createdAt,
+      );
+      ref.read(habitNotifierProvider.notifier).updateHabit(updatedHabit, DateTime.now());
+    } else {
+      // CREATE
+      final newHabit = HabitEntity(
+        id: const Uuid().v4(),
+        title: _titleController.text.trim(),
+        iconCode: _selectedIconCode,
+        colorValue: _selectedColor.value,
+        completedDates: [],
+        frequency: _frequency,
+        targetDays: _selectedDays,
+        createdAt: DateTime.now(),
+      );
+      ref.read(habitNotifierProvider.notifier).addHabit(newHabit, DateTime.now());
+    }
     Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final isEditing = widget.habitToEdit != null;
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text(
-          "Create HabitModel",
-          style: TextStyle(color: Colors.white),
+        title: Text(isEditing ? "Edit Habit" : "New Habit"),
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.close, color: AppColors.textPrimary),
+          onPressed: () => Navigator.pop(context),
         ),
-        iconTheme: const IconThemeData(color: Colors.black),
+        actions: [
+          // Save Text Button
+          TextButton(
+            onPressed: _saveHabit,
+            child: Text(
+              "SAVE",
+              style: textTheme.labelLarge?.copyWith(
+                color: AppColors.primary,
+                letterSpacing: 1.0,
+              ),
+            ),
+          )
+        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Title Input
-            const Text(
-              "NAME",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-                color: Colors.grey,
-              ),
+            // --- 1. TITLE INPUT (Minimalist) ---
+            Text("WHAT DO YOU WANT TO DO?", 
+              style: textTheme.labelSmall?.copyWith(color: AppColors.textSecondary, letterSpacing: 1.2)
             ),
             const SizedBox(height: 8),
-            TextField(
-              controller: _titleController,
-              decoration: InputDecoration(
-                hintText: "e.g. Read 10 pages",
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: TextField(
+                controller: _titleController,
+                style: textTheme.bodyLarge?.copyWith(fontSize: 18),
+                decoration: InputDecoration(
+                  hintText: "e.g. Read 10 pages",
+                  hintStyle: TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.5)),
+                  border: InputBorder.none,
+                  icon: Icon(Icons.edit_outlined, color: AppColors.primaryTint20),
                 ),
               ),
             ),
-            const SizedBox(height: 24),
 
-            // Icon Selector
-            const Text(
-              "ICON",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-                color: Colors.grey,
+            const SizedBox(height: 32),
+
+            // --- 2. FREQUENCY ---
+            Text("FREQUENCY", 
+               style: textTheme.labelSmall?.copyWith(color: AppColors.textSecondary, letterSpacing: 1.2)
+            ),
+            const SizedBox(height: 12),
+            _buildFrequencyToggle(),
+            
+            // Show Day Selector only if "Specific Days" is active
+            if (_frequency == HabitFrequency.specificDays) ...[
+              const SizedBox(height: 16),
+              _buildDaySelector(),
+            ],
+
+            const SizedBox(height: 32),
+
+            // --- 3. APPEARANCE (Color & Icon) ---
+            Text("APPEARANCE", 
+               style: textTheme.labelSmall?.copyWith(color: AppColors.textSecondary, letterSpacing: 1.2)
+            ),
+            const SizedBox(height: 12),
+            
+            // Color Circles
+            SizedBox(
+              height: 50,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: _colorOptions.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                itemBuilder: (context, index) {
+                  final color = _colorOptions[index];
+                  final isSelected = _selectedColor == color;
+                  return GestureDetector(
+                    onTap: () => setState(() => _selectedColor = color),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: isSelected ? 48 : 40,
+                      height: isSelected ? 48 : 40,
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                        border: isSelected 
+                            ? Border.all(color: AppColors.textPrimary, width: 2.5) 
+                            : null,
+                        boxShadow: [
+                          if (isSelected)
+                            BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 8, offset: const Offset(0, 4))
+                        ]
+                      ),
+                      child: isSelected 
+                          ? const Icon(Icons.check, color: Colors.white, size: 20) 
+                          : null,
+                    ),
+                  );
+                },
               ),
             ),
-            const SizedBox(height: 8),
-            _buildIconSelector(),
+            
             const SizedBox(height: 24),
 
-            // Color Selector
-            const Text(
-              "COLOR",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-                color: Colors.grey,
+            // Icon Grid
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 5,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
               ),
+              itemCount: _iconOptions.length,
+              itemBuilder: (context, index) {
+                final iconCode = _iconOptions[index];
+                final isSelected = _selectedIconCode == iconCode.codePoint;
+                
+                return GestureDetector(
+                  onTap: () => setState(() => _selectedIconCode = iconCode.codePoint),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    decoration: BoxDecoration(
+                      color: isSelected 
+                          ? _selectedColor.withValues(alpha: 0.15) // Tinted background
+                          : AppColors.surface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: isSelected 
+                          ? Border.all(color: _selectedColor, width: 2) 
+                          : Border.all(color: Colors.transparent),
+                    ),
+                    child: Icon(
+                      IconData(iconCode.codePoint, fontFamily: 'MaterialIcons'),
+                      color: isSelected ? _selectedColor : AppColors.textSecondary,
+                      size: 26,
+                    ),
+                  ),
+                );
+              },
             ),
-            const SizedBox(height: 8),
-            _buildColorSelector(),
-            const SizedBox(height: 8),
-            _dateRangePicker(),
-            const SizedBox(height: 8), 
-            _frequencyDropdown(),
-            const SizedBox(height: 8),
-            _dayChipSelector(widget.habit),
-            const SizedBox(height: 80), // Extra space for FAB
+            
+            const SizedBox(height: 50), // Bottom spacing
           ],
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: SizedBox(
-          width: double.infinity,
-          height: 50,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            onPressed: widget.habit == null ? _saveHabit : _updateHabit,
-            child: Text(
-              widget.habit == null ? "Save HabitModel" : "Update HabitModel",
-              style: TextStyle(fontSize: 16, color: Colors.white),
+    );
+  }
+
+  // --- WIDGET: Frequency Switcher ---
+  Widget _buildFrequencyToggle() {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          _buildToggleOption("Every Day", HabitFrequency.daily),
+          _buildToggleOption("Specific Days", HabitFrequency.specificDays),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildToggleOption(String label, HabitFrequency val) {
+    final isSelected = _frequency == val;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _frequency = val),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.primary : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: isSelected ? Colors.white : AppColors.textSecondary,
             ),
           ),
         ),
@@ -212,234 +309,37 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
     );
   }
 
-  Widget _buildIconSelector() {
+  // --- WIDGET: Day Selector Chips ---
+  Widget _buildDaySelector() {
+    final days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     return Wrap(
-      spacing: 16,
-      runSpacing: 16,
-      children: _iconOptions.map((iconCode) {
-        final isSelected = _selectedIconCode == iconCode;
-        return GestureDetector(
-          onTap: () => setState(() => _selectedIconCode = iconCode),
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? _selectedColor.withValues(alpha: 0.2)
-                  : Colors.white,
-              shape: BoxShape.circle,
-              border: isSelected
-                  ? Border.all(color: _selectedColor, width: 2)
-                  : null,
-            ),
-            child: Icon(
-              IconData(iconCode, fontFamily: 'MaterialIcons'),
-              color: isSelected ? _selectedColor : Colors.grey,
-            ),
+      spacing: 8,
+      runSpacing: 8,
+      children: List.generate(7, (index) {
+        // Mon = 1 ... Sun = 7
+        final dayIndex = index + 1;
+        final isSelected = _selectedDays.contains(dayIndex);
+        
+        return ChoiceChip(
+          label: Text(days[index]),
+          selected: isSelected,
+          selectedColor: AppColors.secondary, // Uses the "Action" color
+          backgroundColor: AppColors.surface,
+          labelStyle: TextStyle(
+            color: isSelected ? Colors.white : AppColors.textPrimary,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildColorSelector() {
-    return Wrap(
-      spacing: 12,
-      children: _colorOptions.map((color) {
-        return GestureDetector(
-          onTap: () => setState(() => _selectedColor = color),
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-              border: _selectedColor.toARGB32() == color.toARGB32()
-                  ? Border.all(color: Colors.black, width: 3)
-                  : null,
-            ),
-            child: _selectedColor.toARGB32() == color.toARGB32()
-                ? const Icon(Icons.check, color: Colors.white)
-                : null,
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _dateRangePicker() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "DURATION",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-            color: Colors.grey,
-          ),
-        ),
-        const SizedBox(height: 8),
-
-        InkWell(
-          onTap: () async {
-            // 1. Open the Flutter Date Range Picker
-            final DateTimeRange? picked = await showDateRangePicker(
-              context: context,
-              firstDate: DateTime.now(), // Habits usually start today or later
-              lastDate: DateTime.now().add(
-                const Duration(days: 365 * 2),
-              ), // Limit to 2 years
-              builder: (context, child) {
-                return Theme(
-                  data: ThemeData.light().copyWith(
-                    primaryColor: Colors.black, // Header color
-                    colorScheme: const ColorScheme.light(
-                      primary: Colors.black, // Selection color
-                      onPrimary: Colors.white,
-                      surface: Colors.white,
-                      onSurface: Colors.black,
-                    ),
-                  ),
-                  child: child!,
-                );
-              },
-            );
-
-            // 2. Update State if user selected a range
-            if (picked != null) {
-              setState(() {
-                _startDate = picked.start;
-                _endDate = picked.end;
-              });
-            }
+          onSelected: (selected) {
+            setState(() {
+              if (selected) {
+                _selectedDays.add(dayIndex);
+              } else {
+                _selectedDays.remove(dayIndex);
+              }
+            });
           },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Colors.transparent,
-              ), // Keeps layout stable
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.calendar_today, color: Colors.black, size: 20),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    _startDate == null
-                        ? "Select Start & End Date"
-                        : "${DateFormat('MMM d').format(_startDate ?? DateTime.now())} - ${DateFormat('MMM d').format(_endDate ?? DateTime.now())}",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: _startDate == null
-                          ? Colors.grey[400]
-                          : Colors.black,
-                      fontWeight: _startDate == null
-                          ? FontWeight.normal
-                          : FontWeight.w600,
-                    ),
-                  ),
-                ),
-                if (_startDate != null)
-                  const Icon(Icons.edit, size: 16, color: Colors.grey),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  
-}
-
-
-Widget _frequencyDropdown() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "FREQUENCY",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-            color: Colors.grey,
-          ),
-        ),
-        const SizedBox(height: 8),
-        DropdownButton<HabitFrequency>(
-          value: HabitFrequency.daily,
-          isExpanded: true,
-          items: HabitFrequency.values.map((frequency) {
-            String text;
-            switch (frequency) {
-              case HabitFrequency.daily:
-                text = "Daily";
-                break;
-              case HabitFrequency.weekly:
-                text = "Weekly";
-                break;
-              case HabitFrequency.specificDays:
-                text = "Specific Days";
-                break;
-            }
-            return DropdownMenuItem<HabitFrequency>(
-              value: frequency,
-              child: Text(text),
-            );
-          }).toList(),
-          onChanged: (value) {
-            // Handle frequency change
-            if (value != null) {
-              setState(() {
-                _selectedFrequency = value;
-              });
-            }
-          },
-        ),
-      ],
-    );
-
-  }
-  
-  Widget _dayChipSelector(HabitEntity? habit) {
-    final daysOfWeek = [
-      'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'
-    ];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "SELECT DAYS",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-            color: Colors.grey,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          children: List<Widget>.generate(7, (int index) {
-            final day = index; // 0 = Mon, 6 = Sun
-            final isSelected = habit?.targetDays.contains(day) ?? false;
-            return ChoiceChip(
-              label: Text(daysOfWeek[index]),
-              selected: isSelected,
-              selectedColor: Colors.black,
-              onSelected: (bool selected) {
-                setState(() {
-                  if (selected) {
-                    habit?.targetDays.add(day);
-                  } else {
-                    habit?.targetDays.remove(day);
-                  }
-                });
-              },
-            );
-          }),
-        ),
-      ],
+        );
+      }),
     );
   }
 }
