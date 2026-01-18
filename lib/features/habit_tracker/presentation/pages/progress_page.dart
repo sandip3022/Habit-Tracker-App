@@ -1,81 +1,106 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/widgets/progress_bar_chart.dart';
 import 'package:habit_tracker_app_2026/main.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/logic/progress_calculator.dart';
+import '../widgets/progress_bar_chart.dart';
 
 class ProgressPage extends ConsumerWidget {
   const ProgressPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 1. Get Data
     final habitState = ref.watch(habitNotifierProvider);
-    // 2. Calculate Logic
     final stats = ProgressCalculator.calculate(habitState.habits);
+    
+    // 1. Get Theme Data
+    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    // Helper color for labels
+    final labelColor = colorScheme.onSurface.withValues(alpha: 0.6);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      // No backgroundColor needed (Scaffold uses Theme default)
       appBar: AppBar(
-        title: Text("Progress & Insights", style: textTheme.displayMedium?.copyWith(fontSize: 22)),
-        backgroundColor: AppColors.background,
-        elevation: 0,
+        title: Text("Progress & Insights", style: textTheme.displayMedium?.copyWith(fontSize: 24)),
         centerTitle: false,
+        // No backgroundColor needed
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // --- ROW 1: 3 BOXES (Total, Active, Stalled) ---
+            // ROW 1: 3 BOXES
             Row(
               children: [
-                Expanded(child: _buildStatCard(context, "All Habits", "${stats.totalHabits}", Colors.blue)),
+                Expanded(child: _buildSummaryBox(context, "All Habits", "${stats.totalHabits}", Colors.blue)),
                 const SizedBox(width: 12),
-                Expanded(child: _buildStatCard(context, "Active", "${stats.activeCount}", Colors.green)),
+                Expanded(child: _buildSummaryBox(context, "Active", "${stats.activeCount}", Colors.green)),
                 const SizedBox(width: 12),
-                Expanded(child: _buildStatCard(context, "Stalled", "${stats.stalledCount}", Colors.orange)),
+                Expanded(child: _buildSummaryBox(context, "Stalled", "${stats.stalledCount}", Colors.orange)),
               ],
             ),
 
             const SizedBox(height: 24),
 
-            // --- ROW 2: AVG COMPLETION RATE ---
-            _buildWideStatCard(
-              context, 
-              "Avg. Completion Rate", 
-              "${(stats.avgCompletionRate * 100).toStringAsFixed(1)}%",
-              AppColors.primary
+            // ROW 2: AVG COMPLETION RATE (Keep Primary Color background, it looks good in both)
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: AppColors.primary, 
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 5))
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Completion Rate", 
+                        style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 14)),
+                      const SizedBox(height: 4),
+                      Text("Last 30 Days", 
+                        style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12)),
+                    ],
+                  ),
+                  Text(
+                    "${(stats.avgCompletionRate * 100).toStringAsFixed(1)}%",
+                    style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ],
+              ),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
 
-            // --- ROW 3: BAR CHART (30 Days) ---
-            Text("LAST 30 DAYS", style: textTheme.labelSmall?.copyWith(color: AppColors.textSecondary, letterSpacing: 1.2)),
+            // ROW 3: BAR CHART
+            Text("Consistency Trend", style: textTheme.labelSmall?.copyWith(color: labelColor, letterSpacing: 1.2)),
             const SizedBox(height: 12),
             ProgressBarChart(data: stats.last30Days),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
 
-            // --- ROW 4: PERFECT / PARTIAL / MISSED ---
+            // ROW 4: DAY BREAKDOWN
             Row(
               children: [
-                Expanded(child: _buildStatCard(context, "Perfect", "${stats.perfectDays}", Colors.teal)),
+                Expanded(child: _buildSummaryBox(context, "Perfect Days", "${stats.perfectDays}", AppColors.secondary)),
                 const SizedBox(width: 12),
-                Expanded(child: _buildStatCard(context, "Partial", "${stats.partialDays}", Colors.amber)),
+                Expanded(child: _buildSummaryBox(context, "Partial Days", "${stats.partialDays}", AppColors.primary)),
                 const SizedBox(width: 12),
-                Expanded(child: _buildStatCard(context, "Missed", "${stats.missedDays}", Colors.redAccent)),
+                Expanded(child: _buildSummaryBox(context, "Missed Days", "${stats.missedDays}", AppColors.error)),
               ],
             ),
 
             const SizedBox(height: 32),
 
-            // --- LIST: TOP HABITS (Sorted) ---
-            Text("TOP PERFORMING HABITS", style: textTheme.labelSmall?.copyWith(color: AppColors.textSecondary, letterSpacing: 1.2)),
+            // LEADERBOARD
+            Text("Habit Success Rate", style: textTheme.labelSmall?.copyWith(color: labelColor, letterSpacing: 1.2)),
             const SizedBox(height: 12),
-            ...stats.leaderboard.map((item) => _buildHabitSuccessTile(context, item)),
+            ...stats.leaderboard.map((item) => _buildLeaderboardTile(context, item)),
             
             const SizedBox(height: 40),
           ],
@@ -84,80 +109,58 @@ class ProgressPage extends ConsumerWidget {
     );
   }
 
-  // --- WIDGETS ---
-
-  Widget _buildStatCard(BuildContext context, String title, String value, Color color) {
+  Widget _buildSummaryBox(BuildContext context, String title, String value, Color color) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colorScheme.surface, // <--- Dynamic Surface
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: const Offset(0, 2))],
+        border: Border.all(color: color.withValues(alpha: 0.1), width: 1),
       ),
       child: Column(
         children: [
-          Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color)),
+          Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
           const SizedBox(height: 4),
-          Text(title, style: TextStyle(fontSize: 12, color: AppColors.textSecondary), textAlign: TextAlign.center),
+          Text(title, style: TextStyle(fontSize: 11, color: colorScheme.onSurface.withValues(alpha: 0.6))),
         ],
       ),
     );
   }
 
-  Widget _buildWideStatCard(BuildContext context, String title, String value, Color color) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: color, // Primary Color
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: color.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(title, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500)),
-          Text(value, style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
+  Widget _buildLeaderboardTile(BuildContext context, HabitSuccessRate item) {
+    final colorScheme = Theme.of(context).colorScheme;
 
- 
-
-  Widget _buildHabitSuccessTile(BuildContext context, HabitSuccessRate item) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
+        color: colorScheme.surface, // <--- Dynamic Surface
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         children: [
-          // Icon
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Color(item.habit.colorValue).withOpacity(0.1),
-              shape: BoxShape.circle,
+              color: Color(item.habit.colorValue).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(IconData(item.habit.iconCode, fontFamily: 'MaterialIcons'), 
-              color: Color(item.habit.colorValue), size: 20
+              size: 20, color: Color(item.habit.colorValue)),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              item.habit.title, 
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: colorScheme.onSurface) // Dynamic Text
             ),
           ),
-          const SizedBox(width: 12),
-          // Title
-          Expanded(
-            child: Text(item.habit.title, style: const TextStyle(fontWeight: FontWeight.w600)),
-          ),
-          // Percentage
           Text(
             "${(item.rate * 100).toInt()}%",
-            style: TextStyle(
-              fontWeight: FontWeight.bold, 
-              color: item.rate >= 0.8 ? Colors.green : (item.rate >= 0.5 ? Colors.orange : Colors.red)
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, 
+              color: item.rate > 0.8 ? Colors.green : (item.rate > 0.5 ? Colors.orange : Colors.red)),
           ),
         ],
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker_app_2026/core/theme/app_theme.dart';
+import 'package:habit_tracker_app_2026/core/theme/theme_provider.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/domain/usecases/delete_habit.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/domain/usecases/update_habit.dart';
 import 'package:habit_tracker_app_2026/features/onboarding/presentation/pages/splash_screen.dart';
@@ -100,6 +101,7 @@ void main() async {
 
   // 3. Open Database Box
   final box = await Hive.openBox<HabitModel>('habits');
+  await Hive.openBox('settings'); // For other app settings
 
   // 4. Run App with ProviderScope
   runApp(
@@ -108,22 +110,24 @@ void main() async {
       overrides: [
         habitBoxProvider.overrideWithValue(box),
       ],
-      child: const MyApp(),
+      child:  MyApp(),
     ),
   );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyApp extends ConsumerWidget {
+   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeProvider);
     return MaterialApp(
-      title: 'Clean HabitModel Tracker',
+      title: 'Growbit',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeMode,
       
-      // Start at Home Page
       home:  const SplashScreen(),
     );
   }

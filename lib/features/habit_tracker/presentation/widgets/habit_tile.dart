@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/habit_entity.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_colors.dart'; 
 
 class HabitTile extends StatelessWidget {
   final HabitEntity habit;
@@ -22,30 +22,26 @@ class HabitTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 1. Get the base color (User selected color)
-    final habitColor = Color(habit.colorValue);
-
-    // 2. Access Theme Data
+    // 1. Get Theme Data for Dynamic Colors
+    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final habitColor = Color(habit.colorValue);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       decoration: BoxDecoration(
-        color: AppColors.surface, // Use the Theme Surface (White)
+        color: colorScheme.surface, // <--- Dynamic Surface (White vs Slate)
         borderRadius: BorderRadius.circular(16),
-
-        border: isCompletedToday
-            ? Border.all(color: habitColor.withValues(alpha: 0.5), width: 2)
-            : null,
-
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(
-              alpha: 0.05,
-            ), // Very subtle modern shadow
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
+          // Shadow only visible in Light Mode for depth. In Dark Mode, elevation is handled by color difference.
+          if (!isDark)
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
         ],
       ),
       child: Material(
@@ -54,9 +50,7 @@ class HabitTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           onTap: onTapBody,
           child: Padding(
-            padding: const EdgeInsets.all(
-              16.0,
-            ), // Generous padding for a "clean" look
+            padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
                 // --- 1. THEMED ICON BOX ---
@@ -69,7 +63,7 @@ class HabitTile extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Title using the "Serif" font from your Theme
+                      // Title
                       Text(
                         habit.title,
                         maxLines: 1,
@@ -77,56 +71,56 @@ class HabitTile extends StatelessWidget {
                         style: textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.w600,
                           fontSize: 18,
-                          decoration: isCompletedToday
-                              ? TextDecoration.lineThrough
-                              : null,
-                          color: isCompletedToday
-                              ? AppColors.textSecondary.withValues(alpha: 0.5)
-                              : AppColors.textPrimary,
+                          decoration: isCompletedToday ? TextDecoration.lineThrough : null,
+                          // Dynamic Text Color (Black vs White)
+                          color: isCompletedToday 
+                              ? colorScheme.onSurface.withValues(alpha: 0.5) 
+                              : colorScheme.onSurface,
                         ),
                       ),
-
+                      
                       const SizedBox(height: 6),
-
-                      // Streak Badge (Uses Secondary Color for "Action/Heat")
+                      
+                      // Streak Badge
                       if (habit.currentStreak > 0)
                         Row(
                           children: [
-                            Icon(
-                              Icons.local_fire_department_rounded,
-                              size: 14,
-                              color: AppColors.secondary,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              "${habit.currentStreak} Day Streak",
-                              style: textTheme.labelSmall?.copyWith(
-                                color: AppColors.secondary,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
+                             Icon(Icons.local_fire_department_rounded, 
+                                 size: 14, color: AppColors.secondary),
+                             const SizedBox(width: 4),
+                             Text(
+                               "${habit.currentStreak} Day Streak",
+                               style: textTheme.labelSmall?.copyWith(
+                                 color: AppColors.secondary,
+                                 fontWeight: FontWeight.bold,
+                                 letterSpacing: 0.5,
+                               ),
+                             ),
                           ],
                         )
                       else
                         Text(
                           "Start your journey today",
-                          style: textTheme.bodySmall?.copyWith(fontSize: 12),
+                          // Dynamic Subtitle Color
+                          style: textTheme.bodySmall?.copyWith(
+                             fontSize: 12, 
+                             color: colorScheme.onSurface.withValues(alpha: 0.6)
+                          ),
                         ),
                     ],
                   ),
                 ),
 
-                // --- 3. CHECK BUTTON (ACTION) ---
+                // --- 3. CHECK BUTTON ---
                 GestureDetector(
                   onTap: onToggle,
-                  child: _buildCheckButton(habitColor),
+                  child: _buildCheckButton(habitColor, colorScheme.onSurface),
                 ),
 
                 const SizedBox(width: 8),
 
-                // --- 4. MENU (EDIT/DELETE) ---
-                _buildOptionsMenu(context),
+                // --- 4. MENU ---
+                _buildOptionsMenu(context, colorScheme),
               ],
             ),
           ),
@@ -140,33 +134,30 @@ class HabitTile extends StatelessWidget {
       height: 50,
       width: 50,
       decoration: BoxDecoration(
-        // Dynamic Tint: Uses 10% opacity of the habit's own color
+        // Dynamic Tint
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Icon(
         IconData(habit.iconCode, fontFamily: 'MaterialIcons'),
-        color: color, // Icon is full strength color
+        color: color, 
         size: 26,
       ),
     );
   }
 
-  Widget _buildCheckButton(Color color) {
+  Widget _buildCheckButton(Color color, Color borderColor) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOutBack,
       height: 32,
       width: 32,
       decoration: BoxDecoration(
-        // If completed, fill with color. If not, transparent with border.
         color: isCompletedToday ? color : Colors.transparent,
         shape: BoxShape.circle,
         border: Border.all(
-          // Border is Grey when unchecked, Color when checked
-          color: isCompletedToday
-              ? color
-              : AppColors.textSecondary.withValues(alpha: 0.3),
+          // Border adapts to theme when unchecked (Greyish on both modes)
+          color: isCompletedToday ? color : borderColor.withValues(alpha: 0.3),
           width: 2.5,
         ),
       ),
@@ -176,14 +167,11 @@ class HabitTile extends StatelessWidget {
     );
   }
 
-  Widget _buildOptionsMenu(BuildContext context) {
+  Widget _buildOptionsMenu(BuildContext context, ColorScheme colorScheme) {
     return PopupMenuButton<String>(
-      icon: Icon(
-        Icons.more_vert,
-        color: AppColors.textSecondary.withValues(alpha: 0.5),
-      ),
+      icon: Icon(Icons.more_vert, color: colorScheme.onSurface.withValues(alpha: 0.5)),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: AppColors.surface,
+      color: colorScheme.surface, // Dynamic Menu Background
       elevation: 4,
       onSelected: (value) {
         if (value == 'edit') onEdit();
@@ -194,9 +182,9 @@ class HabitTile extends StatelessWidget {
           value: 'edit',
           child: Row(
             children: [
-              const Icon(Icons.edit_outlined, size: 20),
+              Icon(Icons.edit_outlined, size: 20, color: colorScheme.onSurface),
               const SizedBox(width: 12),
-              Text('Edit', style: Theme.of(context).textTheme.bodyMedium),
+              Text('Edit', style: TextStyle(color: colorScheme.onSurface)),
             ],
           ),
         ),
@@ -205,14 +193,9 @@ class HabitTile extends StatelessWidget {
           value: 'delete',
           child: Row(
             children: [
-              Icon(Icons.delete_outline, size: 20, color: AppColors.error),
+              const Icon(Icons.delete_outline, size: 20, color: AppColors.error),
               const SizedBox(width: 12),
-              Text(
-                'Delete',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: AppColors.error),
-              ),
+              const Text('Delete', style: TextStyle(color: AppColors.error)),
             ],
           ),
         ),

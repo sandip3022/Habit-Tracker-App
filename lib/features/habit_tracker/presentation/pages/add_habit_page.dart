@@ -17,70 +17,67 @@ class AddHabitPage extends ConsumerStatefulWidget {
 class _AddHabitPageState extends ConsumerState<AddHabitPage> {
   final _titleController = TextEditingController();
   
-  // Default State
   late Color _selectedColor;
-  late int _selectedIconCode;
+  late IconData _selectedIcon; 
+  
   HabitFrequency _frequency = HabitFrequency.daily;
   List<int> _selectedDays = [];
 
-  // Curated "Modern Journal" Palette
   final List<Color> _colorOptions = [
-    const Color(0xFF2C3E50), // Midnight (Primary)
-    const Color(0xFFFF6B6B), // Coral (Secondary)
-    const Color(0xFF6C5CE7), // Soft Purple
+    const Color(0xFF2C3E50), // Midnight
+    const Color(0xFFFF6B6B), // Coral
+    const Color(0xFF6C5CE7), // Purple
     const Color(0xFF00B894), // Teal
-    const Color(0xFF0984E3), // Bright Blue
-    const Color(0xFFE17055), // Burnt Orange
+    const Color(0xFF0984E3), // Blue
+    const Color(0xFFE17055), // Orange
     const Color(0xFFFD79A8), // Pink
   ];
 
-  // Common Habit Icons
- final List<IconData> _iconOptions = [
-    Icons.auto_stories,      // Reading
-    Icons.fitness_center,    // Gym
-    Icons.water_drop,        // Water
-    Icons.code,              // Coding
-    Icons.self_improvement,  // Meditation
-    Icons.directions_run,    // Running
-    Icons.restaurant,        // Diet
-    Icons.bed,               // Sleep
-    Icons.savings,           // Finance
-    Icons.palette,           // Art
-    Icons.music_note,        // Music
-    Icons.check_circle,      // General Task
+  final List<IconData> _iconOptions = [
+    Icons.auto_stories,      
+    Icons.fitness_center,    
+    Icons.water_drop,        
+    Icons.code,              
+    Icons.self_improvement,  
+    Icons.directions_run,    
+    Icons.restaurant,        
+    Icons.bed,               
+    Icons.savings,           
+    Icons.palette,           
+    Icons.music_note,        
+    Icons.check_circle,      
   ];
 
   @override
   void initState() {
     super.initState();
     if (widget.habitToEdit != null) {
-      // EDIT MODE: Pre-fill
       _titleController.text = widget.habitToEdit!.title;
       _selectedColor = Color(widget.habitToEdit!.colorValue);
-      _selectedIconCode = widget.habitToEdit!.iconCode;
+      _selectedIcon = IconData(
+         widget.habitToEdit!.iconCode, 
+         fontFamily: 'MaterialIcons'
+      );
       _frequency = widget.habitToEdit!.frequency;
       _selectedDays = List.from(widget.habitToEdit!.targetDays);
     } else {
-      // CREATE MODE: Defaults
       _selectedColor = _colorOptions[0];
-      _selectedIconCode = _iconOptions[0].codePoint;
+      _selectedIcon = _iconOptions[0];
     }
   }
 
   void _saveHabit() {
     if (_titleController.text.trim().isEmpty) return;
 
-    // Safety: If Specific Days selected but list is empty, force Daily
     if (_frequency == HabitFrequency.specificDays && _selectedDays.isEmpty) {
       _frequency = HabitFrequency.daily;
     }
 
     if (widget.habitToEdit != null) {
-      // UPDATE
       final updatedHabit = HabitEntity(
         id: widget.habitToEdit!.id,
         title: _titleController.text.trim(),
-        iconCode: _selectedIconCode,
+        iconCode: _selectedIcon.codePoint, 
         colorValue: _selectedColor.value,
         completedDates: widget.habitToEdit!.completedDates,
         frequency: _frequency,
@@ -89,11 +86,10 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
       );
       ref.read(habitNotifierProvider.notifier).updateHabit(updatedHabit, DateTime.now());
     } else {
-      // CREATE
       final newHabit = HabitEntity(
         id: const Uuid().v4(),
         title: _titleController.text.trim(),
-        iconCode: _selectedIconCode,
+        iconCode: _selectedIcon.codePoint,
         colorValue: _selectedColor.value,
         completedDates: [],
         frequency: _frequency,
@@ -107,21 +103,24 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
 
   @override
   Widget build(BuildContext context) {
+    // 1. Get Theme Colors
+    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final isEditing = widget.habitToEdit != null;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Helper text color (Grey in Light, Lighter Grey in Dark)
+    final labelColor = isDark ? Colors.grey[400] : AppColors.textSecondary;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      // No fixed background color
       appBar: AppBar(
-        title: Text(isEditing ? "Edit Habit" : "New Habit"),
-        backgroundColor: AppColors.background,
+        title: Text(widget.habitToEdit != null ? "Edit Habit" : "New Habit"),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: AppColors.textPrimary),
+          icon: Icon(Icons.close, color: colorScheme.onSurface), // Dynamic X icon
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          // Save Text Button
           TextButton(
             onPressed: _saveHabit,
             child: Text(
@@ -139,49 +138,48 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // --- 1. TITLE INPUT (Minimalist) ---
+            // TITLE INPUT
             Text("WHAT DO YOU WANT TO DO?", 
-              style: textTheme.labelSmall?.copyWith(color: AppColors.textSecondary, letterSpacing: 1.2)
+              style: textTheme.labelSmall?.copyWith(color: labelColor, letterSpacing: 1.2)
             ),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: colorScheme.surface, // <--- Dynamic Surface
                 borderRadius: BorderRadius.circular(16),
               ),
               child: TextField(
                 controller: _titleController,
-                style: textTheme.bodyLarge?.copyWith(fontSize: 18),
+                style: textTheme.bodyLarge?.copyWith(fontSize: 18, color: colorScheme.onSurface),
                 decoration: InputDecoration(
                   hintText: "e.g. Read 10 pages",
-                  hintStyle: TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.5)),
+                  hintStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.5)),
                   border: InputBorder.none,
-                  icon: Icon(Icons.edit_outlined, color: AppColors.primaryTint20),
+                  icon: Icon(Icons.edit_outlined, color: AppColors.primary.withValues(alpha: 0.7)),
                 ),
               ),
             ),
 
             const SizedBox(height: 32),
 
-            // --- 2. FREQUENCY ---
+            // FREQUENCY
             Text("FREQUENCY", 
-               style: textTheme.labelSmall?.copyWith(color: AppColors.textSecondary, letterSpacing: 1.2)
+               style: textTheme.labelSmall?.copyWith(color: labelColor, letterSpacing: 1.2)
             ),
             const SizedBox(height: 12),
-            _buildFrequencyToggle(),
+            _buildFrequencyToggle(colorScheme),
             
-            // Show Day Selector only if "Specific Days" is active
             if (_frequency == HabitFrequency.specificDays) ...[
               const SizedBox(height: 16),
-              _buildDaySelector(),
+              _buildDaySelector(colorScheme),
             ],
 
             const SizedBox(height: 32),
 
-            // --- 3. APPEARANCE (Color & Icon) ---
+            // APPEARANCE
             Text("APPEARANCE", 
-               style: textTheme.labelSmall?.copyWith(color: AppColors.textSecondary, letterSpacing: 1.2)
+               style: textTheme.labelSmall?.copyWith(color: labelColor, letterSpacing: 1.2)
             ),
             const SizedBox(height: 12),
             
@@ -205,7 +203,8 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
                         color: color,
                         shape: BoxShape.circle,
                         border: isSelected 
-                            ? Border.all(color: AppColors.textPrimary, width: 2.5) 
+                            // The border needs to contrast with the background (White on Dark, Black on Light)
+                            ? Border.all(color: colorScheme.onSurface, width: 2.5) 
                             : null,
                         boxShadow: [
                           if (isSelected)
@@ -234,57 +233,57 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
               ),
               itemCount: _iconOptions.length,
               itemBuilder: (context, index) {
-                final iconCode = _iconOptions[index];
-                final isSelected = _selectedIconCode == iconCode.codePoint;
+                final iconData = _iconOptions[index];
+                final isSelected = _selectedIcon.codePoint == iconData.codePoint;
                 
                 return GestureDetector(
-                  onTap: () => setState(() => _selectedIconCode = iconCode.codePoint),
+                  onTap: () => setState(() => _selectedIcon = iconData),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     decoration: BoxDecoration(
                       color: isSelected 
-                          ? _selectedColor.withValues(alpha: 0.15) // Tinted background
-                          : AppColors.surface,
+                          ? _selectedColor.withValues(alpha: 0.15) 
+                          : colorScheme.surface, // <--- Dynamic Surface
                       borderRadius: BorderRadius.circular(12),
                       border: isSelected 
                           ? Border.all(color: _selectedColor, width: 2) 
                           : Border.all(color: Colors.transparent),
                     ),
                     child: Icon(
-                      IconData(iconCode.codePoint, fontFamily: 'MaterialIcons'),
-                      color: isSelected ? _selectedColor : AppColors.textSecondary,
+                      iconData,
+                      // Unselected icons adapt to theme (Black vs White)
+                      color: isSelected ? _selectedColor : colorScheme.onSurface.withValues(alpha: 0.5),
                       size: 26,
                     ),
                   ),
                 );
               },
             ),
-            
-            const SizedBox(height: 50), // Bottom spacing
+            const SizedBox(height: 50),
           ],
         ),
       ),
     );
   }
 
-  // --- WIDGET: Frequency Switcher ---
-  Widget _buildFrequencyToggle() {
+  // --- WIDGETS ---
+  Widget _buildFrequencyToggle(ColorScheme colorScheme) {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colorScheme.surface, // <--- Dynamic
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
-          _buildToggleOption("Every Day", HabitFrequency.daily),
-          _buildToggleOption("Specific Days", HabitFrequency.specificDays),
+          _buildToggleOption("Every Day", HabitFrequency.daily, colorScheme),
+          _buildToggleOption("Specific Days", HabitFrequency.specificDays, colorScheme),
         ],
       ),
     );
   }
 
-  Widget _buildToggleOption(String label, HabitFrequency val) {
+  Widget _buildToggleOption(String label, HabitFrequency val, ColorScheme colorScheme) {
     final isSelected = _frequency == val;
     return Expanded(
       child: GestureDetector(
@@ -301,7 +300,8 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
             label,
             style: TextStyle(
               fontWeight: FontWeight.w600,
-              color: isSelected ? Colors.white : AppColors.textSecondary,
+              // Selected: White | Unselected: Theme Text Color
+              color: isSelected ? Colors.white : colorScheme.onSurface.withValues(alpha: 0.7),
             ),
           ),
         ),
@@ -309,26 +309,25 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
     );
   }
 
-  // --- WIDGET: Day Selector Chips ---
-  Widget _buildDaySelector() {
+  Widget _buildDaySelector(ColorScheme colorScheme) {
     final days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     return Wrap(
       spacing: 8,
       runSpacing: 8,
       children: List.generate(7, (index) {
-        // Mon = 1 ... Sun = 7
         final dayIndex = index + 1;
         final isSelected = _selectedDays.contains(dayIndex);
-        
         return ChoiceChip(
           label: Text(days[index]),
           selected: isSelected,
-          selectedColor: AppColors.secondary, // Uses the "Action" color
-          backgroundColor: AppColors.surface,
+          selectedColor: AppColors.secondary,
+          backgroundColor: colorScheme.surface, // <--- Dynamic
           labelStyle: TextStyle(
-            color: isSelected ? Colors.white : AppColors.textPrimary,
+            color: isSelected ? Colors.white : colorScheme.onSurface,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
+          // Removing default border if you want a cleaner look, or keeping it
+          side: isSelected ? BorderSide.none : BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.1)),
           onSelected: (selected) {
             setState(() {
               if (selected) {

@@ -11,16 +11,23 @@ class PrivacyLockPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final privacyState = ref.watch(privacyProvider);
     final notifier = ref.read(privacyProvider.notifier);
+    
+    // 1. Access Theme Data
+    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Helper text color (Grey in Light, Lighter Grey in Dark)
+    final labelColor = isDark ? Colors.grey[400] : AppColors.textSecondary;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      // No fixed background color (Scaffold uses Theme default)
       appBar: AppBar(
         title: Text("Privacy Lock", style: textTheme.displayMedium?.copyWith(fontSize: 22)),
-        backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
+          // Dynamic Icon Color
+          icon: Icon(Icons.arrow_back_ios_new, color: colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -31,7 +38,7 @@ class PrivacyLockPage extends ConsumerWidget {
           children: [
             Text(
               "SECURE YOUR HABITS",
-              style: textTheme.labelSmall?.copyWith(color: AppColors.textSecondary, letterSpacing: 1.2),
+              style: textTheme.labelSmall?.copyWith(color: labelColor, letterSpacing: 1.2),
             ),
             const SizedBox(height: 16),
 
@@ -114,16 +121,17 @@ class PrivacyLockPage extends ConsumerWidget {
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: colorScheme.surface, // <--- Dynamic Surface
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
                     children: [
                       Icon(Icons.lock_reset, color: AppColors.primary),
                       const SizedBox(width: 16),
-                      Text("Change PIN", style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                      // Dynamic Text Color
+                      Text("Change PIN", style: TextStyle(fontWeight: FontWeight.w600, color: colorScheme.onSurface)),
                       const Spacer(),
-                      Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+                      Icon(Icons.arrow_forward_ios, size: 14, color: colorScheme.onSurface.withValues(alpha: 0.5)),
                     ],
                   ),
                 ),
@@ -142,13 +150,21 @@ class PrivacyLockPage extends ConsumerWidget {
     required bool value,
     required Function(bool) onChanged,
   }) {
+    // Access Theme Colors
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colorScheme.surface, // <--- Dynamic Surface
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))
+          // Shadow mostly for light mode
+          BoxShadow(
+             color: Colors.black.withValues(alpha: 0.03), 
+             blurRadius: 10, 
+             offset: const Offset(0, 4)
+          )
         ],
       ),
       child: Row(
@@ -166,9 +182,11 @@ class PrivacyLockPage extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+                // Dynamic Text Color
+                Text(title, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: colorScheme.onSurface)),
                 const SizedBox(height: 4),
-                Text(subtitle, style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                // Dynamic Subtitle Color
+                Text(subtitle, style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 12)),
               ],
             ),
           ),

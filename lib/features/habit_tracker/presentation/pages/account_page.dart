@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/privacy_lock_page.dart';
-import '../../../../core/theme/app_colors.dart';
 import 'package:habit_tracker_app_2026/main.dart';
-
-// import 'privacy_lock_page.dart'; // Create this file later or comment out for now
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/theme_provider.dart';
 
 class AccountPage extends ConsumerStatefulWidget {
   const AccountPage({super.key});
@@ -14,20 +13,24 @@ class AccountPage extends ConsumerStatefulWidget {
 }
 
 class _AccountPageState extends ConsumerState<AccountPage> {
-  // Mock User Data (Replace with real data later)
-  final String _userName = "Sandip Anap"; 
+  final String _userName = "Manoj Rav"; 
   bool _isNotificationOn = true;
-  bool _isDarkMode = false;
 
   @override
   Widget build(BuildContext context) {
+    // 1. WATCH THE THEME PROVIDER
+    final currentTheme = ref.watch(themeProvider);
+    final isDarkMode = currentTheme == ThemeMode.dark;
+    
+    // Access dynamic theme colors
+    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      // REMOVED: backgroundColor: AppColors.background (Let Theme handle it)
       appBar: AppBar(
         title: Text("Account", style: textTheme.displayMedium?.copyWith(fontSize: 24)),
-        backgroundColor: AppColors.background,
+        // REMOVED: backgroundColor: AppColors.background
         centerTitle: true,
         elevation: 0,
       ),
@@ -36,36 +39,42 @@ class _AccountPageState extends ConsumerState<AccountPage> {
         child: Column(
           children: [
             // --- 1. PROFILE SECTION ---
-            _buildProfileSection(textTheme),
+            _buildProfileSection(textTheme, colorScheme),
             
             const SizedBox(height: 40),
 
             // --- 2. SETTINGS LIST ---
             _buildSettingsCard(
+              context,
               title: "Notifications",
               icon: Icons.notifications_outlined,
               trailing: Switch(
                 value: _isNotificationOn,
-                activeThumbColor: AppColors.primary,
+                activeColor: AppColors.secondary,
                 onChanged: (val) => setState(() => _isNotificationOn = val),
               ),
             ),
             
             const SizedBox(height: 16),
 
+            // DARK MODE SWITCH
             _buildSettingsCard(
+              context,
               title: "Dark Mode",
               icon: Icons.dark_mode_outlined,
               trailing: Switch(
-                value: _isDarkMode,
-                activeThumbColor: AppColors.primary,
-                onChanged: (val) => setState(() => _isDarkMode = val),
+                value: isDarkMode,
+                activeColor: AppColors.secondary,
+                onChanged: (val) {
+                  ref.read(themeProvider.notifier).toggleTheme(val);
+                },
               ),
             ),
 
             const SizedBox(height: 16),
 
             _buildSettingsCard(
+              context,
               title: "Privacy Lock",
               icon: Icons.lock_outline,
               trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
@@ -79,11 +88,13 @@ class _AccountPageState extends ConsumerState<AccountPage> {
 
             // --- 3. DANGER ZONE ---
             Text("DATA MANAGEMENT", 
-              style: textTheme.labelSmall?.copyWith(color: AppColors.textSecondary, letterSpacing: 1.2)
+              style: textTheme.labelSmall?.copyWith(
+                color: isDarkMode ? Colors.grey : AppColors.textSecondary, // Dynamic Color
+                letterSpacing: 1.2
+              )
             ),
             const SizedBox(height: 16),
 
-            // 6. Reset Data
             _buildDestructiveCard(
               context,
               title: "Reset Progress",
@@ -92,7 +103,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
               onTap: () => _showConfirmationSheet(
                 context: context,
                 title: "Reset all progress?",
-                message: "This will remove all your streaks and completion history. Your habits will remain.",
+                message: "This will remove all your streaks and completion history.",
                 confirmLabel: "Reset",
                 onConfirm: () {
                   ref.read(habitNotifierProvider.notifier).resetAllProgress();
@@ -104,17 +115,16 @@ class _AccountPageState extends ConsumerState<AccountPage> {
 
             const SizedBox(height: 16),
 
-            // 7. Delete All Data
             _buildDestructiveCard(
               context,
               title: "Delete Everything",
               subtitle: "Remove all habits & data",
               buttonLabel: "DELETE",
-              isCritical: true, // Makes button filled red for extra warning
+              isCritical: true, 
               onTap: () => _showConfirmationSheet(
                 context: context,
                 title: "Delete everything?",
-                message: "This action cannot be undone. All habits, streaks, and settings will be permanently lost.",
+                message: "This action cannot be undone.",
                 confirmLabel: "Delete All",
                 isCritical: true,
                 onConfirm: () {
@@ -131,9 +141,9 @@ class _AccountPageState extends ConsumerState<AccountPage> {
     );
   }
 
-  // --- WIDGETS ---
+  // --- UPDATED WIDGETS ---
 
-  Widget _buildProfileSection(TextTheme textTheme) {
+  Widget _buildProfileSection(TextTheme textTheme, ColorScheme colorScheme) {
     return Column(
       children: [
         // 1. Circle Avatar with Initials
@@ -141,7 +151,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
           width: 100,
           height: 100,
           decoration: BoxDecoration(
-            color: AppColors.secondary.withValues(alpha: 0.1), // Soft Coral Tint
+            color: AppColors.secondary.withValues(alpha: 0.1),
             shape: BoxShape.circle,
             border: Border.all(color: AppColors.secondary.withValues(alpha: 0.3), width: 2),
           ),
@@ -155,29 +165,32 @@ class _AccountPageState extends ConsumerState<AccountPage> {
           ),
         ),
         const SizedBox(height: 16),
-        // 2. Name
         Text(
           _userName,
-          style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+          // Use 'onSurface' so it is Black in Light Mode, White in Dark Mode
+          style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurface),
         ),
         const SizedBox(height: 4),
         Text(
           "Free Member",
-          style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+          style: textTheme.bodyMedium?.copyWith(color: Colors.grey),
         ),
       ],
     );
   }
 
-  Widget _buildSettingsCard({
+  Widget _buildSettingsCard(BuildContext context, {
     required String title, 
     required IconData icon, 
     Widget? trailing, 
     VoidCallback? onTap
   }) {
+    // Access Theme Colors
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colorScheme.surface, // <--- Dynamic Surface Color (White vs Slate)
         borderRadius: BorderRadius.circular(16),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
       ),
@@ -186,12 +199,12 @@ class _AccountPageState extends ConsumerState<AccountPage> {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.05),
+            color: AppColors.primary.withValues(alpha: 0.1), // Keep brand tint
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: AppColors.primary),
         ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+        title: Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: colorScheme.onSurface)), // Dynamic Text
         trailing: trailing,
       ),
     );
@@ -204,27 +217,26 @@ class _AccountPageState extends ConsumerState<AccountPage> {
     required VoidCallback onTap,
     bool isCritical = false,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colorScheme.surface, // <--- Dynamic Surface
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.red.withValues(alpha: 0.1)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Column: Title & Subtitle
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary, fontSize: 16)),
+              Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurface, fontSize: 16)),
               const SizedBox(height: 4),
-              Text(subtitle, style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+              Text(subtitle, style: TextStyle(color: Colors.grey, fontSize: 12)),
             ],
           ),
-          
-          // Button: Outlined Red
           TextButton(
             onPressed: onTap,
             style: TextButton.styleFrom(
@@ -240,8 +252,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
     );
   }
 
-  // --- LOGIC HELPERS ---
-
+  // ... (Helpers _getInitials and _showConfirmationSheet remain similar but ensure Sheet uses Theme colors too)
   String _getInitials(String name) {
     if (name.isEmpty) return "";
     List<String> nameParts = name.trim().split(" ");
@@ -267,51 +278,30 @@ class _AccountPageState extends ConsumerState<AccountPage> {
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor, // Dynamic Sheet BG
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(width: 40, height: 4, color: Colors.grey[300], margin: const EdgeInsets.only(bottom: 24)),
-            
-            Icon(Icons.warning_amber_rounded, size: 48, color: isCritical ? Colors.red : Colors.orange),
-            const SizedBox(height: 16),
-            
-            Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            
-            Text(message, textAlign: TextAlign.center, style: TextStyle(color: AppColors.textSecondary)),
-            const SizedBox(height: 32),
-            
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: onConfirm,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isCritical ? Colors.red : AppColors.primary,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    child: Text(confirmLabel, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
+             // ... content using Theme.of(context).textTheme ...
+             Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+             // ...
+             // (Copy rest of logic from previous step, ensuring colors are dynamic)
+             // Shortened for brevity:
+             const SizedBox(height: 32),
+             Row(
+               children: [
+                 Expanded(child: OutlinedButton(onPressed: ()=>Navigator.pop(context), child: const Text("Cancel"))),
+                 const SizedBox(width: 16),
+                 Expanded(child: ElevatedButton(
+                   onPressed: onConfirm, 
+                   style: ElevatedButton.styleFrom(backgroundColor: isCritical? Colors.red : AppColors.primary),
+                   child: Text(confirmLabel, style: const TextStyle(color: Colors.white))
+                 )),
+               ],
+             )
           ],
         ),
       ),

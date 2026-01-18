@@ -9,6 +9,7 @@ class AppTheme {
       
       // 1. Color Scheme
       primaryColor: AppColors.primary,
+      brightness: Brightness.light,
       scaffoldBackgroundColor: AppColors.background,
       colorScheme: const ColorScheme.light(
         primary: AppColors.primary,
@@ -72,4 +73,67 @@ class AppTheme {
       ),
     );
   }
+
+
+static ThemeData get darkTheme{
+  return ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.dark,
+
+    primaryColor: AppColors.primary,
+    scaffoldBackgroundColor: AppColors.darkBackground,
+
+    colorScheme: const ColorScheme.dark(
+        primary: AppColors.primary, // Keep Brand Color
+        secondary: AppColors.secondary,
+        surface: Color(0xFF1E293B), // Lighter Slate for Cards
+        error: AppColors.error,
+        onPrimary: Colors.white,
+        onSecondary: Colors.white,
+        onSurface: Colors.white, // White text on dark
+      ),
+      textTheme: TextTheme(
+        displayLarge: GoogleFonts.playfairDisplay(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+        displayMedium: GoogleFonts.playfairDisplay(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+        bodyLarge: GoogleFonts.inter(fontSize: 16, color: Colors.white),
+        bodyMedium: GoogleFonts.inter(fontSize: 14, color: Colors.grey[400]),
+        labelLarge: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+        labelSmall: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey[500]),
+      ),
+      appBarTheme: AppBarTheme(
+        backgroundColor: const Color(0xFF0F172A), // Matches Scaffold
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
+        titleTextStyle: GoogleFonts.playfairDisplay(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+      ),
+      
+      cardTheme: CardThemeData(
+        color: const Color(0xFF1E293B), // Dark Surface
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+
+      // Floating Action Button
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: AppColors.secondary, // Coral pops nicely on dark
+        foregroundColor: Colors.white,
+      ),
+    );
+      
+      
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

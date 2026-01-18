@@ -10,12 +10,17 @@ class ProgressBarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const double chartHeight = 150.0; // Fixed height for the BARS only
+    const double chartHeight = 150.0;
+    
+    // 1. Get Theme Colors
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final labelColor = colorScheme.onSurface.withValues(alpha: 0.6); // Adaptive Grey
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colorScheme.surface, // <--- Dynamic Surface
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -31,37 +36,37 @@ class ProgressBarChart extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 1. Rotated Y-Axis Label
+              // Y-Axis Label
               RotatedBox(
                 quarterTurns: -1,
                 child: Text(
                   "Percent of Completion",
                   style: TextStyle(
                     fontSize: 10,
-                    color: AppColors.textSecondary,
+                    color: labelColor, // Dynamic
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
               const SizedBox(width: 8),
 
-              // 2. Y-Axis Scale (Labels aligned to the 150px height)
+              // Y-Axis Scale
               SizedBox(
                 height: chartHeight,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildYLabel("100"),
-                    _buildYLabel("75"),
-                    _buildYLabel("50"),
-                    _buildYLabel("25"),
-                    _buildYLabel("0"),
+                    _buildYLabel("100", labelColor),
+                    _buildYLabel("75", labelColor),
+                    _buildYLabel("50", labelColor),
+                    _buildYLabel("25", labelColor),
+                    _buildYLabel("0", labelColor),
                   ],
                 ),
               ),
               const SizedBox(width: 12),
 
-              // 3. The Chart Area
+              // The Chart Area
               Expanded(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -72,11 +77,9 @@ class ProgressBarChart extends StatelessWidget {
 
                     return Flexible(
                       child: Column(
-                        mainAxisSize: MainAxisSize.min, // Hug content
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          // --- THE BAR (Fixed Constraint) ---
-                          // This container ensures the bar area is exactly 150px
-                          // Bars grow from the bottom up inside this box.
+                          // THE BAR
                           SizedBox(
                             height: chartHeight,
                             child: Stack(
@@ -86,9 +89,10 @@ class ProgressBarChart extends StatelessWidget {
                                   message: "${DateFormat('MMM d').format(day.date)}: ${(day.percentage * 100).toInt()}%",
                                   child: Container(
                                     width: 6,
-                                    height: chartHeight * day.percentage, // 100% = 150px
+                                    height: chartHeight * day.percentage,
                                     decoration: BoxDecoration(
-                                      color: _getBarColor(day.percentage),
+                                      // Pass isDark to helper to fix Grey bars
+                                      color: _getBarColor(day.percentage, isDark),
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                   ),
@@ -98,15 +102,15 @@ class ProgressBarChart extends StatelessWidget {
                           ),
                           
                           const SizedBox(height: 8),
-                          // --- X-AXIS LABEL ---
-                          // Show label every 5th day
+
+                          // X-AXIS LABEL
                           if ((data.length - 1 - index) % 5 == 0)
                             Text(
                               DateFormat('d').format(day.date),
-                              style: TextStyle(fontSize: 7, color: AppColors.textSecondary),
+                              style: TextStyle(fontSize: 10, color: labelColor),
                             )
                           else
-                            const SizedBox(height: 12), // Placeholder for alignment
+                            const SizedBox(height: 12),
                         ],
                       ),
                     );
@@ -118,12 +122,12 @@ class ProgressBarChart extends StatelessWidget {
 
           const SizedBox(height: 8),
 
-          // --- BOTTOM LABEL ---
+          // BOTTOM LABEL
           Text(
             "Days",
             style: TextStyle(
               fontSize: 11,
-              color: AppColors.textSecondary,
+              color: labelColor,
               fontWeight: FontWeight.w600,
               letterSpacing: 1.1,
             ),
@@ -133,16 +137,16 @@ class ProgressBarChart extends StatelessWidget {
     );
   }
 
-  Widget _buildYLabel(String text) {
-    return Text(
-      text,
-      style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
-    );
+  Widget _buildYLabel(String text, Color color) {
+    return Text(text, style: TextStyle(fontSize: 10, color: color));
   }
 
-  Color _getBarColor(double percentage) {
+  Color _getBarColor(double percentage, bool isDark) {
     if (percentage == 1.0) return AppColors.secondary; // Perfect
-    if (percentage == 0.0) return Colors.grey[300]!;   // Missed
-    return AppColors.primary.withValues(alpha: 0.6);   // Partial
+    
+    // Fix: In Dark Mode, Grey[300] is too bright. Use white10 (subtle grey).
+    if (percentage == 0.0) return isDark ? Colors.white10 : Colors.grey[300]!;
+    
+    return AppColors.primary.withValues(alpha: 0.6); // Partial
   }
 }

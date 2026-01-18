@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // For the date
+import 'package:intl/intl.dart';
 import '../../../../core/theme/app_colors.dart'; 
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String userName;
-  final String userAvatarUrl; // Optional: For future profile pic
-  final VoidCallback onTimerTap; // Action for the timer icon
+  final String userAvatarUrl; 
+  final VoidCallback onTimerTap; 
 
   const HomeAppBar({
     super.key,
@@ -16,26 +16,30 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get current date for the "Journal" feel
-    final String dateText = DateFormat('EEEE, MMM d').format(DateTime.now()).toUpperCase();
+    // 1. Get Dynamic Colors from Theme
+    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final String dateText = DateFormat('EEEE, MMM d').format(DateTime.now()).toUpperCase();
 
     return AppBar(
-      backgroundColor: AppColors.background, // Blends with body
+      // AppBar automatically uses the Theme's scaffoldBackgroundColor (White or Dark Slate)
       elevation: 0,
-      toolbarHeight: 80, // Taller header for better spacing
-      automaticallyImplyLeading: false, // Remove default back arrow
+      toolbarHeight: 80,
+      automaticallyImplyLeading: false, 
       
       title: Padding(
         padding: const EdgeInsets.only(left: 8.0, top: 12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. SMALL GREETING / DATE
+            // 1. DATE (Subtitle)
             Text(
-              dateText, // e.g. "FRIDAY, OCT 24"
+              dateText, 
               style: textTheme.labelSmall?.copyWith(
-                color: AppColors.textSecondary,
+                // Adaptive Grey: Lighter in dark mode for readability
+                color: isDark ? Colors.grey[400] : AppColors.textSecondary,
                 letterSpacing: 1.5,
                 fontWeight: FontWeight.bold,
                 fontSize: 11,
@@ -44,12 +48,12 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
             
             const SizedBox(height: 4),
             
-            // 2. MAIN HEADING (Serif Font)
+            // 2. MAIN HEADING
             Text(
-              "${getSalutation()}, $userName",
+              "Hello, $userName",
+              // textTheme.displayMedium is already White in Dark Theme (set in app_theme.dart)
               style: textTheme.displayMedium?.copyWith(
-                fontSize: 28, // Big and bold
-                color: AppColors.textPrimary,
+                fontSize: 28, 
                 height: 1.1,
               ),
             ),
@@ -58,8 +62,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       
       actions: [
-        // 3. ACTION BUTTON (Timer)
-        // Wrapped in a Container to look like a "Tool"
+        // 3. TIMER BUTTON
         Padding(
           padding: const EdgeInsets.only(right: 20.0, top: 10.0),
           child: GestureDetector(
@@ -68,22 +71,25 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
               height: 48,
               width: 48,
               decoration: BoxDecoration(
-                color: AppColors.surface, // White box
+                color: colorScheme.surface, // <--- Dynamic Surface (White vs Dark Slate)
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: AppColors.textSecondary.withValues(alpha: 0.1),
+                  // Border is subtle grey in light mode, invisible in dark
+                  color: isDark ? Colors.transparent : AppColors.textSecondary.withValues(alpha: 0.1),
                 ),
                 boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.03),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  )
+                  // Shadow only for Light Mode
+                  if (!isDark)
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.03),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    )
                 ],
               ),
               child: Icon(
-                Icons.timer_outlined, // Cleaner icon than the heavy box
-                color: AppColors.primary,
+                Icons.timer_outlined,
+                color: AppColors.primary, // Brand color always stays consistent
                 size: 24,
               ),
             ),
@@ -91,17 +97,6 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ],
     );
-  }
-
-  String getSalutation() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) {
-      return "Good Morning";
-    } else if (hour < 17) {
-      return "Good Afternoon";
-    } else {
-      return "Good Evening";
-    }
   }
 
   @override

@@ -7,8 +7,8 @@ enum PinMode { create, verify }
 
 class PinScreen extends ConsumerStatefulWidget {
   final PinMode mode;
-  final Function(String)? onSuccess; // Callback when PIN is correct/created
-  final String? title; // Override title
+  final Function(String)? onSuccess; 
+  final String? title; 
 
   const PinScreen({super.key, required this.mode, this.onSuccess, this.title});
 
@@ -18,8 +18,8 @@ class PinScreen extends ConsumerStatefulWidget {
 
 class _PinScreenState extends ConsumerState<PinScreen> {
   String _enteredPin = "";
-  String _firstPinAttempt = ""; // Used for "Confirm PIN" step in Create mode
-  bool _isConfirming = false; // Are we on the second step of creation?
+  String _firstPinAttempt = ""; 
+  bool _isConfirming = false; 
   
   String get _displayTitle {
     if (widget.title != null) return widget.title!;
@@ -44,14 +44,12 @@ class _PinScreenState extends ConsumerState<PinScreen> {
   void _handlePinComplete() async {
     if (widget.mode == PinMode.create) {
       if (!_isConfirming) {
-        // Step 1 done, move to Step 2 (Confirm)
         setState(() {
           _firstPinAttempt = _enteredPin;
           _enteredPin = "";
           _isConfirming = true;
         });
       } else {
-        // Step 2 done, check match
         if (_enteredPin == _firstPinAttempt) {
            widget.onSuccess?.call(_enteredPin);
         } else {
@@ -64,7 +62,6 @@ class _PinScreenState extends ConsumerState<PinScreen> {
         }
       }
     } else {
-      // Verify Mode
       bool isValid = await ref.read(privacyProvider.notifier).verifyPin(_enteredPin);
       if (isValid) {
         widget.onSuccess?.call(_enteredPin);
@@ -83,13 +80,19 @@ class _PinScreenState extends ConsumerState<PinScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 1. Get Theme Data
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      // No fixed background color (Uses Theme Default)
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.black),
+          // Dynamic Icon Color
+          icon: Icon(Icons.close, color: colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -97,7 +100,10 @@ class _PinScreenState extends ConsumerState<PinScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // 1. Title
-          Text(_displayTitle, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+          Text(
+            _displayTitle, 
+            style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)
+          ),
           const SizedBox(height: 30),
 
           // 2. Dots
@@ -112,7 +118,8 @@ class _PinScreenState extends ConsumerState<PinScreen> {
                   shape: BoxShape.circle,
                   color: index < _enteredPin.length 
                       ? AppColors.primary 
-                      : AppColors.primary.withValues(alpha: 0.2),
+                      // Unfilled dots: Dynamic grey
+                      : AppColors.primary.withValues(alpha: isDark ? 0.4 : 0.2),
                 ),
               );
             }),
@@ -140,23 +147,34 @@ class _PinScreenState extends ConsumerState<PinScreen> {
                   return IconButton(
                     onPressed: _onDeleteTap,
                     icon: const Icon(Icons.backspace_outlined, size: 28),
-                    color: AppColors.textPrimary,
+                    // Dynamic Icon Color
+                    color: colorScheme.onSurface,
                   );
                 }
                 
                 String val = (index == 10) ? "0" : "${index + 1}";
+                
                 return GestureDetector(
                   onTap: () => _onNumberTap(val),
                   child: Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.surface,
-                      border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+                      // Dynamic Key Background (White vs Slate)
+                      color: colorScheme.surface,
+                      border: Border.all(
+                        // Dynamic Border (Grey vs Subtle White)
+                        color: isDark ? Colors.white12 : Colors.grey.withValues(alpha: 0.2)
+                      ),
                     ),
                     alignment: Alignment.center,
                     child: Text(
                       val,
-                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 24, 
+                        fontWeight: FontWeight.bold,
+                        // Dynamic Number Color
+                        color: colorScheme.onSurface
+                      ),
                     ),
                   ),
                 );
