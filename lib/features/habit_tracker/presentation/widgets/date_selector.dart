@@ -15,17 +15,27 @@ class DateSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 1. Get Theme Data
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    
     final isToday = CalendarUtils.isSameDay(selectedDate, DateTime.now());
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      color: Colors.white, // Clean background
+      // Dynamic Background (White in Light Mode, Dark Slate in Dark Mode)
+      color: colorScheme.surface, 
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // PREVIOUS BUTTON
           IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Colors.grey),
+            icon: Icon(
+              Icons.arrow_back_ios_new, 
+              size: 20, 
+              // Dynamic Grey (Visible on dark and light)
+              color: colorScheme.onSurface.withValues(alpha: 0.5)
+            ),
             onPressed: onPrevious,
           ),
 
@@ -33,21 +43,23 @@ class DateSelector extends StatelessWidget {
           Column(
             children: [
               Text(
-                isToday ? "Today" : DateFormat('EEEE').format(selectedDate), // "Monday" or "Today"
-                style: const TextStyle(
+                isToday ? "Today" : DateFormat('EEEE').format(selectedDate),
+                style: textTheme.labelSmall?.copyWith(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey,
+                  // Dynamic Grey
+                  color: colorScheme.onSurface.withValues(alpha: 0.5),
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                DateFormat('MMM d, yyyy').format(selectedDate), // "Oct 24, 2025"
-                style: const TextStyle(
+                DateFormat('MMM d, yyyy').format(selectedDate),
+                style: textTheme.headlineSmall?.copyWith(
                   fontSize: 18,
-                  fontWeight: FontWeight.w600, // Matches your app style
-                  fontFamily: 'Serif', // Matching your headers
-                  color: Colors.black,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Serif', 
+                  // Dynamic Text Color (Black vs White)
+                  color: colorScheme.onSurface,
                 ),
               ),
             ],
@@ -58,8 +70,8 @@ class DateSelector extends StatelessWidget {
             icon: Icon(
               Icons.arrow_forward_ios, 
               size: 20, 
-              // Disable "Next" button if date is in future (Optional, remove logic if you want future planning)
-              color: Colors.grey
+              // Dynamic Grey
+              color: colorScheme.onSurface.withValues(alpha: 0.5)
             ),
             onPressed: onNext,
           ),

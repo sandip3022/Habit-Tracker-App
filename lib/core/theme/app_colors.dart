@@ -5,6 +5,8 @@ class AppColors {
   static const Color primary = Color(0xFF2C3E50);   // Midnight Navy
   static const Color secondary = Color(0xFFFF6B6B); // Soft Coral (Action)
   static const Color background = Color(0xFFF7F9FC); // Very light Grey-Blue
+
+  static const Color darkBackground = Color(0xFF0F172A);
   static const Color surface = Colors.white;
   static const Color error = Color(0xFFE57373);
 

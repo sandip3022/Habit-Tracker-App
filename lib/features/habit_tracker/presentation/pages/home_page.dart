@@ -3,8 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/Journal_page.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/account_page.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/progress_page.dart';
-import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/widgets/app_bar.dart';
-import 'package:habit_tracker_app_2026/features/timer/presentation/timer_home.dart';
 import 'package:habit_tracker_app_2026/main.dart';
 import '../state_management/habit_provider.dart';
 
@@ -36,16 +34,10 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    var username = 'Sandip';
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: HomeAppBar(
-        userName: username,
-        onTimerTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const TimerHome()));
-        },
-      ),
+     
      
       body: pagelist[_selectedIndex],
       

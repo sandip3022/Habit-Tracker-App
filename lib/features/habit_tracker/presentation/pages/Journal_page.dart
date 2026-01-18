@@ -3,8 +3,10 @@ import 'package:habit_tracker_app_2026/features/habit_tracker/domain/entities/ha
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/add_habit_page.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/habit_history_page.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/state_management/habit_provider.dart';
+import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/widgets/app_bar.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/widgets/date_selector.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/widgets/habit_tile.dart';
+import 'package:habit_tracker_app_2026/features/timer/presentation/timer_home.dart';
 import 'package:habit_tracker_app_2026/main.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,6 +18,8 @@ class JournalPage extends ConsumerStatefulWidget {
 }
 
 class _JournalPageState extends ConsumerState<JournalPage> {
+    var username = 'Sandip';
+
  @override
   void initState() {
     super.initState();
@@ -45,6 +49,12 @@ void _changeDate(int days) {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+       appBar: HomeAppBar(
+        userName: username,
+        onTimerTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const TimerHome()));
+        },
+      ),
       body: SafeArea(
         child: Column(
           children: [
