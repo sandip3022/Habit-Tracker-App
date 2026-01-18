@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker_app_2026/core/theme/app_theme.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/domain/usecases/delete_habit.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/domain/usecases/update_habit.dart';
+import 'package:habit_tracker_app_2026/features/onboarding/presentation/pages/splash_screen.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 // --- IMPORTS FROM YOUR FOLDER STRUCTURE ---
@@ -19,7 +20,6 @@ import 'features/habit_tracker/domain/usecases/create_habit.dart';
 
 // 3. Presentation Layer
 import 'features/habit_tracker/presentation/state_management/habit_provider.dart';
-import 'features/habit_tracker/presentation/pages/home_page.dart';
 
 // -----------------------------------------------------------------------------
 // DEPENDENCY INJECTION (WIRING THE LAYERS)
@@ -124,7 +124,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       
       // Start at Home Page
-      home: const HomePage(),
+      home:  const SplashScreen(),
     );
   }
 }

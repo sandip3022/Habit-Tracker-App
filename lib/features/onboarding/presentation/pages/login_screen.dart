@@ -1,0 +1,75 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/home_page.dart';
+import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/pin_screen.dart';
+import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/state_management/privacy_provider.dart';
+import '../../../../core/theme/app_colors.dart';
+
+class LoginScreen extends ConsumerStatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends ConsumerState<LoginScreen> {
+  
+  @override
+  void initState() {
+    super.initState();
+    // Try biometric immediately on load
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkBiometric();
+    });
+  }
+
+  Future<void> _checkBiometric() async {
+    final notifier = ref.read(privacyProvider.notifier);
+    final state = ref.read(privacyProvider);
+
+    if (state.isBiometricEnabled) {
+      await notifier.authenticateuser();
+      if (ref.read(privacyProvider).isAuthenicated) {
+        _unlock();
+      }
+    }
+  }
+
+  void _unlock() {
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomePage()));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final privacyState = ref.watch(privacyProvider);
+
+    // If User has PIN enabled, show the keypad directly in this screen
+    if (privacyState.isPinEnabled) {
+      return PinScreen(
+        mode: PinMode.verify,
+        title: "Welcome Back",
+        onSuccess: (_) => _unlock(),
+      );
+    } 
+    
+    // If Only Biometric is enabled (rare case if PIN is usually fallback)
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.fingerprint, size: 80, color: AppColors.primary),
+            const SizedBox(height: 24),
+            Text("Locked", style: Theme.of(context).textTheme.displayMedium),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _checkBiometric,
+              child: const Text("Unlock with FaceID / Fingerprint"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
