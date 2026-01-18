@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:habit_tracker_app_2026/core/services.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/privacy_lock_page.dart';
 import 'package:habit_tracker_app_2026/main.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -15,6 +16,20 @@ class AccountPage extends ConsumerStatefulWidget {
 class _AccountPageState extends ConsumerState<AccountPage> {
   final String _userName = "Manoj Rav"; 
   bool _isNotificationOn = true;
+  TimeOfDay? _reminderTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotificationSettings();
+  }
+
+  // Load saved state (You can also save 'reminderTime' string in Hive if you want persistence)
+  void _loadNotificationSettings() {
+    // For now, let's assume if Hive says it's on, we default to 9:00 AM or load from DB
+    // Since we haven't set up Hive for this specific field yet, we stick to local state for demo
+    // Ideally: _isNotificationOn = box.get('notify', defaultValue: false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,12 +61,26 @@ class _AccountPageState extends ConsumerState<AccountPage> {
             // --- 2. SETTINGS LIST ---
             _buildSettingsCard(
               context,
-              title: "Notifications",
+              title: "Daily Reminder",
               icon: Icons.notifications_outlined,
-              trailing: Switch(
-                value: _isNotificationOn,
-                activeColor: AppColors.secondary,
-                onChanged: (val) => setState(() => _isNotificationOn = val),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Show time if enabled
+                  if (_isNotificationOn && _reminderTime != null)
+                    Text(
+                      _reminderTime!.format(context),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary, 
+                        fontWeight: FontWeight.bold
+                      ),
+                    ),
+                  Switch(
+                    value: _isNotificationOn,
+                    activeColor: AppColors.secondary,
+                    onChanged: (val) => _toggleNotifications(val),
+                  ),
+                ],
               ),
             ),
             
@@ -307,4 +336,56 @@ class _AccountPageState extends ConsumerState<AccountPage> {
       ),
     );
   }
+
+Future<void> _toggleNotifications(bool value) async {
+    final service = NotificationService();
+
+    if (value) {
+      // 1. ENABLE: Request Permission First
+      final bool granted = await service.requestPermissions();
+      if (!granted) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Permission denied")));
+        return;
+      }
+
+      // 2. Pick Time
+      if (!mounted) return;
+      final TimeOfDay? picked = await showTimePicker(
+        context: context,
+        initialTime: const TimeOfDay(hour: 9, minute: 0),
+        builder: (context, child) {
+          // Make TimePicker match Dark/Light theme
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          return Theme(
+            data: isDark ? ThemeData.dark() : ThemeData.light().copyWith(
+              colorScheme: const ColorScheme.light(primary: AppColors.primary),
+            ),
+            child: child!,
+          );
+        },
+      );
+
+      if (picked != null) {
+        await service.scheduleDailyNotification(time: picked);
+        setState(() {
+          _isNotificationOn = true;
+          _reminderTime = picked;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Reminder set for ${picked.format(context)}"))
+        );
+      }
+    } else {
+      // 3. DISABLE
+      await service.cancelNotifications();
+      setState(() {
+        _isNotificationOn = false;
+        _reminderTime = null;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Reminders turned off")));
+    }
+  }
+
+
 }
