@@ -62,4 +62,35 @@ class HabitNotifier extends StateNotifier<HabitState> {
     await _deleteUseCase.call(habit);
     loadHabits(currentDate);
   }
+
+  /// 1. RESET: Keeps habits, but clears all completion history
+  Future<void> resetAllProgress() async {
+    final currentHabits = state.habits;
+    for (var habit in currentHabits) {
+      // Create a copy with empty history
+      final resetHabit = HabitEntity(
+        id: habit.id,
+        title: habit.title,
+        iconCode: habit.iconCode,
+        colorValue: habit.colorValue,
+        completedDates: [], // CLEARED
+        frequency: habit.frequency,
+        targetDays: habit.targetDays,
+        createdAt: DateTime.now(), // Reset creation date to today? Or keep original? Let's keep original usually, but for a hard reset, maybe Today is better. Let's stick to just clearing progress.
+      );
+      await _updateUseCase.call(resetHabit);
+    }
+    // Reload to refresh UI
+    loadHabits(DateTime.now());
+  }
+
+  /// 2. DELETE ALL: Wipes everything
+  Future<void> deleteAllData() async {
+    final currentHabits = state.habits;
+    for (var habit in currentHabits) {
+      await _deleteUseCase.call(habit);
+    }
+    // Clear state
+    state = HabitState([]);
+  }
 }
