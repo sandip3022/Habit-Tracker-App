@@ -2,7 +2,7 @@ import 'dart:typed_data';
 import 'package:csv/csv.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:intl/intl.dart';
-import '../../features/habit_tracker/domain/entities/habit_entity.dart';
+import '../../../features/habit_tracker/domain/entities/habit_entity.dart';
 
 class ExportService {
   static Future<bool> exportHabitsToCSV(List<HabitEntity> habits) async {
@@ -28,7 +28,7 @@ class ExportService {
             .map((date) => DateFormat('yyyy-MM-dd').format(date))
             .join(' | ');
 
-        String targets = habit.targetDays.join('|');
+        habit.targetDays.join('|');
 
         rows.add([
           habit.title,

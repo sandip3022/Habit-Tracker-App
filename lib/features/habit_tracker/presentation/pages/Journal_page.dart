@@ -9,6 +9,7 @@ import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/state
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/widgets/app_bar.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/widgets/date_selector.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/widgets/habit_tile.dart';
+import 'package:habit_tracker_app_2026/features/onboarding/presentation/state_management/user_provider.dart';
 import 'package:habit_tracker_app_2026/features/timer/presentation/timer_home.dart';
 import 'package:habit_tracker_app_2026/main.dart';
 
@@ -20,7 +21,8 @@ class JournalPage extends ConsumerStatefulWidget {
 }
 
 class _JournalPageState extends ConsumerState<JournalPage> {
-  var username = 'Sandip';
+
+  
 
   @override
   void initState() {
@@ -49,9 +51,10 @@ class _JournalPageState extends ConsumerState<JournalPage> {
 
   @override
   Widget build(BuildContext context) {
+    final userName = ref.watch(userProvider);
     return Scaffold(
       appBar: HomeAppBar(
-        userName: username,
+        userName: userName.toString(),
         onTimerTap: () {
           Navigator.push(
             context,

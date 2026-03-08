@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:habit_tracker_app_2026/core/export_service.dart';
-import 'package:habit_tracker_app_2026/core/import_service.dart';
-import 'package:habit_tracker_app_2026/core/services.dart';
+import 'package:habit_tracker_app_2026/core/services/export_service.dart';
+import 'package:habit_tracker_app_2026/core/services/import_service.dart';
+import 'package:habit_tracker_app_2026/core/services/notification_service.dart';
+import 'package:habit_tracker_app_2026/core/services/user_provider.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/privacy_lock_page.dart';
 import 'package:habit_tracker_app_2026/main.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -16,7 +17,6 @@ class AccountPage extends ConsumerStatefulWidget {
 }
 
 class _AccountPageState extends ConsumerState<AccountPage> {
-  final String _userName = "Manoj Rav";
   bool _isNotificationOn = true;
   TimeOfDay? _reminderTime;
 
@@ -38,6 +38,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
     // 1. WATCH THE THEME PROVIDER
     final currentTheme = ref.watch(themeProvider);
     final isDarkMode = currentTheme == ThemeMode.dark;
+    final String _userName = ref.watch( userProvider);
 
     // Access dynamic theme colors
     final colorScheme = Theme.of(context).colorScheme;
@@ -59,7 +60,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
         child: Column(
           children: [
             // --- 1. PROFILE SECTION ---
-            _buildProfileSection(textTheme, colorScheme),
+            _buildProfileSection(textTheme, colorScheme,_userName),
 
             const SizedBox(height: 40),
 
@@ -293,7 +294,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
 
   // --- UPDATED WIDGETS ---
 
-  Widget _buildProfileSection(TextTheme textTheme, ColorScheme colorScheme) {
+  Widget _buildProfileSection(TextTheme textTheme, ColorScheme colorScheme,String _userName) {
     return Column(
       children: [
         // 1. Circle Avatar with Initials

@@ -3,7 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:csv/csv.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart'; // For Icons
-import '../../features/habit_tracker/domain/entities/habit_entity.dart';
+import '../../../features/habit_tracker/domain/entities/habit_entity.dart';
 
 class ImportService {
   static Future<List<HabitEntity>?> importHabitsFromCSV() async {
@@ -52,7 +52,7 @@ class ImportService {
         if (datesString.isNotEmpty) {
           var dateParts = datesString.split('|');
           for (var dp in dateParts) {
-            String cleanDate = dp.trim(); 
+            String cleanDate = dp.replaceAll(RegExp(r'\s+'), '');
             if (cleanDate.isNotEmpty) {
               completedDates.add(DateFormat('yyyy-MM-dd').parse(cleanDate));
             }

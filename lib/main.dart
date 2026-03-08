@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:habit_tracker_app_2026/core/services.dart';
+import 'package:habit_tracker_app_2026/core/services/notification_service.dart';
 import 'package:habit_tracker_app_2026/core/theme/app_theme.dart';
 import 'package:habit_tracker_app_2026/core/theme/theme_provider.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/domain/usecases/delete_habit.dart';
