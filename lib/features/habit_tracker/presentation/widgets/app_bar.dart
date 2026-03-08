@@ -50,8 +50,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
             
             // 2. MAIN HEADING
             Text(
-              "Hello, $userName",
-              // textTheme.displayMedium is already White in Dark Theme (set in app_theme.dart)
+              "${getSalutation()}, $userName",
               style: textTheme.displayMedium?.copyWith(
                 fontSize: 28, 
                 height: 1.1,
@@ -101,4 +100,15 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize => const Size.fromHeight(80);
+
+    String getSalutation() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) {
+      return "Good Morning";
+    } else if (hour < 17) {
+      return "Good Afternoon";
+    } else {
+      return "Good Evening";
+    }
+  }
 }

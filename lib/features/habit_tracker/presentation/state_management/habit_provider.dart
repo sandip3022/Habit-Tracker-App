@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import '../../domain/entities/habit_entity.dart';
 import '../../domain/usecases/get_habits_for_date.dart';
 import '../../domain/usecases/toggle_habit_completion.dart';
@@ -28,18 +29,12 @@ class HabitNotifier extends StateNotifier<HabitState> {
     required CreateHabit createUseCase,
     required DeleteHabit deleteUseCase,
     required UpdateHabit updateUseCase,
-  })  : _getHabitsUseCase = getHabitsUseCase,
-        _toggleUseCase = toggleUseCase,
-        _createUseCase = createUseCase,
-        _deleteUseCase = deleteUseCase,
-        _updateUseCase = updateUseCase,
-        super(HabitState([]));
-
-  // --- UPDATED: Accepts 'date' parameter ---
-  void loadHabits(DateTime date) async {
-    final habits = await _getHabitsUseCase.call(date);
-    state = HabitState(habits);
-  }
+  }) : _getHabitsUseCase = getHabitsUseCase,
+       _toggleUseCase = toggleUseCase,
+       _createUseCase = createUseCase,
+       _deleteUseCase = deleteUseCase,
+       _updateUseCase = updateUseCase,
+       super(HabitState([]));
 
   // --- UPDATED: Accepts 'date' parameter ---
   void toggle(HabitEntity habit, DateTime date) async {
@@ -63,6 +58,16 @@ class HabitNotifier extends StateNotifier<HabitState> {
     loadHabits(currentDate);
   }
 
+  Future<void> importHabits(List<HabitEntity> importedHabits) async {
+    for (var habit in importedHabits) {
+      // Add each imported habit to the local Hive database
+      await _createUseCase.call(habit); 
+    }
+    
+    // Refresh the UI to show the newly imported data
+    await loadHabits(DateTime.now());
+  }
+
   /// 1. RESET: Keeps habits, but clears all completion history
   Future<void> resetAllProgress() async {
     final currentHabits = state.habits;
@@ -76,7 +81,8 @@ class HabitNotifier extends StateNotifier<HabitState> {
         completedDates: [], // CLEARED
         frequency: habit.frequency,
         targetDays: habit.targetDays,
-        createdAt: DateTime.now(), // Reset creation date to today? Or keep original? Let's keep original usually, but for a hard reset, maybe Today is better. Let's stick to just clearing progress.
+        createdAt:
+            DateTime.now(), // Reset creation date to today? Or keep original? Let's keep original usually, but for a hard reset, maybe Today is better. Let's stick to just clearing progress.
       );
       await _updateUseCase.call(resetHabit);
     }
@@ -92,5 +98,55 @@ class HabitNotifier extends StateNotifier<HabitState> {
     }
     // Clear state
     state = HabitState([]);
+  }
+
+  Future<void> reorderHabits(int oldIndex, int newIndex) async {
+    final currentHabits = List<HabitEntity>.from(state.habits);
+
+    // ReorderListView has a quirk where newIndex is offset by 1 if moving downwards
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+
+    // 1. Swap the items in memory
+    final habit = currentHabits.removeAt(oldIndex);
+    currentHabits.insert(newIndex, habit);
+
+    // 2. Immediately update UI state for smooth animation
+    state = HabitState(currentHabits);
+
+    // 3. Save the new order of IDs to the settings box
+    final orderIds = currentHabits.map((h) => h.id).toList();
+    final settingsBox = Hive.box('settings');
+    await settingsBox.put('habitOrder', orderIds);
+  }
+
+  /// UPDATE YOUR EXISTING LOAD METHOD to sort by the saved order
+  Future<void> loadHabits(DateTime selectedDate) async {
+    // 1. Fetch habits from your UseCase/Hive as usual
+    List<HabitEntity> fetchedHabits = await _getHabitsUseCase.call( selectedDate);
+
+    // 2. Retrieve custom order from Settings
+    final settingsBox = Hive.box('settings');
+    final List<dynamic>? savedOrderDyn = settingsBox.get('habitOrder');
+
+    if (savedOrderDyn != null) {
+      final savedOrder = savedOrderDyn.cast<String>();
+
+      // Sort fetched habits based on the saved ID list
+      fetchedHabits.sort((a, b) {
+        int indexA = savedOrder.indexOf(a.id);
+        int indexB = savedOrder.indexOf(b.id);
+
+        // If a new habit isn't in the list yet, put it at the bottom
+        if (indexA == -1) return 1;
+        if (indexB == -1) return -1;
+
+        return indexA.compareTo(indexB);
+      });
+    }
+
+    // 3. Update state
+    state = HabitState(fetchedHabits);
   }
 }

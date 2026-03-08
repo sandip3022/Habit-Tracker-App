@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:habit_tracker_app_2026/core/services/import_service.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/domain/entities/habit_entity.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/home_page.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/privacy_lock_page.dart';
@@ -18,22 +19,27 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final PageController _pageController = PageController();
   final TextEditingController _nameController = TextEditingController();
-  
+  String newName = "Guest"; 
+
   int _currentPage = 0;
-  final Set<String> _selectedHabits = {}; // Store IDs of selected predefined habits
+  final Set<String> _selectedHabits =
+      {}; // Store IDs of selected predefined habits
 
   // Pre-defined habits for Step 2
   final List<Map<String, dynamic>> _starterHabits = [
     {'title': 'Drink Water', 'icon': 0xe0b0, 'color': 0xFF0984E3}, // Blue
-    {'title': 'Read Books', 'icon': 0xe198, 'color': 0xFF6C5CE7},  // Purple
-    {'title': 'Exercise', 'icon': 0xeb43, 'color': 0xFFFF6B6B},    // Coral
-    {'title': 'Meditation', 'icon': 0xe318, 'color': 0xFF00B894},  // Teal
-    {'title': 'Journaling', 'icon': 0xe156, 'color': 0xFFE17055},  // Orange
+    {'title': 'Read Books', 'icon': 0xe198, 'color': 0xFF6C5CE7}, // Purple
+    {'title': 'Exercise', 'icon': 0xeb43, 'color': 0xFFFF6B6B}, // Coral
+    {'title': 'Meditation', 'icon': 0xe318, 'color': 0xFF00B894}, // Teal
+    {'title': 'Journaling', 'icon': 0xe156, 'color': 0xFFE17055}, // Orange
     {'title': 'Early Sleep', 'icon': 0xf06b, 'color': 0xFF2C3E50}, // Midnight
   ];
 
   void _nextPage() {
-    _pageController.nextPage(duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
+    _pageController.nextPage(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+    );
   }
 
   Future<void> _finishOnboarding() async {
@@ -50,17 +56,24 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           targetDays: [],
           createdAt: DateTime.now(),
         );
-        ref.read(habitNotifierProvider.notifier).addHabit(habit, DateTime.now());
+        ref
+            .read(habitNotifierProvider.notifier)
+            .addHabit(habit, DateTime.now());
       }
     }
-    
+
     // 2. Save Name & Complete Flag
     await ref.read(userProvider.notifier).setName(_nameController.text.trim());
     await ref.read(userProvider.notifier).completeOnboarding();
 
+    newName = _nameController.text.trim().isEmpty ? "Guest" : _nameController.text.trim();
+      ref.read(userProvider.notifier).setName(newName);
+
     // 3. Go Home
     if (!mounted) return;
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const HomePage()));
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => const HomePage()));
   }
 
   @override
@@ -80,11 +93,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
-            
+
             Expanded(
               child: PageView(
                 controller: _pageController,
-                physics: const NeverScrollableScrollPhysics(), // Disable swipe to force buttons
+                physics:
+                    const NeverScrollableScrollPhysics(), // Disable swipe to force buttons
                 onPageChanged: (idx) => setState(() => _currentPage = idx),
                 children: [
                   _buildNameStep(),
@@ -107,9 +121,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Let's get started", style: TextStyle(color: AppColors.textSecondary)),
+          Text(
+            "Let's get started",
+            style: TextStyle(color: AppColors.textSecondary),
+          ),
           const SizedBox(height: 8),
-          Text("What should we\ncall you?", style: Theme.of(context).textTheme.displayMedium),
+          Text(
+            "What should we\ncall you?",
+            style: Theme.of(context).textTheme.displayMedium,
+          ),
           const SizedBox(height: 32),
           TextField(
             controller: _nameController,
@@ -117,19 +137,93 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             decoration: InputDecoration(
               hintText: "Your Name",
               hintStyle: TextStyle(color: Colors.grey[300]),
-              border: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.primary)),
-              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.primary, width: 2)),
+              border: UnderlineInputBorder(
+                borderSide: BorderSide(color: AppColors.primary),
+              ),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: AppColors.primary, width: 2),
+              ),
             ),
             onChanged: (val) => setState(() {}), // Rebuild to enable button
           ),
           const Spacer(),
+// Spacing
+
+// --- RESTORE BACKUP BUTTON ---
+TextButton(
+  onPressed: () async {
+    try {
+      // 1. Open the file picker
+      final importedHabits = await ImportService.importHabitsFromCSV();
+      
+      if (!context.mounted) return;
+
+      if (importedHabits == null) {
+        return; // User canceled the picker
+      }
+      
+      if (importedHabits.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("The selected file is empty or invalid."), 
+            backgroundColor: Colors.orange
+          )
+        );
+        return;
+      }
+
+      // 2. Show loading state
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Restoring your habits..."))
+      );
+
+      // 3. Save the imported habits to Hive
+      await ref.read(habitNotifierProvider.notifier).importHabits(importedHabits);
+
+      if (!context.mounted) return;
+      newName = _nameController.text.trim().isEmpty ? "Guest" : _nameController.text.trim();
+      ref.read(userProvider.notifier).setName(newName);
+
+      // 5. Navigate directly to the Home Page, skipping the rest of the wizard
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()), // Replace with your actual Home widget
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Welcome back! Restored ${importedHabits.length} habits."),
+          backgroundColor: Colors.green,
+        )
+      );
+      
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error restoring backup: $e"), backgroundColor: Colors.red)
+        );
+      }
+    }
+  },
+  child: Text(
+    "Already have a backup? Restore here",
+    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+      color: Theme.of(context).colorScheme.primary,
+      decoration: TextDecoration.underline,
+      fontWeight: FontWeight.w600,
+    ),
+  ),
+),
+              
+            
+          SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: _nameController.text.isNotEmpty ? _nextPage : null,
               child: const Text("Next Step"),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -142,13 +236,22 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Kickstart your journey", style: TextStyle(color: AppColors.textSecondary)),
+          Text(
+            "Kickstart your journey",
+            style: TextStyle(color: AppColors.textSecondary),
+          ),
           const SizedBox(height: 8),
-          Text("Pick some habits", style: Theme.of(context).textTheme.displayMedium),
+          Text(
+            "Pick some habits",
+            style: Theme.of(context).textTheme.displayMedium,
+          ),
           const SizedBox(height: 8),
-          Text("You can edit these later", style: TextStyle(color: Colors.grey[500], fontSize: 14)),
+          Text(
+            "You can edit these later",
+            style: TextStyle(color: Colors.grey[500], fontSize: 14),
+          ),
           const SizedBox(height: 32),
-          
+
           Expanded(
             child: GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -164,8 +267,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 return GestureDetector(
                   onTap: () {
                     setState(() {
-                      if (isSelected) _selectedHabits.remove(habit['title']);
-                      else _selectedHabits.add(habit['title']);
+                      if (isSelected) {
+                        _selectedHabits.remove(habit['title']);
+                      } else {
+                        _selectedHabits.add(habit['title']);
+                      }
                     });
                   },
                   child: AnimatedContainer(
@@ -174,24 +280,40 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       color: isSelected ? AppColors.primary : AppColors.surface,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: isSelected ? Colors.transparent : Colors.grey[200]!,
+                        color: isSelected
+                            ? Colors.transparent
+                            : Colors.grey[200]!,
                       ),
-                      boxShadow: isSelected 
-                          ? [BoxShadow(color: AppColors.primary.withOpacity(0.4), blurRadius: 10, offset: const Offset(0, 4))] 
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: AppColors.primary.withOpacity(0.4),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ]
                           : [],
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(IconData(habit['icon'], fontFamily: 'MaterialIcons'), 
-                             size: 32, 
-                             color: isSelected ? Colors.white : Color(habit['color'])),
+                        Icon(
+                          IconData(habit['icon'], fontFamily: 'MaterialIcons'),
+                          size: 32,
+                          color: isSelected
+                              ? Colors.white
+                              : Color(habit['color']),
+                        ),
                         const SizedBox(height: 12),
-                        Text(habit['title'], 
-                             style: TextStyle(
-                               fontWeight: FontWeight.bold, 
-                               color: isSelected ? Colors.white : AppColors.textPrimary
-                             )),
+                        Text(
+                          habit['title'],
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: isSelected
+                                ? Colors.white
+                                : AppColors.textPrimary,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -199,14 +321,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               },
             ),
           ),
-          
+
           Row(
             children: [
               TextButton(onPressed: _nextPage, child: const Text("Skip")),
               const Spacer(),
-              ElevatedButton(onPressed: _nextPage, child: const Text("Next Step")),
+              ElevatedButton(
+                onPressed: _nextPage,
+                child: const Text("Next Step"),
+              ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -219,35 +344,45 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-           Icon(Icons.lock_outline_rounded, size: 80, color: AppColors.primary),
-           const SizedBox(height: 24),
-           Text("Protect your privacy", style: Theme.of(context).textTheme.displayMedium, textAlign: TextAlign.center),
-           const SizedBox(height: 12),
-           Text("Secure your journal with a PIN or Biometrics.", 
-             textAlign: TextAlign.center, 
-             style: TextStyle(color: AppColors.textSecondary)
-           ),
-           const SizedBox(height: 48),
+          Icon(Icons.lock_outline_rounded, size: 80, color: AppColors.primary),
+          const SizedBox(height: 24),
+          Text(
+            "Protect your privacy",
+            style: Theme.of(context).textTheme.displayMedium,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            "Secure your journal with a PIN or Biometrics.",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 48),
 
-           // Setup Button
-           SizedBox(
-             width: double.infinity,
-             child: ElevatedButton(
-               onPressed: () {
-                 // Push Privacy Page, then finish on return
-                 Navigator.push(context, MaterialPageRoute(builder: (_) => const PrivacyLockPage()))
-                     .then((_) => _finishOnboarding());
-               },
-               child: const Text("Set up Security"),
-             ),
-           ),
-           const SizedBox(height: 16),
-           
-           // Skip Button
-           TextButton(
-             onPressed: _finishOnboarding, 
-             child: Text("Skip for now", style: TextStyle(color: AppColors.textSecondary))
-           ),
+          // Setup Button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                // Push Privacy Page, then finish on return
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const PrivacyLockPage()),
+                ).then((_) => _finishOnboarding());
+              },
+              child: const Text("Set up Security"),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Skip Button
+          TextButton(
+            onPressed: _finishOnboarding,
+            child: Text(
+              "Skip for now",
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
+          ),
         ],
       ),
     );
