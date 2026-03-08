@@ -15,7 +15,11 @@ class ExportService {
         "Current Streak",
         "Total Completions",
         "Created Date",
-        "All Completed Dates"
+        "All Completed Dates" 
+        "sys_id", 
+        "sys_icon", 
+        "sys_color", 
+        "sys_targetDays",
       ]);
 
       // 2. Map the habit data into rows
@@ -24,6 +28,8 @@ class ExportService {
             .map((date) => DateFormat('yyyy-MM-dd').format(date))
             .join(' | ');
 
+        String targets = habit.targetDays.join('|');
+
         rows.add([
           habit.title,
           habit.frequency.name.toUpperCase(),
@@ -31,6 +37,10 @@ class ExportService {
           habit.completedDates.length,
           DateFormat('yyyy-MM-dd').format(habit.createdAt ?? DateTime.now()),
           completionHistory, 
+          habit.id,
+          habit.iconCode,
+          habit.colorValue,
+          
         ]);
       }
 

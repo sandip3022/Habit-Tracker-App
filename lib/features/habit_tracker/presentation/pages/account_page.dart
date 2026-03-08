@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker_app_2026/core/export_service.dart';
+import 'package:habit_tracker_app_2026/core/import_service.dart';
 import 'package:habit_tracker_app_2026/core/services.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/privacy_lock_page.dart';
 import 'package:habit_tracker_app_2026/main.dart';
@@ -173,8 +174,55 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                 }
               },
             ),
-              
-            
+               const SizedBox(height: 16),
+              _buildSettingsCard(
+              context,
+              title: "Restore from Backup",
+              icon: Icons.upload_file_outlined,
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+              onTap: () async {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Select your backup file..."))
+                );
+
+                try {
+                  // 1. Open file picker and parse CSV
+                  final importedHabits = await ImportService.importHabitsFromCSV();
+                  
+                  if (!context.mounted) return;
+
+                  if (importedHabits == null) {
+                    // User canceled the file picker
+                    return; 
+                  }
+                  
+                  if (importedHabits.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("The selected file is empty or invalid.", style: TextStyle(color: Colors.white)), backgroundColor: Colors.orange)
+                    );
+                    return;
+                  }
+
+                  // 2. Push data to database
+                  await ref.read(habitNotifierProvider.notifier).importHabits(importedHabits);
+
+                  // 3. Success Feedback
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Successfully restored ${importedHabits.length} habits!"),
+                      backgroundColor: Colors.green,
+                    )
+                  );
+                  
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(e.toString()), backgroundColor: Colors.red)
+                    );
+                  }
+                }
+              },
+            ),            
 
             const SizedBox(height: 40),
 

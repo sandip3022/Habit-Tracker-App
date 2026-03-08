@@ -58,6 +58,16 @@ class HabitNotifier extends StateNotifier<HabitState> {
     loadHabits(currentDate);
   }
 
+  Future<void> importHabits(List<HabitEntity> importedHabits) async {
+    for (var habit in importedHabits) {
+      // Add each imported habit to the local Hive database
+      await _createUseCase.call(habit); 
+    }
+    
+    // Refresh the UI to show the newly imported data
+    await loadHabits(DateTime.now());
+  }
+
   /// 1. RESET: Keeps habits, but clears all completion history
   Future<void> resetAllProgress() async {
     final currentHabits = state.habits;

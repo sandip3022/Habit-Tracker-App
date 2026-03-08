@@ -50,6 +50,7 @@ dependencies:
   path_provider: ^2.1.2
   share_plus: ^7.2.2
   file_saver: ^0.2.12
+  file_picker: ^8.0.0
 
 dev_dependencies:
   flutter_test:
