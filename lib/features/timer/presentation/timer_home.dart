@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:habit_tracker_app_2026/features/common/utils.dart';
 import 'package:habit_tracker_app_2026/features/timer/presentation/clock_tab.dart';
+import 'package:habit_tracker_app_2026/features/timer/presentation/focus_timer_page.dart';
 
 class TimerHome extends StatefulWidget {
   const TimerHome({super.key});
@@ -12,10 +12,10 @@ class TimerHome extends StatefulWidget {
 class _TimerHomeState extends State<TimerHome> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _pages = <Widget>[
+  static  final List<Widget> _pages = <Widget>[
     ClockTab(),
     // TimerTab(),
-    ComingSoonPage(),
+    FocusTimerPage(),
     Center(child: Text('Stopwatch', style: TextStyle(fontSize: 32))),
   ];
 

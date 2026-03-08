@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:habit_tracker_app_2026/core/export_service.dart';
 import 'package:habit_tracker_app_2026/core/services.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/privacy_lock_page.dart';
 import 'package:habit_tracker_app_2026/main.dart';
@@ -14,7 +15,7 @@ class AccountPage extends ConsumerStatefulWidget {
 }
 
 class _AccountPageState extends ConsumerState<AccountPage> {
-  final String _userName = "Manoj Rav"; 
+  final String _userName = "Manoj Rav";
   bool _isNotificationOn = true;
   TimeOfDay? _reminderTime;
 
@@ -36,7 +37,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
     // 1. WATCH THE THEME PROVIDER
     final currentTheme = ref.watch(themeProvider);
     final isDarkMode = currentTheme == ThemeMode.dark;
-    
+
     // Access dynamic theme colors
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
@@ -44,7 +45,10 @@ class _AccountPageState extends ConsumerState<AccountPage> {
     return Scaffold(
       // REMOVED: backgroundColor: AppColors.background (Let Theme handle it)
       appBar: AppBar(
-        title: Text("Account", style: textTheme.displayMedium?.copyWith(fontSize: 24)),
+        title: Text(
+          "Account",
+          style: textTheme.displayMedium?.copyWith(fontSize: 24),
+        ),
         // REMOVED: backgroundColor: AppColors.background
         centerTitle: true,
         elevation: 0,
@@ -55,7 +59,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
           children: [
             // --- 1. PROFILE SECTION ---
             _buildProfileSection(textTheme, colorScheme),
-            
+
             const SizedBox(height: 40),
 
             // --- 2. SETTINGS LIST ---
@@ -71,8 +75,8 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                     Text(
                       _reminderTime!.format(context),
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary, 
-                        fontWeight: FontWeight.bold
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   Switch(
@@ -83,7 +87,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 16),
 
             // DARK MODE SWITCH
@@ -106,21 +110,83 @@ class _AccountPageState extends ConsumerState<AccountPage> {
               context,
               title: "Privacy Lock",
               icon: Icons.lock_outline,
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+              trailing: const Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: Colors.grey,
+              ),
               onTap: () {
                 // Navigate to Privacy Lock Page
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const PrivacyLockPage()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const PrivacyLockPage()),
+                );
               },
             ),
+            const SizedBox(height: 16),
+            _buildSettingsCard(
+              context,
+              title: "Export to CSV",
+              icon: Icons.download_outlined,
+              trailing: const Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: Colors.grey,
+              ),
+              onTap: () async {
+                // 1. Get the current list of habits from the provider
+                final currentHabits = ref.read(habitNotifierProvider).habits;
+
+                if (currentHabits.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("No habits to export yet!")),
+                  );
+                  return;
+                }
+
+                // 2. Trigger the export
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Preparing your file..."))
+                );
+
+                try {
+                  bool success = await ExportService.exportHabitsToCSV(currentHabits);
+                  
+                  // 👇 3. Show success message if they didn't cancel the dialog
+                  if (success && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Export saved successfully!"),
+                        backgroundColor: Colors.green,
+                      )
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Oops, export failed. Please try again."),
+                        backgroundColor: Colors.red,
+                      )
+                    );
+                  }
+                }
+              },
+            ),
+              
+            
 
             const SizedBox(height: 40),
 
             // --- 3. DANGER ZONE ---
-            Text("DATA MANAGEMENT", 
+            Text(
+              "DATA MANAGEMENT",
               style: textTheme.labelSmall?.copyWith(
-                color: isDarkMode ? Colors.grey : AppColors.textSecondary, // Dynamic Color
-                letterSpacing: 1.2
-              )
+                color: isDarkMode
+                    ? Colors.grey
+                    : AppColors.textSecondary, // Dynamic Color
+                letterSpacing: 1.2,
+              ),
             ),
             const SizedBox(height: 16),
 
@@ -132,12 +198,17 @@ class _AccountPageState extends ConsumerState<AccountPage> {
               onTap: () => _showConfirmationSheet(
                 context: context,
                 title: "Reset all progress?",
-                message: "This will remove all your streaks and completion history.",
+                message:
+                    "This will remove all your streaks and completion history.",
                 confirmLabel: "Reset",
                 onConfirm: () {
                   ref.read(habitNotifierProvider.notifier).resetAllProgress();
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Progress reset successfully")));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Progress reset successfully"),
+                    ),
+                  );
                 },
               ),
             ),
@@ -149,7 +220,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
               title: "Delete Everything",
               subtitle: "Remove all habits & data",
               buttonLabel: "DELETE",
-              isCritical: true, 
+              isCritical: true,
               onTap: () => _showConfirmationSheet(
                 context: context,
                 title: "Delete everything?",
@@ -160,7 +231,9 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                   ref.read(habitNotifierProvider.notifier).deleteAllData();
                   Navigator.pop(context);
                   Navigator.pop(context); // Go back to Home
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("All data deleted")));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("All data deleted")),
+                  );
                 },
               ),
             ),
@@ -182,14 +255,17 @@ class _AccountPageState extends ConsumerState<AccountPage> {
           decoration: BoxDecoration(
             color: AppColors.secondary.withValues(alpha: 0.1),
             shape: BoxShape.circle,
-            border: Border.all(color: AppColors.secondary.withValues(alpha: 0.3), width: 2),
+            border: Border.all(
+              color: AppColors.secondary.withValues(alpha: 0.3),
+              width: 2,
+            ),
           ),
           alignment: Alignment.center,
           child: Text(
             _getInitials(_userName),
             style: textTheme.displayMedium?.copyWith(
-              color: AppColors.secondary, 
-              fontSize: 32
+              color: AppColors.secondary,
+              fontSize: 32,
             ),
           ),
         ),
@@ -197,7 +273,10 @@ class _AccountPageState extends ConsumerState<AccountPage> {
         Text(
           _userName,
           // Use 'onSurface' so it is Black in Light Mode, White in Dark Mode
-          style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurface),
+          style: textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: colorScheme.onSurface,
+          ),
         ),
         const SizedBox(height: 4),
         Text(
@@ -208,20 +287,28 @@ class _AccountPageState extends ConsumerState<AccountPage> {
     );
   }
 
-  Widget _buildSettingsCard(BuildContext context, {
-    required String title, 
-    required IconData icon, 
-    Widget? trailing, 
-    VoidCallback? onTap
+  Widget _buildSettingsCard(
+    BuildContext context, {
+    required String title,
+    required IconData icon,
+    Widget? trailing,
+    VoidCallback? onTap,
   }) {
     // Access Theme Colors
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Container(
       decoration: BoxDecoration(
-        color: colorScheme.surface, // <--- Dynamic Surface Color (White vs Slate)
+        color:
+            colorScheme.surface, // <--- Dynamic Surface Color (White vs Slate)
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: ListTile(
         onTap: onTap,
@@ -233,13 +320,20 @@ class _AccountPageState extends ConsumerState<AccountPage> {
           ),
           child: Icon(icon, color: AppColors.primary),
         ),
-        title: Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: colorScheme.onSurface)), // Dynamic Text
+        title: Text(
+          title,
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
+          ),
+        ), // Dynamic Text
         trailing: trailing,
       ),
     );
   }
 
-  Widget _buildDestructiveCard(BuildContext context, {
+  Widget _buildDestructiveCard(
+    BuildContext context, {
     required String title,
     required String subtitle,
     required String buttonLabel,
@@ -261,21 +355,38 @@ class _AccountPageState extends ConsumerState<AccountPage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurface, fontSize: 16)),
+              Text(
+                title,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
+                  fontSize: 16,
+                ),
+              ),
               const SizedBox(height: 4),
-              Text(subtitle, style: TextStyle(color: Colors.grey, fontSize: 12)),
+              Text(
+                subtitle,
+                style: TextStyle(color: Colors.grey, fontSize: 12),
+              ),
             ],
           ),
           TextButton(
             onPressed: onTap,
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
-              backgroundColor: isCritical ? Colors.red.withValues(alpha: 0.1) : Colors.transparent,
+              backgroundColor: isCritical
+                  ? Colors.red.withValues(alpha: 0.1)
+                  : Colors.transparent,
               side: isCritical ? null : const BorderSide(color: Colors.red),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
-            child: Text(buttonLabel, style: const TextStyle(fontWeight: FontWeight.bold)),
-          )
+            child: Text(
+              buttonLabel,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
         ],
       ),
     );
@@ -314,30 +425,66 @@ class _AccountPageState extends ConsumerState<AccountPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-             // ... content using Theme.of(context).textTheme ...
-             Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
-             // ...
-             // (Copy rest of logic from previous step, ensuring colors are dynamic)
-             // Shortened for brevity:
-             const SizedBox(height: 32),
-             Row(
-               children: [
-                 Expanded(child: OutlinedButton(onPressed: ()=>Navigator.pop(context), child: const Text("Cancel"))),
-                 const SizedBox(width: 16),
-                 Expanded(child: ElevatedButton(
-                   onPressed: onConfirm, 
-                   style: ElevatedButton.styleFrom(backgroundColor: isCritical? Colors.red : AppColors.primary),
-                   child: Text(confirmLabel, style: const TextStyle(color: Colors.white))
-                 )),
-               ],
-             )
+            // ... content using Theme.of(context).textTheme ...
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            Icon(
+              Icons.warning_amber_rounded,
+              size: 48,
+              color: isCritical ? Colors.red : Colors.orange,
+            ),
+            const SizedBox(height: 16),
+
+            Text(
+              title,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 32),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text("Cancel"),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: onConfirm,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isCritical
+                          ? Colors.red
+                          : AppColors.primary,
+                    ),
+                    child: Text(
+                      confirmLabel,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
 
-Future<void> _toggleNotifications(bool value) async {
+  Future<void> _toggleNotifications(bool value) async {
     final service = NotificationService();
 
     if (value) {
@@ -345,7 +492,9 @@ Future<void> _toggleNotifications(bool value) async {
       final bool granted = await service.requestPermissions();
       if (!granted) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Permission denied")));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Permission denied")));
         return;
       }
 
@@ -358,9 +507,13 @@ Future<void> _toggleNotifications(bool value) async {
           // Make TimePicker match Dark/Light theme
           final isDark = Theme.of(context).brightness == Brightness.dark;
           return Theme(
-            data: isDark ? ThemeData.dark() : ThemeData.light().copyWith(
-              colorScheme: const ColorScheme.light(primary: AppColors.primary),
-            ),
+            data: isDark
+                ? ThemeData.dark()
+                : ThemeData.light().copyWith(
+                    colorScheme: const ColorScheme.light(
+                      primary: AppColors.primary,
+                    ),
+                  ),
             child: child!,
           );
         },
@@ -373,7 +526,7 @@ Future<void> _toggleNotifications(bool value) async {
           _reminderTime = picked;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Reminder set for ${picked.format(context)}"))
+          SnackBar(content: Text("Reminder set for ${picked.format(context)}")),
         );
       }
     } else {
@@ -383,9 +536,9 @@ Future<void> _toggleNotifications(bool value) async {
         _isNotificationOn = false;
         _reminderTime = null;
       });
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Reminders turned off")));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Reminders turned off")));
     }
   }
-
-
 }
