@@ -122,7 +122,7 @@ class _JournalPageState extends ConsumerState<JournalPage> {
                                   .read(habitNotifierProvider.notifier)
                                   .toggle(habit, selectedDate);
                             },
-                            onTapBody: () {
+                            onLongPressBody: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(

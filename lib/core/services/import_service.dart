@@ -87,7 +87,6 @@ class ImportService {
       return importedHabits;
       
     } catch (e) {
-      print("Import Error: $e");
       throw Exception("Failed to parse CSV file. Ensure it is a valid Growbit backup.");
     }
   }

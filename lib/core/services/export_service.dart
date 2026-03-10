@@ -63,7 +63,6 @@ class ExportService {
       return resultPath != null;
       
     } catch (e) {
-      print("Export Error: $e");
       throw Exception("Failed to export data");
     }
   }

@@ -278,7 +278,6 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                 isCritical: true,
                 onConfirm: () {
                   ref.read(habitNotifierProvider.notifier).deleteAllData();
-                  Navigator.pop(context);
                   Navigator.pop(context); // Go back to Home
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("All data deleted")),
