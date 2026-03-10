@@ -6,7 +6,7 @@ class HabitTile extends StatelessWidget {
   final HabitEntity habit;
   final bool isCompletedToday;
   final VoidCallback onToggle;
-  final VoidCallback onTapBody;
+  final VoidCallback onLongPressBody;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
@@ -15,7 +15,7 @@ class HabitTile extends StatelessWidget {
     required this.habit,
     required this.isCompletedToday,
     required this.onToggle,
-    required this.onTapBody,
+    required this.onLongPressBody,
     required this.onEdit,
     required this.onDelete,
   });
@@ -48,7 +48,7 @@ class HabitTile extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: onTapBody,
+          onLongPress: onLongPressBody,
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(

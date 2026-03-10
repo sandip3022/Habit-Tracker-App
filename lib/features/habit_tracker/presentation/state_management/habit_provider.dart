@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:habit_tracker_app_2026/features/habit_tracker/data/models/habit_model.dart';
 import 'package:hive/hive.dart';
 import '../../domain/entities/habit_entity.dart';
 import '../../domain/usecases/get_habits_for_date.dart';
@@ -61,9 +62,9 @@ class HabitNotifier extends StateNotifier<HabitState> {
   Future<void> importHabits(List<HabitEntity> importedHabits) async {
     for (var habit in importedHabits) {
       // Add each imported habit to the local Hive database
-      await _createUseCase.call(habit); 
+      await _createUseCase.call(habit);
     }
-    
+
     // Refresh the UI to show the newly imported data
     await loadHabits(DateTime.now());
   }
@@ -92,11 +93,11 @@ class HabitNotifier extends StateNotifier<HabitState> {
 
   /// 2. DELETE ALL: Wipes everything
   Future<void> deleteAllData() async {
-    final currentHabits = state.habits;
-    for (var habit in currentHabits) {
-      await _deleteUseCase.call(habit);
-    }
-    // Clear state
+    // 1. Safely empty the database boxes instantly (much safer than looping)
+    await Hive.box<HabitModel>('habits').clear();
+    await Hive.box('settings').clear();
+
+    // 2. Reset the local state to an empty list
     state = HabitState([]);
   }
 
@@ -124,7 +125,9 @@ class HabitNotifier extends StateNotifier<HabitState> {
   /// UPDATE YOUR EXISTING LOAD METHOD to sort by the saved order
   Future<void> loadHabits(DateTime selectedDate) async {
     // 1. Fetch habits from your UseCase/Hive as usual
-    List<HabitEntity> fetchedHabits = await _getHabitsUseCase.call( selectedDate);
+    List<HabitEntity> fetchedHabits = await _getHabitsUseCase.call(
+      selectedDate,
+    );
 
     // 2. Retrieve custom order from Settings
     final settingsBox = Hive.box('settings');

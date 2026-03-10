@@ -54,7 +54,7 @@ class _JournalPageState extends ConsumerState<JournalPage> {
     final userName = ref.watch(userProvider);
     return Scaffold(
       appBar: HomeAppBar(
-        userName: userName.toString(),
+        userName: userName.name,
         onTimerTap: () {
           Navigator.push(
             context,
@@ -122,7 +122,7 @@ class _JournalPageState extends ConsumerState<JournalPage> {
                                   .read(habitNotifierProvider.notifier)
                                   .toggle(habit, selectedDate);
                             },
-                            onTapBody: () {
+                            onLongPressBody: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
