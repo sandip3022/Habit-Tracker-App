@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker_app_2026/core/services/import_service.dart';
+import 'package:habit_tracker_app_2026/core/utils/validators.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/domain/entities/habit_entity.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/home_page.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/privacy_lock_page.dart';
@@ -133,6 +134,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           const SizedBox(height: 32),
           TextField(
             controller: _nameController,
+            inputFormatters: [...Validators.nameInputFormatters],
             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             decoration: InputDecoration(
               hintText: "Your Name",
@@ -143,6 +145,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               focusedBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: AppColors.primary, width: 2),
               ),
+              
             ),
             onChanged: (val) => setState(() {}), // Rebuild to enable button
           ),
