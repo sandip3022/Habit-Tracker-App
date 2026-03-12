@@ -28,9 +28,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   // Pre-defined habits for Step 2
   final List<Map<String, dynamic>> _starterHabits = [
-    {'title': 'Drink Water', 'icon': 0xe0b0, 'color': 0xFF0984E3}, // Blue
+    {'title': 'Excercise', 'icon': 0xe0b0, 'color': 0xFF0984E3}, // Blue
     {'title': 'Read Books', 'icon': 0xe198, 'color': 0xFF6C5CE7}, // Purple
-    {'title': 'Exercise', 'icon': 0xeb43, 'color': 0xFFFF6B6B}, // Coral
+    {'title': 'Healthy Eating', 'icon': 0xeb43, 'color': 0xFFFF6B6B}, // Coral
     {'title': 'Meditation', 'icon': 0xe318, 'color': 0xFF00B894}, // Teal
     {'title': 'Journaling', 'icon': 0xe156, 'color': 0xFFE17055}, // Orange
     {'title': 'Early Sleep', 'icon': 0xf06b, 'color': 0xFF2C3E50}, // Midnight
