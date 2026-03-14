@@ -1,6 +1,7 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../domain/entities/habit_entity.dart';
-import '../../../../core/theme/app_colors.dart'; 
+import '../../../../core/theme/app_colors.dart';
 
 class HabitTile extends StatelessWidget {
   final HabitEntity habit;
@@ -71,40 +72,47 @@ class HabitTile extends StatelessWidget {
                         style: textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.w600,
                           fontSize: 18,
-                          decoration: isCompletedToday ? TextDecoration.lineThrough : null,
+                          decoration: isCompletedToday
+                              ? TextDecoration.lineThrough
+                              : null,
                           // Dynamic Text Color (Black vs White)
-                          color: isCompletedToday 
-                              ? colorScheme.onSurface.withValues(alpha: 0.5) 
+                          color: isCompletedToday
+                              ? colorScheme.onSurface.withValues(alpha: 0.5)
                               : colorScheme.onSurface,
                         ),
                       ),
-                      
+
                       const SizedBox(height: 6),
-                      
+
                       // Streak Badge
                       if (habit.currentStreak > 0)
                         Row(
                           children: [
-                             Icon(Icons.local_fire_department_rounded, 
-                                 size: 14, color: AppColors.secondary),
-                             const SizedBox(width: 4),
-                             Text(
-                               "${habit.currentStreak} Day Streak",
-                               style: textTheme.labelSmall?.copyWith(
-                                 color: AppColors.secondary,
-                                 fontWeight: FontWeight.bold,
-                                 letterSpacing: 0.5,
-                               ),
-                             ),
+                            Icon(
+                              Icons.local_fire_department_rounded,
+                              size: 14,
+                              color: AppColors.secondary,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              "habit_streak".tr(
+                                args: [habit.currentStreak.toString()],
+                              ),
+                              style: textTheme.labelSmall?.copyWith(
+                                color: AppColors.secondary,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
                           ],
                         )
                       else
                         Text(
-                          "Start your journey today",
+                          "start_your_journey_today".tr(),
                           // Dynamic Subtitle Color
                           style: textTheme.bodySmall?.copyWith(
-                             fontSize: 12, 
-                             color: colorScheme.onSurface.withValues(alpha: 0.6)
+                            fontSize: 12,
+                            color: colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
                         ),
                     ],
@@ -140,7 +148,7 @@ class HabitTile extends StatelessWidget {
       ),
       child: Icon(
         IconData(habit.iconCode, fontFamily: 'MaterialIcons'),
-        color: color, 
+        color: color,
         size: 26,
       ),
     );
@@ -169,7 +177,10 @@ class HabitTile extends StatelessWidget {
 
   Widget _buildOptionsMenu(BuildContext context, ColorScheme colorScheme) {
     return PopupMenuButton<String>(
-      icon: Icon(Icons.more_vert, color: colorScheme.onSurface.withValues(alpha: 0.5)),
+      icon: Icon(
+        Icons.more_vert,
+        color: colorScheme.onSurface.withValues(alpha: 0.5),
+      ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       color: colorScheme.surface, // Dynamic Menu Background
       elevation: 4,
@@ -184,7 +195,7 @@ class HabitTile extends StatelessWidget {
             children: [
               Icon(Icons.edit_outlined, size: 20, color: colorScheme.onSurface),
               const SizedBox(width: 12),
-              Text('Edit', style: TextStyle(color: colorScheme.onSurface)),
+              Text('edit'.tr(), style: TextStyle(color: colorScheme.onSurface)),
             ],
           ),
         ),
@@ -193,9 +204,13 @@ class HabitTile extends StatelessWidget {
           value: 'delete',
           child: Row(
             children: [
-              const Icon(Icons.delete_outline, size: 20, color: AppColors.error),
+              const Icon(
+                Icons.delete_outline,
+                size: 20,
+                color: AppColors.error,
+              ),
               const SizedBox(width: 12),
-              const Text('Delete', style: TextStyle(color: AppColors.error)),
+              Text('delete'.tr(), style: TextStyle(color: AppColors.error)),
             ],
           ),
         ),

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,9 +22,6 @@ class JournalPage extends ConsumerStatefulWidget {
 }
 
 class _JournalPageState extends ConsumerState<JournalPage> {
-
-  
-
   @override
   void initState() {
     super.initState();
@@ -196,12 +194,12 @@ class _JournalPageState extends ConsumerState<JournalPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Delete Habit?"),
-        content: Text("Delete '$title'?"),
+        title: const Text("delete_habit").tr(),
+        content: Text("delete_habit_confirmation".tr(args: [title])),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
+            child: const Text("cancel").tr(),
           ),
           TextButton(
             onPressed: () {
@@ -209,7 +207,7 @@ class _JournalPageState extends ConsumerState<JournalPage> {
               ref.read(habitNotifierProvider.notifier).deleteHabit(habit, date);
               Navigator.pop(context);
             },
-            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            child: const Text("delete").tr(),
           ),
         ],
       ),

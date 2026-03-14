@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/home_page.dart';
@@ -13,7 +14,6 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  
   @override
   void initState() {
     super.initState();
@@ -36,7 +36,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   void _unlock() {
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomePage()));
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const HomePage()),
+    );
   }
 
   @override
@@ -47,11 +50,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (privacyState.isPinEnabled) {
       return PinScreen(
         mode: PinMode.verify,
-        title: "Welcome Back",
+        title: "welcome_back".tr(),
         onSuccess: (_) => _unlock(),
       );
-    } 
-    
+    }
+
     // If Only Biometric is enabled (rare case if PIN is usually fallback)
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -61,11 +64,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           children: [
             Icon(Icons.fingerprint, size: 80, color: AppColors.primary),
             const SizedBox(height: 24),
-            Text("Locked", style: Theme.of(context).textTheme.displayMedium),
+            Text(
+              "locked".tr(),
+              style: Theme.of(context).textTheme.displayMedium,
+            ),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _checkBiometric,
-              child: const Text("Unlock with FaceID / Fingerprint"),
+              child: const Text("unlock_with_faceid_fingerprint").tr(),
             ),
           ],
         ),

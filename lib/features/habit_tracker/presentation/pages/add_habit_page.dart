@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker_app_2026/main.dart';
@@ -114,7 +115,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
     return Scaffold(
       // No fixed background color
       appBar: AppBar(
-        title: Text(widget.habitToEdit != null ? "Edit Habit" : "New Habit"),
+        title: Text(widget.habitToEdit != null ? "edit_habit".tr() : "new_habit".tr()),
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.close, color: colorScheme.onSurface), // Dynamic X icon
@@ -124,7 +125,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
           TextButton(
             onPressed: _saveHabit,
             child: Text(
-              "SAVE",
+              "save_all_cap".tr(),
               style: textTheme.labelLarge?.copyWith(
                 color: AppColors.primary,
                 letterSpacing: 1.0,
@@ -139,7 +140,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // TITLE INPUT
-            Text("WHAT DO YOU WANT TO DO?", 
+            Text("what_do_you_want_to_do".tr(), 
               style: textTheme.labelSmall?.copyWith(color: labelColor, letterSpacing: 1.2)
             ),
             const SizedBox(height: 8),
@@ -153,7 +154,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
                 controller: _titleController,
                 style: textTheme.bodyLarge?.copyWith(fontSize: 18, color: colorScheme.onSurface),
                 decoration: InputDecoration(
-                  hintText: "e.g. Read 10 pages",
+                  hintText: "example_habit".tr(),
                   hintStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.5)),
                   border: InputBorder.none,
                   icon: Icon(Icons.edit_outlined, color: AppColors.primary.withValues(alpha: 0.7)),
@@ -164,7 +165,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
             const SizedBox(height: 32),
 
             // FREQUENCY
-            Text("FREQUENCY", 
+            Text("frequency_all_cap", 
                style: textTheme.labelSmall?.copyWith(color: labelColor, letterSpacing: 1.2)
             ),
             const SizedBox(height: 12),
@@ -178,7 +179,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
             const SizedBox(height: 32),
 
             // APPEARANCE
-            Text("APPEARANCE", 
+            Text("appearance_all_cap".tr(), 
                style: textTheme.labelSmall?.copyWith(color: labelColor, letterSpacing: 1.2)
             ),
             const SizedBox(height: 12),
@@ -276,8 +277,8 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
       ),
       child: Row(
         children: [
-          _buildToggleOption("Every Day", HabitFrequency.daily, colorScheme),
-          _buildToggleOption("Specific Days", HabitFrequency.specificDays, colorScheme),
+          _buildToggleOption("every_day".tr(), HabitFrequency.daily, colorScheme),
+          _buildToggleOption("specific_days".tr(), HabitFrequency.specificDays, colorScheme),
         ],
       ),
     );
@@ -310,7 +311,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
   }
 
   Widget _buildDaySelector(ColorScheme colorScheme) {
-    final days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    final days = ["Mon".tr(), "Tue".tr(), "Wed".tr(), "Thu".tr(), "Fri".tr(), "Sat".tr(), "Sun".tr()];
     return Wrap(
       spacing: 8,
       runSpacing: 8,

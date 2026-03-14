@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker_app_2026/core/services/export_service.dart';
@@ -38,7 +39,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
     // 1. WATCH THE THEME PROVIDER
     final currentTheme = ref.watch(themeProvider);
     final isDarkMode = currentTheme == ThemeMode.dark;
-    final String _userName = ref.watch( userProvider);
+    final String _userName = ref.watch(userProvider);
 
     // Access dynamic theme colors
     final colorScheme = Theme.of(context).colorScheme;
@@ -48,7 +49,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
       // REMOVED: backgroundColor: AppColors.background (Let Theme handle it)
       appBar: AppBar(
         title: Text(
-          "Account",
+          "account".tr(),
           style: textTheme.displayMedium?.copyWith(fontSize: 24),
         ),
         // REMOVED: backgroundColor: AppColors.background
@@ -60,14 +61,14 @@ class _AccountPageState extends ConsumerState<AccountPage> {
         child: Column(
           children: [
             // --- 1. PROFILE SECTION ---
-            _buildProfileSection(textTheme, colorScheme,_userName),
+            _buildProfileSection(textTheme, colorScheme, _userName),
 
             const SizedBox(height: 40),
 
             // --- 2. SETTINGS LIST ---
             _buildSettingsCard(
               context,
-              title: "Daily Reminder",
+              title: "daily_reminder".tr(),
               icon: Icons.notifications_outlined,
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -95,7 +96,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
             // DARK MODE SWITCH
             _buildSettingsCard(
               context,
-              title: "Dark Mode",
+              title: "dark_mode".tr(),
               icon: Icons.dark_mode_outlined,
               trailing: Switch(
                 value: isDarkMode,
@@ -110,7 +111,44 @@ class _AccountPageState extends ConsumerState<AccountPage> {
 
             _buildSettingsCard(
               context,
-              title: "Privacy Lock",
+              title: "language"
+                  .tr(), // Make sure to add "language" to your JSON files
+              icon: Icons.language_outlined,
+              trailing: DropdownButtonHideUnderline(
+                child: DropdownButton<Locale>(
+                  // context.locale comes from easy_localization and holds the current language
+                  value: context.locale,
+                  icon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
+                  dropdownColor: colorScheme.surface,
+                  style: TextStyle(
+                    color: colorScheme.onSurface,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  onChanged: (Locale? newLocale) {
+                    if (newLocale != null) {
+                      // This instantly changes the app language and saves the preference!
+                      context.setLocale(newLocale);
+                    }
+                  },
+                  items: const [
+                    DropdownMenuItem(
+                      value: Locale('en'),
+                      child: Text("English"),
+                    ),
+                    DropdownMenuItem(
+                      value: Locale('mr'), // Official locale code for Marathi
+                      child: Text("मराठी"),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            _buildSettingsCard(
+              context,
+              title: "privacy_lock".tr(),
               icon: Icons.lock_outline,
               trailing: const Icon(
                 Icons.arrow_forward_ios,
@@ -148,19 +186,21 @@ class _AccountPageState extends ConsumerState<AccountPage> {
 
                 // 2. Trigger the export
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Preparing your file..."))
+                  const SnackBar(content: Text("Preparing your file...")),
                 );
 
                 try {
-                  bool success = await ExportService.exportHabitsToCSV(currentHabits);
-                  
+                  bool success = await ExportService.exportHabitsToCSV(
+                    currentHabits,
+                  );
+
                   // 👇 3. Show success message if they didn't cancel the dialog
                   if (success && context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text("Export saved successfully!"),
                         backgroundColor: Colors.green,
-                      )
+                      ),
                     );
                   }
                 } catch (e) {
@@ -169,67 +209,86 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                       const SnackBar(
                         content: Text("Oops, export failed. Please try again."),
                         backgroundColor: Colors.red,
-                      )
+                      ),
                     );
                   }
                 }
               },
             ),
-               const SizedBox(height: 16),
-              _buildSettingsCard(
+            const SizedBox(height: 16),
+            _buildSettingsCard(
               context,
-              title: "Restore from Backup",
+              title: "restore_from_backup".tr(),
               icon: Icons.upload_file_outlined,
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+              trailing: const Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: Colors.grey,
+              ),
               onTap: () async {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Select your backup file..."))
+                  SnackBar(content: Text("select_backup_file".tr())),
                 );
 
                 try {
                   // 1. Open file picker and parse CSV
-                  final importedHabits = await ImportService.importHabitsFromCSV();
-                  
+                  final importedHabits =
+                      await ImportService.importHabitsFromCSV();
+
                   if (!context.mounted) return;
 
                   if (importedHabits == null) {
                     // User canceled the file picker
-                    return; 
+                    return;
                   }
-                  
+
                   if (importedHabits.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("The selected file is empty or invalid.", style: TextStyle(color: Colors.white)), backgroundColor: Colors.orange)
+                      SnackBar(
+                        content: Text(
+                          "invalid_backup_file".tr(),
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        backgroundColor: Colors.orange,
+                      ),
                     );
                     return;
                   }
 
                   // 2. Push data to database
-                  await ref.read(habitNotifierProvider.notifier).importHabits(importedHabits);
+                  await ref
+                      .read(habitNotifierProvider.notifier)
+                      .importHabits(importedHabits);
 
                   // 3. Success Feedback
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text("Successfully restored ${importedHabits.length} habits!"),
+                      content: Text(
+                        "successfully_restored_habits".tr(
+                          args: [importedHabits.length.toString()],
+                        ),
+                      ),
                       backgroundColor: Colors.green,
-                    )
+                    ),
                   );
-                  
                 } catch (e) {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(e.toString()), backgroundColor: Colors.red)
+                      SnackBar(
+                        content: Text(e.toString()),
+                        backgroundColor: Colors.red,
+                      ),
                     );
                   }
                 }
               },
-            ),            
+            ),
 
             const SizedBox(height: 40),
 
             // --- 3. DANGER ZONE ---
             Text(
-              "DATA MANAGEMENT",
+              "data_management".tr(),
               style: textTheme.labelSmall?.copyWith(
                 color: isDarkMode
                     ? Colors.grey
@@ -241,22 +300,19 @@ class _AccountPageState extends ConsumerState<AccountPage> {
 
             _buildDestructiveCard(
               context,
-              title: "Reset Progress",
-              subtitle: "Keep habits, clear history",
-              buttonLabel: "RESET",
+              title: "reset_progress".tr(),
+              subtitle: "keep_habits_but_clear_history".tr(),
+              buttonLabel: "resetCap".tr(),
               onTap: () => _showConfirmationSheet(
                 context: context,
-                title: "Reset all progress?",
-                message:
-                    "This will remove all your streaks and completion history.",
-                confirmLabel: "Reset",
+                title: "reset_all_progress".tr(),
+                message: "reset_all_progress_message".tr(),
+                confirmLabel: "reset".tr(),
                 onConfirm: () {
                   ref.read(habitNotifierProvider.notifier).resetAllProgress();
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Progress reset successfully"),
-                    ),
+                    SnackBar(content: Text("progress_reset_successfully".tr())),
                   );
                 },
               ),
@@ -266,21 +322,27 @@ class _AccountPageState extends ConsumerState<AccountPage> {
 
             _buildDestructiveCard(
               context,
-              title: "Delete Everything",
-              subtitle: "Remove all habits & data",
+              title: "delete_everything".tr(),
+              subtitle: "delete_everything_message".tr(),
               buttonLabel: "DELETE",
               isCritical: true,
               onTap: () => _showConfirmationSheet(
                 context: context,
-                title: "Delete everything?",
-                message: "This action cannot be undone.",
-                confirmLabel: "Delete All",
+                title: "delete_everything_question".tr(),
+                message: "this_action_cannot_be_undone".tr(),
+                confirmLabel: "delete_all".tr(),
                 isCritical: true,
                 onConfirm: () {
                   ref.read(habitNotifierProvider.notifier).deleteAllData();
                   Navigator.pop(context); // Go back to Home
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("All data deleted")),
+                    SnackBar(
+                      content: Text(
+                        "All data deleted".tr(),
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      backgroundColor: Colors.red,
+                    ),
                   );
                 },
               ),
@@ -293,7 +355,11 @@ class _AccountPageState extends ConsumerState<AccountPage> {
 
   // --- UPDATED WIDGETS ---
 
-  Widget _buildProfileSection(TextTheme textTheme, ColorScheme colorScheme,String _userName) {
+  Widget _buildProfileSection(
+    TextTheme textTheme,
+    ColorScheme colorScheme,
+    String _userName,
+  ) {
     return Column(
       children: [
         // 1. Circle Avatar with Initials
@@ -574,7 +640,9 @@ class _AccountPageState extends ConsumerState<AccountPage> {
           _reminderTime = picked;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Reminder set for ${picked.format(context)}")),
+          SnackBar(
+            content: Text("reminder_set".tr(args: [picked.format(context)])),
+          ),
         );
       }
     } else {
@@ -584,9 +652,9 @@ class _AccountPageState extends ConsumerState<AccountPage> {
         _isNotificationOn = false;
         _reminderTime = null;
       });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Reminders turned off")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("reminders_turned_off".tr())),
+      ); // Updated text
     }
   }
 }

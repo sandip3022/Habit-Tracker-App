@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker_app_2026/main.dart';
@@ -12,7 +13,7 @@ class ProgressPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final habitState = ref.watch(habitNotifierProvider);
     final stats = ProgressCalculator.calculate(habitState.habits);
-    
+
     // 1. Get Theme Data
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
@@ -22,7 +23,10 @@ class ProgressPage extends ConsumerWidget {
     return Scaffold(
       // No backgroundColor needed (Scaffold uses Theme default)
       appBar: AppBar(
-        title: Text("Progress & Insights", style: textTheme.displayMedium?.copyWith(fontSize: 24)),
+        title: Text(
+          "progress_insights".tr(),
+          style: textTheme.displayMedium?.copyWith(fontSize: 24),
+        ),
         centerTitle: false,
         // No backgroundColor needed
       ),
@@ -34,11 +38,32 @@ class ProgressPage extends ConsumerWidget {
             // ROW 1: 3 BOXES
             Row(
               children: [
-                Expanded(child: _buildSummaryBox(context, "All Habits", "${stats.totalHabits}", Colors.blue)),
+                Expanded(
+                  child: _buildSummaryBox(
+                    context,
+                    "all_habits".tr(),
+                    "${stats.totalHabits}",
+                    Colors.blue,
+                  ),
+                ),
                 const SizedBox(width: 12),
-                Expanded(child: _buildSummaryBox(context, "Active", "${stats.activeCount}", Colors.green)),
+                Expanded(
+                  child: _buildSummaryBox(
+                    context,
+                    "active".tr(),
+                    "${stats.activeCount}",
+                    Colors.green,
+                  ),
+                ),
                 const SizedBox(width: 12),
-                Expanded(child: _buildSummaryBox(context, "Stalled", "${stats.stalledCount}", Colors.orange)),
+                Expanded(
+                  child: _buildSummaryBox(
+                    context,
+                    "stalled".tr(),
+                    "${stats.stalledCount}",
+                    Colors.orange,
+                  ),
+                ),
               ],
             ),
 
@@ -48,10 +73,14 @@ class ProgressPage extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppColors.primary, 
+                color: AppColors.primary,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
-                  BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 5))
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
                 ],
               ),
               child: Row(
@@ -60,16 +89,30 @@ class ProgressPage extends ConsumerWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Completion Rate", 
-                        style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 14)),
+                      Text(
+                        "completion_rate".tr(),
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.8),
+                          fontSize: 14,
+                        ),
+                      ),
                       const SizedBox(height: 4),
-                      Text("Last 30 Days", 
-                        style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12)),
+                      Text(
+                        "last_30_days".tr(),
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.5),
+                          fontSize: 12,
+                        ),
+                      ),
                     ],
                   ),
                   Text(
                     "${(stats.avgCompletionRate * 100).toStringAsFixed(1)}%",
-                    style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ],
               ),
@@ -78,7 +121,13 @@ class ProgressPage extends ConsumerWidget {
             const SizedBox(height: 32),
 
             // ROW 3: BAR CHART
-            Text("Consistency Trend", style: textTheme.labelSmall?.copyWith(color: labelColor, letterSpacing: 1.2)),
+            Text(
+              "consistency_trend".tr(),
+              style: textTheme.labelSmall?.copyWith(
+                color: labelColor,
+                letterSpacing: 1.2,
+              ),
+            ),
             const SizedBox(height: 12),
             ProgressBarChart(data: stats.last30Days),
 
@@ -87,21 +136,50 @@ class ProgressPage extends ConsumerWidget {
             // ROW 4: DAY BREAKDOWN
             Row(
               children: [
-                Expanded(child: _buildSummaryBox(context, "Perfect Days", "${stats.perfectDays}", AppColors.secondary)),
+                Expanded(
+                  child: _buildSummaryBox(
+                    context,
+                    "perfect_days".tr(),
+                    "${stats.perfectDays}",
+                    AppColors.secondary,
+                  ),
+                ),
                 const SizedBox(width: 12),
-                Expanded(child: _buildSummaryBox(context, "Partial Days", "${stats.partialDays}", AppColors.primary)),
+                Expanded(
+                  child: _buildSummaryBox(
+                    context,
+                    "partial_days".tr(),
+                    "${stats.partialDays}",
+                    AppColors.primary,
+                  ),
+                ),
                 const SizedBox(width: 12),
-                Expanded(child: _buildSummaryBox(context, "Missed Days", "${stats.missedDays}", AppColors.error)),
+                Expanded(
+                  child: _buildSummaryBox(
+                    context,
+                    "missed_days".tr(),
+                    "${stats.missedDays}",
+                    AppColors.error,
+                  ),
+                ),
               ],
             ),
 
             const SizedBox(height: 32),
 
             // LEADERBOARD
-            Text("Habit Success Rate", style: textTheme.labelSmall?.copyWith(color: labelColor, letterSpacing: 1.2)),
+            Text(
+              "habit_success_rate".tr(),
+              style: textTheme.labelSmall?.copyWith(
+                color: labelColor,
+                letterSpacing: 1.2,
+              ),
+            ),
             const SizedBox(height: 12),
-            ...stats.leaderboard.map((item) => _buildLeaderboardTile(context, item)),
-            
+            ...stats.leaderboard.map(
+              (item) => _buildLeaderboardTile(context, item),
+            ),
+
             const SizedBox(height: 40),
           ],
         ),
@@ -109,9 +187,14 @@ class ProgressPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildSummaryBox(BuildContext context, String title, String value, Color color) {
+  Widget _buildSummaryBox(
+    BuildContext context,
+    String title,
+    String value,
+    Color color,
+  ) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
@@ -121,9 +204,22 @@ class ProgressPage extends ConsumerWidget {
       ),
       child: Column(
         children: [
-          Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text(title, style: TextStyle(fontSize: 11, color: colorScheme.onSurface.withValues(alpha: 0.6))),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 11,
+              color: colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
+          ),
         ],
       ),
     );
@@ -147,20 +243,31 @@ class ProgressPage extends ConsumerWidget {
               color: Color(item.habit.colorValue).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(IconData(item.habit.iconCode, fontFamily: 'MaterialIcons'), 
-              size: 20, color: Color(item.habit.colorValue)),
+            child: Icon(
+              IconData(item.habit.iconCode, fontFamily: 'MaterialIcons'),
+              size: 20,
+              color: Color(item.habit.colorValue),
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Text(
-              item.habit.title, 
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: colorScheme.onSurface) // Dynamic Text
+              item.habit.title,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+                color: colorScheme.onSurface,
+              ), // Dynamic Text
             ),
           ),
           Text(
             "${(item.rate * 100).toInt()}%",
-            style: TextStyle(fontWeight: FontWeight.bold, 
-              color: item.rate > 0.8 ? Colors.green : (item.rate > 0.5 ? Colors.orange : Colors.red)),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: item.rate > 0.8
+                  ? Colors.green
+                  : (item.rate > 0.5 ? Colors.orange : Colors.red),
+            ),
           ),
         ],
       ),

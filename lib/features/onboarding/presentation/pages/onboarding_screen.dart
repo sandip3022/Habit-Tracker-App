@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker_app_2026/core/services/import_service.dart';
@@ -20,7 +21,7 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final PageController _pageController = PageController();
   final TextEditingController _nameController = TextEditingController();
-  String newName = "Guest"; 
+  String newName = "Guest";
 
   int _currentPage = 0;
   final Set<String> _selectedHabits =
@@ -28,12 +29,20 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   // Pre-defined habits for Step 2
   final List<Map<String, dynamic>> _starterHabits = [
-    {'title': 'Drink Water', 'icon': 0xe0b0, 'color': 0xFF0984E3}, // Blue
-    {'title': 'Read Books', 'icon': 0xe198, 'color': 0xFF6C5CE7}, // Purple
-    {'title': 'Exercise', 'icon': 0xeb43, 'color': 0xFFFF6B6B}, // Coral
-    {'title': 'Meditation', 'icon': 0xe318, 'color': 0xFF00B894}, // Teal
-    {'title': 'Journaling', 'icon': 0xe156, 'color': 0xFFE17055}, // Orange
-    {'title': 'Early Sleep', 'icon': 0xf06b, 'color': 0xFF2C3E50}, // Midnight
+    {'title': "exercise".tr(), 'icon': 0xe0b0, 'color': 0xFF0984E3}, // Blue
+    {'title': "read_books".tr(), 'icon': 0xe198, 'color': 0xFF6C5CE7}, // Purple
+    {
+      'title': "healthy_eating".tr(),
+      'icon': 0xeb43,
+      'color': 0xFFFF6B6B,
+    }, // Coral
+    {'title': "meditation".tr(), 'icon': 0xe318, 'color': 0xFF00B894}, // Teal
+    {'title': "journaling".tr(), 'icon': 0xe156, 'color': 0xFFE17055}, // Orange
+    {
+      'title': "Early_sleep".tr(),
+      'icon': 0xf06b,
+      'color': 0xFF2C3E50,
+    }, // Midnight
   ];
 
   void _nextPage() {
@@ -67,8 +76,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     await ref.read(userProvider.notifier).setName(_nameController.text.trim());
     await ref.read(userProvider.notifier).completeOnboarding();
 
-    newName = _nameController.text.trim().isEmpty ? "Guest" : _nameController.text.trim();
-      ref.read(userProvider.notifier).setName(newName);
+    newName = _nameController.text.trim().isEmpty
+        ? "Guest"
+        : _nameController.text.trim();
+    ref.read(userProvider.notifier).setName(newName);
 
     // 3. Go Home
     if (!mounted) return;
@@ -145,86 +156,102 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               focusedBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: AppColors.primary, width: 2),
               ),
-              
             ),
             onChanged: (val) => setState(() {}), // Rebuild to enable button
           ),
           const Spacer(),
-// Spacing
+          // Spacing
 
-// --- RESTORE BACKUP BUTTON ---
-TextButton(
-  onPressed: () async {
-    try {
-      // 1. Open the file picker
-      final importedHabits = await ImportService.importHabitsFromCSV();
-      
-      if (!context.mounted) return;
+          // --- RESTORE BACKUP BUTTON ---
+          TextButton(
+            onPressed: () async {
+              try {
+                // 1. Open the file picker
+                final importedHabits =
+                    await ImportService.importHabitsFromCSV();
 
-      if (importedHabits == null) {
-        return; // User canceled the picker
-      }
-      
-      if (importedHabits.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("The selected file is empty or invalid."), 
-            backgroundColor: Colors.orange
-          )
-        );
-        return;
-      }
+                if (!context.mounted) return;
 
-      // 2. Show loading state
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Restoring your habits..."))
-      );
+                if (importedHabits == null) {
+                  return; // User canceled the picker
+                }
 
-      // 3. Save the imported habits to Hive
-      await ref.read(habitNotifierProvider.notifier).importHabits(importedHabits);
+                if (importedHabits.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("invalid_backup_file".tr()),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                  return;
+                }
 
-      if (!context.mounted) return;
-      newName = _nameController.text.trim().isEmpty ? "Guest" : _nameController.text.trim();
-      ref.read(userProvider.notifier).setName(newName);
+                // 2. Show loading state
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("restoring_your_habits".tr()),
+                    backgroundColor: AppColors.primary,
+                  ),
+                );
 
-      // 5. Navigate directly to the Home Page, skipping the rest of the wizard
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomePage()), // Replace with your actual Home widget
-      );
+                // 3. Save the imported habits to Hive
+                await ref
+                    .read(habitNotifierProvider.notifier)
+                    .importHabits(importedHabits);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Welcome back! Restored ${importedHabits.length} habits."),
-          backgroundColor: Colors.green,
-        )
-      );
-      
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error restoring backup: $e"), backgroundColor: Colors.red)
-        );
-      }
-    }
-  },
-  child: Text(
-    "Already have a backup? Restore here",
-    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-      color: Theme.of(context).colorScheme.primary,
-      decoration: TextDecoration.underline,
-      fontWeight: FontWeight.w600,
-    ),
-  ),
-),
-              
-            
+                if (!context.mounted) return;
+                newName = _nameController.text.trim().isEmpty
+                    ? "Guest"
+                    : _nameController.text.trim();
+                ref.read(userProvider.notifier).setName(newName);
+
+                // 5. Navigate directly to the Home Page, skipping the rest of the wizard
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const HomePage(),
+                  ), // Replace with your actual Home widget
+                );
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      "welcome_back_restored_habits".tr(
+                        args: [importedHabits.length.toString()],
+                      ),
+                    ),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        "error_restoring_backup".tr(args: [e.toString()]),
+                      ),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            child: Text(
+              "already_have_backup".tr(),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+                decoration: TextDecoration.underline,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+
           SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: _nameController.text.isNotEmpty ? _nextPage : null,
-              child: const Text("Next Step"),
+              child: Text("next_step").tr(),
             ),
           ),
         ],
@@ -240,17 +267,17 @@ TextButton(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Kickstart your journey",
+            "kickstart_your_journey".tr(),
             style: TextStyle(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 8),
           Text(
-            "Pick some habits",
+            "pick_some_habits".tr(),
             style: Theme.of(context).textTheme.displayMedium,
           ),
           const SizedBox(height: 8),
           Text(
-            "You can edit these later",
+            "you_can_edit_later".tr(),
             style: TextStyle(color: Colors.grey[500], fontSize: 14),
           ),
           const SizedBox(height: 32),
@@ -327,11 +354,11 @@ TextButton(
 
           Row(
             children: [
-              TextButton(onPressed: _nextPage, child: const Text("Skip")),
+              TextButton(onPressed: _nextPage, child: Text("skip".tr())),
               const Spacer(),
               ElevatedButton(
                 onPressed: _nextPage,
-                child: const Text("Next Step"),
+                child: Text("next_step".tr()),
               ),
             ],
           ),
@@ -350,13 +377,13 @@ TextButton(
           Icon(Icons.lock_outline_rounded, size: 80, color: AppColors.primary),
           const SizedBox(height: 24),
           Text(
-            "Protect your privacy",
+            "protect_your_privacy".tr(),
             style: Theme.of(context).textTheme.displayMedium,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
           Text(
-            "Secure your journal with a PIN or Biometrics.",
+            "secure_your_journal".tr(),
             textAlign: TextAlign.center,
             style: TextStyle(color: AppColors.textSecondary),
           ),
@@ -373,7 +400,7 @@ TextButton(
                   MaterialPageRoute(builder: (_) => const PrivacyLockPage()),
                 ).then((_) => _finishOnboarding());
               },
-              child: const Text("Set up Security"),
+              child: const Text("set_up_security").tr(),
             ),
           ),
           const SizedBox(height: 16),
@@ -382,7 +409,7 @@ TextButton(
           TextButton(
             onPressed: _finishOnboarding,
             child: Text(
-              "Skip for now",
+              "skip_for_now".tr(),
               style: TextStyle(color: AppColors.textSecondary),
             ),
           ),
