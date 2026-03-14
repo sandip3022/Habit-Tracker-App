@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -23,9 +24,9 @@ class _PinScreenState extends ConsumerState<PinScreen> {
   
   String get _displayTitle {
     if (widget.title != null) return widget.title!;
-    if (widget.mode == PinMode.verify) return "Enter your PIN";
-    if (_isConfirming) return "Confirm your PIN";
-    return "Create a PIN";
+    if (widget.mode == PinMode.verify) return "enter_pin".tr();
+    if (_isConfirming) return "confirm_pin".tr();
+    return "create_pin".tr();
   }
 
   void _onNumberTap(String number) {
@@ -53,7 +54,7 @@ class _PinScreenState extends ConsumerState<PinScreen> {
         if (_enteredPin == _firstPinAttempt) {
            widget.onSuccess?.call(_enteredPin);
         } else {
-          _showError("PINs do not match. Try again.");
+          _showError("pins_do_not_match".tr());
           setState(() {
             _enteredPin = "";
             _firstPinAttempt = "";
@@ -66,7 +67,7 @@ class _PinScreenState extends ConsumerState<PinScreen> {
       if (isValid) {
         widget.onSuccess?.call(_enteredPin);
       } else {
-        _showError("Incorrect PIN");
+        _showError("incorrect_pin".tr());
         setState(() => _enteredPin = "");
       }
     }

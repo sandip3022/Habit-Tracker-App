@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker_app_2026/core/services/notification_service.dart';
@@ -113,7 +114,11 @@ void main() async {
       overrides: [
         habitBoxProvider.overrideWithValue(box),
       ],
-      child:  MyApp(),
+      child:  EasyLocalization(
+        supportedLocales: [Locale('en'), Locale('hi')],
+        path: 'assets/translations/',
+        fallbackLocale: Locale('en'),
+        child: MyApp()),
     ),
   );
 }
@@ -127,6 +132,9 @@ class MyApp extends ConsumerWidget {
     return MaterialApp(
       title: 'Growbit',
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -11,11 +12,13 @@ class ProgressBarChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const double chartHeight = 150.0;
-    
+
     // 1. Get Theme Colors
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final labelColor = colorScheme.onSurface.withValues(alpha: 0.6); // Adaptive Grey
+    final labelColor = colorScheme.onSurface.withValues(
+      alpha: 0.6,
+    ); // Adaptive Grey
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -27,7 +30,7 @@ class ProgressBarChart extends StatelessWidget {
             color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
-          )
+          ),
         ],
       ),
       child: Column(
@@ -40,7 +43,7 @@ class ProgressBarChart extends StatelessWidget {
               RotatedBox(
                 quarterTurns: -1,
                 child: Text(
-                  "Percent of Completion",
+                  "percent_completion".tr(),
                   style: TextStyle(
                     fontSize: 10,
                     color: labelColor, // Dynamic
@@ -56,11 +59,11 @@ class ProgressBarChart extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildYLabel("100", labelColor),
-                    _buildYLabel("75", labelColor),
-                    _buildYLabel("50", labelColor),
-                    _buildYLabel("25", labelColor),
-                    _buildYLabel("0", labelColor),
+                    _buildYLabel("hundred".tr(), labelColor),
+                    _buildYLabel("sevety_five".tr(), labelColor),
+                    _buildYLabel("fifty".tr(), labelColor),
+                    _buildYLabel("twenty_five".tr(), labelColor),
+                    _buildYLabel("zero".tr(), labelColor),
                   ],
                 ),
               ),
@@ -86,13 +89,17 @@ class ProgressBarChart extends StatelessWidget {
                               alignment: Alignment.bottomCenter,
                               children: [
                                 Tooltip(
-                                  message: "${DateFormat('MMM d').format(day.date)}: ${(day.percentage * 100).toInt()}%",
+                                  message:
+                                      "${DateFormat('MMM d').format(day.date)}: ${(day.percentage * 100).toInt()}%",
                                   child: Container(
                                     width: 6,
                                     height: chartHeight * day.percentage,
                                     decoration: BoxDecoration(
                                       // Pass isDark to helper to fix Grey bars
-                                      color: _getBarColor(day.percentage, isDark),
+                                      color: _getBarColor(
+                                        day.percentage,
+                                        isDark,
+                                      ),
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                   ),
@@ -100,7 +107,7 @@ class ProgressBarChart extends StatelessWidget {
                               ],
                             ),
                           ),
-                          
+
                           const SizedBox(height: 8),
 
                           // X-AXIS LABEL
@@ -124,7 +131,7 @@ class ProgressBarChart extends StatelessWidget {
 
           // BOTTOM LABEL
           Text(
-            "Days",
+            "days".tr(),
             style: TextStyle(
               fontSize: 11,
               color: labelColor,
@@ -143,10 +150,10 @@ class ProgressBarChart extends StatelessWidget {
 
   Color _getBarColor(double percentage, bool isDark) {
     if (percentage == 1.0) return AppColors.secondary; // Perfect
-    
+
     // Fix: In Dark Mode, Grey[300] is too bright. Use white10 (subtle grey).
     if (percentage == 0.0) return isDark ? Colors.white10 : Colors.grey[300]!;
-    
+
     return AppColors.primary.withValues(alpha: 0.6); // Partial
   }
 }

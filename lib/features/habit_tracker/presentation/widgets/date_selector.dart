@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -43,7 +44,7 @@ class DateSelector extends StatelessWidget {
           Column(
             children: [
               Text(
-                isToday ? "Today" : DateFormat('EEEE').format(selectedDate),
+                isToday ? "today".tr() : DateFormat('EEEE').format(selectedDate),
                 style: textTheme.labelSmall?.copyWith(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,

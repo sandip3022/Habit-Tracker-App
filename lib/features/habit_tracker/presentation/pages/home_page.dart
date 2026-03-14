@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/Journal_page.dart';
@@ -6,7 +7,6 @@ import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages
 import 'package:habit_tracker_app_2026/main.dart';
 import '../state_management/habit_provider.dart';
 
-
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
@@ -14,11 +14,7 @@ class HomePage extends ConsumerStatefulWidget {
   ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-final pagelist = [
-  JournalPage(),
-  const ProgressPage(),
-  const AccountPage()
-];
+final pagelist = [JournalPage(), const ProgressPage(), const AccountPage()];
 
 class _HomePageState extends ConsumerState<HomePage> {
   var _selectedIndex = 0;
@@ -34,13 +30,11 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Colors.grey[100],
-     
-     
+
       body: pagelist[_selectedIndex],
-      
+
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) {
@@ -48,23 +42,27 @@ class _HomePageState extends ConsumerState<HomePage> {
             _selectedIndex = index;
           });
         },
-        items:  [
+        items: [
           BottomNavigationBarItem(
-            icon: _selectedIndex == 0 ? Icon(Icons.book) : Icon(Icons.book_outlined),
-            label: 'Journal',
+            icon: _selectedIndex == 0
+                ? Icon(Icons.book)
+                : Icon(Icons.book_outlined),
+            label: 'journal'.tr(),
           ),
           BottomNavigationBarItem(
-            icon:_selectedIndex == 1 ? Icon(Icons.bar_chart) :  Icon(Icons.bar_chart_outlined),
-            label: 'Progress',
+            icon: _selectedIndex == 1
+                ? Icon(Icons.bar_chart)
+                : Icon(Icons.bar_chart_outlined),
+            label: 'progress'.tr(),
           ),
           BottomNavigationBarItem(
-            icon: _selectedIndex == 2 ? Icon(Icons.account_circle) : Icon(Icons.account_circle_outlined),
-            label: 'Account',
+            icon: _selectedIndex == 2
+                ? Icon(Icons.account_circle)
+                : Icon(Icons.account_circle_outlined),
+            label: 'account'.tr(),
           ),
         ],
       ),
     );
   }
-
-
 }

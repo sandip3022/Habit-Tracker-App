@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/pin_screen.dart';
@@ -23,7 +24,7 @@ class PrivacyLockPage extends ConsumerWidget {
     return Scaffold(
       // No fixed background color (Scaffold uses Theme default)
       appBar: AppBar(
-        title: Text("Privacy Lock", style: textTheme.displayMedium?.copyWith(fontSize: 22)),
+        title: Text("privacy_lock".tr(), style: textTheme.displayMedium?.copyWith(fontSize: 22)),
         elevation: 0,
         leading: IconButton(
           // Dynamic Icon Color
@@ -37,7 +38,7 @@ class PrivacyLockPage extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "SECURE YOUR HABITS",
+              "secure_your_habits".tr(),
               style: textTheme.labelSmall?.copyWith(color: labelColor, letterSpacing: 1.2),
             ),
             const SizedBox(height: 16),
@@ -45,8 +46,8 @@ class PrivacyLockPage extends ConsumerWidget {
             // --- OPTION 1: BIOMETRIC ---
             _buildToggleCard(
               context,
-              title: "Biometric Unlock",
-              subtitle: "FaceID / Fingerprint",
+              title: "biometric_unlock".tr(),
+              subtitle: "faceid_fingerprint".tr(),
               icon: Icons.fingerprint,
               value: privacyState.isBiometricEnabled,
               onChanged: (val) {
@@ -59,8 +60,8 @@ class PrivacyLockPage extends ConsumerWidget {
             // --- OPTION 2: PIN CODE ---
             _buildToggleCard(
               context,
-              title: "PIN Code",
-              subtitle: "4-digit secure code",
+              title: "pin_code_subtitle".tr(),
+              subtitle: "",
               icon: Icons.dialpad,
               value: privacyState.isPinEnabled,
               onChanged: (val) {
@@ -104,7 +105,7 @@ class PrivacyLockPage extends ConsumerWidget {
                    // Change PIN Logic: Verify Old -> Set New
                    Navigator.push(context, MaterialPageRoute(builder: (_) => PinScreen(
                      mode: PinMode.verify,
-                     title: "Enter Old PIN",
+                     title: "enter_old_pin".tr(),
                      onSuccess: (_) {
                        // Old PIN correct, navigate to Set New
                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => PinScreen(
@@ -129,7 +130,7 @@ class PrivacyLockPage extends ConsumerWidget {
                       Icon(Icons.lock_reset, color: AppColors.primary),
                       const SizedBox(width: 16),
                       // Dynamic Text Color
-                      Text("Change PIN", style: TextStyle(fontWeight: FontWeight.w600, color: colorScheme.onSurface)),
+                      Text("change_pin".tr(), style: TextStyle(fontWeight: FontWeight.w600, color: colorScheme.onSurface)),
                       const Spacer(),
                       Icon(Icons.arrow_forward_ios, size: 14, color: colorScheme.onSurface.withValues(alpha: 0.5)),
                     ],
@@ -192,7 +193,7 @@ class PrivacyLockPage extends ConsumerWidget {
           ),
           Switch(
             value: value,
-            activeColor: AppColors.primary,
+            activeThumbColor: AppColors.primary,
             onChanged: onChanged,
           ),
         ],

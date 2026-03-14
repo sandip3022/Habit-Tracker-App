@@ -1,17 +1,18 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class ComingSoonPage extends StatelessWidget {
-  const ComingSoonPage({Key? key}) : super(key: key);
+  const ComingSoonPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Coming Soon'),
+        title: const Text('coming_soon').tr(),
       ),
-      body: const Center(
+      body:  Center(
         child: Text(
-          'This feature is coming soon!',
+          'this_feature_is_coming_soon'.tr(),
           style: TextStyle(fontSize: 24),
         ),
       ),

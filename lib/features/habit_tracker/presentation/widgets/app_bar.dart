@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_colors.dart'; 
@@ -104,11 +105,11 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     String getSalutation() {
     final hour = DateTime.now().hour;
     if (hour < 12) {
-      return "Good Morning";
+      return "good_morning".tr();
     } else if (hour < 17) {
-      return "Good Afternoon";
+      return "good_afternoon".tr();
     } else {
-      return "Good Evening";
+      return "good_evening".tr();
     }
   }
 }
