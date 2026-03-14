@@ -39,7 +39,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
     // 1. WATCH THE THEME PROVIDER
     final currentTheme = ref.watch(themeProvider);
     final isDarkMode = currentTheme == ThemeMode.dark;
-    final String _userName = ref.watch( userProvider);
+    final String _userName = ref.watch(userProvider);
 
     // Access dynamic theme colors
     final colorScheme = Theme.of(context).colorScheme;
@@ -61,7 +61,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
         child: Column(
           children: [
             // --- 1. PROFILE SECTION ---
-            _buildProfileSection(textTheme, colorScheme,_userName),
+            _buildProfileSection(textTheme, colorScheme, _userName),
 
             const SizedBox(height: 40),
 
@@ -111,6 +111,43 @@ class _AccountPageState extends ConsumerState<AccountPage> {
 
             _buildSettingsCard(
               context,
+              title: "language"
+                  .tr(), // Make sure to add "language" to your JSON files
+              icon: Icons.language_outlined,
+              trailing: DropdownButtonHideUnderline(
+                child: DropdownButton<Locale>(
+                  // context.locale comes from easy_localization and holds the current language
+                  value: context.locale,
+                  icon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
+                  dropdownColor: colorScheme.surface,
+                  style: TextStyle(
+                    color: colorScheme.onSurface,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  onChanged: (Locale? newLocale) {
+                    if (newLocale != null) {
+                      // This instantly changes the app language and saves the preference!
+                      context.setLocale(newLocale);
+                    }
+                  },
+                  items: const [
+                    DropdownMenuItem(
+                      value: Locale('en'),
+                      child: Text("English"),
+                    ),
+                    DropdownMenuItem(
+                      value: Locale('mr'), // Official locale code for Marathi
+                      child: Text("मराठी"),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            _buildSettingsCard(
+              context,
               title: "privacy_lock".tr(),
               icon: Icons.lock_outline,
               trailing: const Icon(
@@ -149,19 +186,21 @@ class _AccountPageState extends ConsumerState<AccountPage> {
 
                 // 2. Trigger the export
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Preparing your file..."))
+                  const SnackBar(content: Text("Preparing your file...")),
                 );
 
                 try {
-                  bool success = await ExportService.exportHabitsToCSV(currentHabits);
-                  
+                  bool success = await ExportService.exportHabitsToCSV(
+                    currentHabits,
+                  );
+
                   // 👇 3. Show success message if they didn't cancel the dialog
                   if (success && context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text("Export saved successfully!"),
                         backgroundColor: Colors.green,
-                      )
+                      ),
                     );
                   }
                 } catch (e) {
@@ -170,61 +209,80 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                       const SnackBar(
                         content: Text("Oops, export failed. Please try again."),
                         backgroundColor: Colors.red,
-                      )
+                      ),
                     );
                   }
                 }
               },
             ),
-               const SizedBox(height: 16),
-              _buildSettingsCard(
+            const SizedBox(height: 16),
+            _buildSettingsCard(
               context,
               title: "restore_from_backup".tr(),
               icon: Icons.upload_file_outlined,
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+              trailing: const Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: Colors.grey,
+              ),
               onTap: () async {
                 ScaffoldMessenger.of(context).showSnackBar(
-                   SnackBar(content: Text("select_backup_file".tr()))
+                  SnackBar(content: Text("select_backup_file".tr())),
                 );
 
                 try {
                   // 1. Open file picker and parse CSV
-                  final importedHabits = await ImportService.importHabitsFromCSV();
-                  
+                  final importedHabits =
+                      await ImportService.importHabitsFromCSV();
+
                   if (!context.mounted) return;
 
                   if (importedHabits == null) {
                     // User canceled the file picker
-                    return; 
+                    return;
                   }
-                  
+
                   if (importedHabits.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                       SnackBar(content: Text("invalid_backup_file".tr(), style: TextStyle(color: Colors.white)), backgroundColor: Colors.orange)
+                      SnackBar(
+                        content: Text(
+                          "invalid_backup_file".tr(),
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        backgroundColor: Colors.orange,
+                      ),
                     );
                     return;
                   }
 
                   // 2. Push data to database
-                  await ref.read(habitNotifierProvider.notifier).importHabits(importedHabits);
+                  await ref
+                      .read(habitNotifierProvider.notifier)
+                      .importHabits(importedHabits);
 
                   // 3. Success Feedback
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text("successfully_restored_habits".tr(args: [importedHabits.length.toString()])),
+                      content: Text(
+                        "successfully_restored_habits".tr(
+                          args: [importedHabits.length.toString()],
+                        ),
+                      ),
                       backgroundColor: Colors.green,
-                    )
+                    ),
                   );
-                  
                 } catch (e) {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(e.toString()), backgroundColor: Colors.red)
+                      SnackBar(
+                        content: Text(e.toString()),
+                        backgroundColor: Colors.red,
+                      ),
                     );
                   }
                 }
               },
-            ),            
+            ),
 
             const SizedBox(height: 40),
 
@@ -248,16 +306,13 @@ class _AccountPageState extends ConsumerState<AccountPage> {
               onTap: () => _showConfirmationSheet(
                 context: context,
                 title: "reset_all_progress".tr(),
-                message:
-                    "reset_all_progress_message".tr(),
+                message: "reset_all_progress_message".tr(),
                 confirmLabel: "reset".tr(),
                 onConfirm: () {
                   ref.read(habitNotifierProvider.notifier).resetAllProgress();
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                     SnackBar(
-                      content: Text("progress_reset_successfully".tr()),
-                    ),
+                    SnackBar(content: Text("progress_reset_successfully".tr())),
                   );
                 },
               ),
@@ -281,7 +336,13 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                   ref.read(habitNotifierProvider.notifier).deleteAllData();
                   Navigator.pop(context); // Go back to Home
                   ScaffoldMessenger.of(context).showSnackBar(
-                     SnackBar(content: Text("All data deleted".tr(), style: TextStyle(color: Colors.white)), backgroundColor: Colors.red)
+                    SnackBar(
+                      content: Text(
+                        "All data deleted".tr(),
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      backgroundColor: Colors.red,
+                    ),
                   );
                 },
               ),
@@ -294,7 +355,11 @@ class _AccountPageState extends ConsumerState<AccountPage> {
 
   // --- UPDATED WIDGETS ---
 
-  Widget _buildProfileSection(TextTheme textTheme, ColorScheme colorScheme,String _userName) {
+  Widget _buildProfileSection(
+    TextTheme textTheme,
+    ColorScheme colorScheme,
+    String _userName,
+  ) {
     return Column(
       children: [
         // 1. Circle Avatar with Initials
@@ -575,7 +640,9 @@ class _AccountPageState extends ConsumerState<AccountPage> {
           _reminderTime = picked;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("reminder_set".tr(args: [picked.format(context)]))),
+          SnackBar(
+            content: Text("reminder_set".tr(args: [picked.format(context)])),
+          ),
         );
       }
     } else {
@@ -585,9 +652,9 @@ class _AccountPageState extends ConsumerState<AccountPage> {
         _isNotificationOn = false;
         _reminderTime = null;
       });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar( SnackBar(content: Text("reminders_turned_off".tr()))); // Updated text
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("reminders_turned_off".tr())),
+      ); // Updated text
     }
   }
 }

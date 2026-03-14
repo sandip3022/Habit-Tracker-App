@@ -93,6 +93,8 @@ void main() async {
   // 1. Flutter Engine Setup
   WidgetsFlutterBinding.ensureInitialized();
 
+  await EasyLocalization.ensureInitialized();
+
   // 2. Hive Initialization
   await Hive.initFlutter();
 
@@ -115,8 +117,8 @@ void main() async {
         habitBoxProvider.overrideWithValue(box),
       ],
       child:  EasyLocalization(
-        supportedLocales: [Locale('en'), Locale('hi')],
-        path: 'assets/translations/',
+        supportedLocales: [Locale('en'), Locale('mr')],
+        path: 'assets/translations',
         fallbackLocale: Locale('en'),
         child: MyApp()),
     ),
