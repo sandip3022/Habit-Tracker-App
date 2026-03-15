@@ -29,7 +29,7 @@ class FocusTimerPage extends ConsumerWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          "Focus Mode",
+          "focus_mode".tr(),
           style: textTheme.displayMedium?.copyWith(fontSize: 20),
         ),
         centerTitle: true,
@@ -38,18 +38,21 @@ class FocusTimerPage extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // --- TIME PRESETS ---
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildTimeBadge(context, ref, 1, "Short Break"),
-              const SizedBox(width: 12),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildTimeBadge(context, ref, 1, "Short Break"),
+                const SizedBox(width: 12),
               _buildTimeBadge(context, ref, 2, "Pomodoro"),
               const SizedBox(width: 12),
               _buildTimeBadge(context, ref, 15, "Deep Work"),
               const SizedBox(width: 12),
               _buildCustomTimeBadge(context, ref),
             ],
-          ),
+          ),),
 
           const SizedBox(height: 60),
 

@@ -111,8 +111,8 @@ class _AccountPageState extends ConsumerState<AccountPage> {
 
             _buildSettingsCard(
               context,
-              title: "language"
-                  .tr(), // Make sure to add "language" to your JSON files
+              title: "language".tr(),
+                   // Make sure to add "language" to your JSON files
               icon: Icons.language_outlined,
               trailing: DropdownButtonHideUnderline(
                 child: DropdownButton<Locale>(
@@ -139,6 +139,11 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                       value: Locale('mr'), // Official locale code for Marathi
                       child: Text("मराठी"),
                     ),
+                    DropdownMenuItem(
+                      value: Locale('hi'), // Official locale code for Hindi
+                      child: Text("हिंदी"),
+                    ),
+
                   ],
                 ),
               ),
@@ -166,7 +171,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
             const SizedBox(height: 16),
             _buildSettingsCard(
               context,
-              title: "Export to CSV",
+              title: "export_to_csv".tr(),
               icon: Icons.download_outlined,
               trailing: const Icon(
                 Icons.arrow_forward_ios,
@@ -324,7 +329,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
               context,
               title: "delete_everything".tr(),
               subtitle: "delete_everything_message".tr(),
-              buttonLabel: "DELETE",
+              buttonLabel: "delete".tr(),
               isCritical: true,
               onTap: () => _showConfirmationSheet(
                 context: context,
@@ -577,9 +582,9 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: ElevatedButton(
+                  child: OutlinedButton(
                     onPressed: onConfirm,
-                    style: ElevatedButton.styleFrom(
+                    style: OutlinedButton.styleFrom(
                       backgroundColor: isCritical
                           ? Colors.red
                           : AppColors.primary,
