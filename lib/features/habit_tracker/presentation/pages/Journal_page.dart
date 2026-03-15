@@ -156,7 +156,7 @@ class _JournalPageState extends ConsumerState<JournalPage> {
 
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.black,
-        child: const Icon(Icons.add, color: Colors.white),
+        child:  Icon(Icons.add, color: Colors.white,semanticLabel: "add_new_habit".tr()),
         onPressed: () async {
           // Pass selectedDate to refresh properly after adding
           final current = ref.read(selectedDateProvider);
@@ -175,10 +175,11 @@ class _JournalPageState extends ConsumerState<JournalPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.calendar_today, size: 60, color: Colors.grey[300]),
+          Icon(Icons.calendar_today, size: 60, color: Colors.grey[300],
+          semanticLabel: "empty_calendar_icon".tr(),),
           const SizedBox(height: 16),
           Text(
-            "No habits for this day",
+            "no_habits_for_this_day".tr(),
             style: TextStyle(color: Colors.grey[500]),
           ),
         ],
