@@ -124,5 +124,7 @@
   "keep_habits_but_clear_history": "Keep habits, clear history",
   "delete_cap":"DELETE",
   "export_to_csv":"Export to CSV",
-  "language":"Language"
+  "language":"Language",
+  "start": "Start",
+  "pause": "Pause"
 }

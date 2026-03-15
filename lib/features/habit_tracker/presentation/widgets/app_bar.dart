@@ -89,7 +89,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               child: Icon(
                 Icons.timer_outlined,
-                color: AppColors.primary, // Brand color always stays consistent
+                color: isDark ? AppColors.surface : AppColors.primary, // Brand color always stays consistent
                 size: 24,
               ),
             ),

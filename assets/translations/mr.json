@@ -124,5 +124,7 @@
     "keep_habits_but_clear_history": "सवयी ठेवा, पण इतिहास साफ करा",
     "delete_cap": "हटवा",
     "export_to_csv": "CSV मध्ये निर्यात करा",
-    "language": "भाषा"
+    "language": "भाषा",
+    "start": "सुरू करा",
+  "pause": "थांबवा"
 }
