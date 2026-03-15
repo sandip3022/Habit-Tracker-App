@@ -117,7 +117,7 @@ void main() async {
         habitBoxProvider.overrideWithValue(box),
       ],
       child:  EasyLocalization(
-        supportedLocales: [Locale('en'), Locale('mr')],
+        supportedLocales: [Locale('en'), Locale('mr'), Locale('hi')],
         path: 'assets/translations',
         fallbackLocale: Locale('en'),
         child: MyApp()),

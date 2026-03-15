@@ -47,89 +47,111 @@ class HabitTile extends StatelessWidget {
       ),
       child: Material(
         color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onLongPress: onLongPressBody,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                // --- 1. THEMED ICON BOX ---
-                _buildIconBox(habitColor),
+        child: Semantics(
+          hint: "view_habit_history".tr(),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onLongPress: onLongPressBody,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  // --- 1. THEMED ICON BOX ---
+                  _buildIconBox(habitColor),
 
-                const SizedBox(width: 16),
+                  const SizedBox(width: 16),
 
-                // --- 2. TITLE & STREAK INFO ---
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Title
-                      Text(
-                        habit.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 18,
-                          decoration: isCompletedToday
-                              ? TextDecoration.lineThrough
-                              : null,
-                          // Dynamic Text Color (Black vs White)
-                          color: isCompletedToday
-                              ? colorScheme.onSurface.withValues(alpha: 0.5)
-                              : colorScheme.onSurface,
-                        ),
-                      ),
-
-                      const SizedBox(height: 6),
-
-                      // Streak Badge
-                      if (habit.currentStreak > 0)
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.local_fire_department_rounded,
-                              size: 14,
-                              color: AppColors.secondary,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              "habit_streak".tr(
-                                args: [habit.currentStreak.toString()],
-                              ),
-                              style: textTheme.labelSmall?.copyWith(
-                                color: AppColors.secondary,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          ],
-                        )
-                      else
+                  // --- 2. TITLE & STREAK INFO ---
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Title
                         Text(
-                          "start_your_journey_today".tr(),
-                          // Dynamic Subtitle Color
-                          style: textTheme.bodySmall?.copyWith(
-                            fontSize: 12,
-                            color: colorScheme.onSurface.withValues(alpha: 0.6),
+                          habit.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 18,
+                            decoration: isCompletedToday
+                                ? TextDecoration.lineThrough
+                                : null,
+                            // Dynamic Text Color (Black vs White)
+                            color: isCompletedToday
+                                ? colorScheme.onSurface.withValues(alpha: 0.5)
+                                : colorScheme.onSurface,
                           ),
                         ),
-                    ],
+
+                        const SizedBox(height: 6),
+
+                        // Streak Badge
+                        if (habit.currentStreak > 0)
+                          Row(
+                            children: [
+                              ExcludeSemantics(
+                                child: Icon(
+                                  Icons.local_fire_department_rounded,
+                                  size: 14,
+                                  color: AppColors.secondary,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                "habit_streak".tr(
+                                  args: [habit.currentStreak.toString()],
+                                ),
+                                style: textTheme.labelSmall?.copyWith(
+                                  color: AppColors.secondary,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          )
+                        else
+                          Text(
+                            "start_your_journey_today".tr(),
+                            // Dynamic Subtitle Color
+                            style: textTheme.bodySmall?.copyWith(
+                              fontSize: 12,
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.6,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
 
-                // --- 3. CHECK BUTTON ---
-                GestureDetector(
-                  onTap: onToggle,
-                  child: _buildCheckButton(habitColor, colorScheme.onSurface),
-                ),
+                  // --- 3. CHECK BUTTON ---
+                  Semantics(
+                    button: true,
+                    checked: isCompletedToday,
+                    label: "toggle_completion".tr(args: [habit.title]),
+                    child: GestureDetector(
+                      onTap: onToggle,
+                      behavior: HitTestBehavior.opaque,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: _buildCheckButton(
+                          habitColor,
+                          colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                  ),
 
-                const SizedBox(width: 8),
+                  const SizedBox(width: 8),
 
-                // --- 4. MENU ---
-                _buildOptionsMenu(context, colorScheme),
-              ],
+                  // --- 4. MENU ---
+                  Semantics(
+                    label: "habit_options_menu".tr(),
+                    child: _buildOptionsMenu(context, colorScheme),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -184,6 +206,8 @@ class HabitTile extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       color: colorScheme.surface, // Dynamic Menu Background
       elevation: 4,
+      // Tooltip provides native accessibility labels automatically
+      tooltip: "show_options".tr(),
       onSelected: (value) {
         if (value == 'edit') onEdit();
         if (value == 'delete') onDelete();

@@ -3,10 +3,9 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:habit_tracker_app_2026/core/constants/app_constants.dart';
-import 'package:intl/intl.dart';
 
 class ClockTab extends StatefulWidget {
-  const ClockTab({Key? key}) : super(key: key);
+  const ClockTab({super.key});
 
   @override
   State<ClockTab> createState() => _ClockTabState();
@@ -56,7 +55,7 @@ class _ClockTabState extends State<ClockTab> {
               children: [
                 Text(
                   DateFormat(AppConstants.timeFormat).format(_currentTime),
-                  style: TextStyle(fontSize: 60, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 15),

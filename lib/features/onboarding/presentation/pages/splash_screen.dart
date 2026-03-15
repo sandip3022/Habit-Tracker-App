@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker_app_2026/core/constants/app_assets.dart';
-import 'package:habit_tracker_app_2026/core/theme/app_colors.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/home_page.dart';
 import 'package:habit_tracker_app_2026/features/onboarding/presentation/pages/login_screen.dart';
 import 'package:habit_tracker_app_2026/features/onboarding/presentation/pages/onboarding_screen.dart';
@@ -83,8 +82,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colorScheme.surface, // Adapts to theme
       body: Center(
         child: ScaleTransition(
           scale: _scaleAnimation,
@@ -95,10 +96,16 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: AppColors.primary,
+                  color: colorScheme.primary,
                   shape: BoxShape.circle,
                   boxShadow: [
-                    BoxShadow(color: AppColors.primary.withOpacity(0.4), blurRadius: 20, offset: const Offset(0, 10))
+                    
+                   if (!isDark) 
+                      BoxShadow(
+                        color: colorScheme.primary.withValues(alpha: 0.4), 
+                        blurRadius: 20, 
+                        offset: const Offset(0, 10),
+                      )
                   ]
                 ),
                 child:  SizedBox(
@@ -112,7 +119,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
                 "Growbit",
                 style: Theme.of(context).textTheme.displayMedium?.copyWith(
                   fontSize: 24,
-                  color: AppColors.primary,
+                  color: colorScheme.onSurface,
                 ),
               ),
             ],

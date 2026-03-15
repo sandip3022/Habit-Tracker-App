@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../domain/entities/habit_entity.dart';
@@ -14,22 +15,38 @@ class HabitHistoryPage extends StatefulWidget {
 class _HabitHistoryPageState extends State<HabitHistoryPage> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
+  late Set<String> _completedDateStrings;
+
+  @override
+  void initState() {
+    super.initState();
+    // PERFORMANCE UPGRADE: Convert list of DateTimes to a Set of YYYY-MM-DD strings for O(1) lookup
+    _completedDateStrings = widget.habit.completedDates
+        .map((d) => "${d.year}-${d.month}-${d.day}")
+        .toSet();
+  }
 
   @override
   Widget build(BuildContext context) {
     final primaryColor = Color(widget.habit.colorValue);
 
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
-      backgroundColor: Colors.white, // Clean white look for calendar
+      backgroundColor: colorScheme.surface, // Clean white look for calendar
       appBar: AppBar(
-        title: Text(widget.habit.title, style: const TextStyle(color: Colors.black)),
+        title: Text(
+          widget.habit.title,
+          style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme:  IconThemeData(color: colorScheme.onSurface),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            _buildCalendar(primaryColor),
+            _buildCalendar(primaryColor, colorScheme),
             const Divider(),
             _buildSummary(primaryColor),
           ],
@@ -38,7 +55,7 @@ class _HabitHistoryPageState extends State<HabitHistoryPage> {
     );
   }
 
-  Widget _buildCalendar(Color color) {
+  Widget _buildCalendar(Color color, ColorScheme colorScheme) {
     return TableCalendar(
       firstDay: DateTime.utc(2026, 1, 2),
       lastDay: DateTime.utc(2030, 12, 31),
@@ -50,13 +67,31 @@ class _HabitHistoryPageState extends State<HabitHistoryPage> {
           _focusedDay = focusedDay;
         });
       },
-      headerStyle: const HeaderStyle(formatButtonVisible: false, titleCentered: true),
-      
+      headerStyle: HeaderStyle(
+        formatButtonVisible: false,
+        titleCentered: true,
+        titleTextStyle: TextStyle(color: colorScheme.onSurface, fontSize: 18),
+        leftChevronIcon: Icon(Icons.chevron_left, color: colorScheme.onSurface),
+        rightChevronIcon: Icon(
+          Icons.chevron_right,
+          color: colorScheme.onSurface,
+        ),
+      ),
+
+      daysOfWeekStyle: DaysOfWeekStyle(
+        weekdayStyle: TextStyle(color: colorScheme.onSurface),
+        weekendStyle: TextStyle(
+          color: colorScheme.onSurface.withValues(alpha: 0.6),
+        ),
+      ),
+
       // LOGIC: Show colored circles on days where habit matches history
       calendarBuilders: CalendarBuilders(
         defaultBuilder: (context, day, focusedDay) => _buildDayCell(day, color),
-        todayBuilder: (context, day, focusedDay) => _buildDayCell(day, color, isToday: true),
-        selectedBuilder: (context, day, focusedDay) => _buildDayCell(day, color), // Handle selection same as default
+        todayBuilder: (context, day, focusedDay) =>
+            _buildDayCell(day, color, isToday: true),
+        selectedBuilder: (context, day, focusedDay) =>
+            _buildDayCell(day, color), // Handle selection same as default
       ),
     );
   }
@@ -70,8 +105,8 @@ class _HabitHistoryPageState extends State<HabitHistoryPage> {
 
     if (isCompleted) {
       return Container(
-        margin: const EdgeInsets.all(6.0),
-        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          margin: const EdgeInsets.all(6.0),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         child: Center(child: Text('${day.day}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
       );
     }
@@ -97,9 +132,9 @@ class _HabitHistoryPageState extends State<HabitHistoryPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _statCard("Total", "$total", color),
+          _statCard("total".tr(), "$total", color),
           // You can calculate streak here or pass it in Entity
-          _statCard("Streak", "Calculate", Colors.grey), 
+          _statCard("streak".tr(), "calculate".tr(), Colors.grey),
         ],
       ),
     );
@@ -108,7 +143,14 @@ class _HabitHistoryPageState extends State<HabitHistoryPage> {
   Widget _statCard(String label, String value, Color color) {
     return Column(
       children: [
-        Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color)),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
         Text(label, style: const TextStyle(fontSize: 14, color: Colors.grey)),
       ],
     );

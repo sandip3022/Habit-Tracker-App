@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker_app_2026/main.dart';
 import 'package:uuid/uuid.dart';
 import '../../domain/entities/habit_entity.dart';
-import '../../../../core/theme/app_colors.dart'; 
+import '../../../../core/theme/app_colors.dart';
 
 class AddHabitPage extends ConsumerStatefulWidget {
   final HabitEntity? habitToEdit;
@@ -17,10 +17,10 @@ class AddHabitPage extends ConsumerStatefulWidget {
 
 class _AddHabitPageState extends ConsumerState<AddHabitPage> {
   final _titleController = TextEditingController();
-  
+
   late Color _selectedColor;
-  late IconData _selectedIcon; 
-  
+  late IconData _selectedIcon;
+
   HabitFrequency _frequency = HabitFrequency.daily;
   List<int> _selectedDays = [];
 
@@ -34,19 +34,44 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
     const Color(0xFFFD79A8), // Pink
   ];
 
+  final List<String> _colorNames = [
+    "color_midnight".tr(),
+    "color_coral".tr(),
+    "color_purple".tr(),
+    "color_teal".tr(),
+    "color_blue".tr(),
+    "color_orange".tr(),
+    "color_pink".tr(),
+  ];
+
+  final List<String> _iconNames = [
+    "icon_book".tr(),
+    "icon_fitness".tr(),
+    "icon_water".tr(),
+    "icon_code".tr(),
+    "icon_meditation".tr(),
+    "icon_running".tr(),
+    "icon_food".tr(),
+    "icon_sleep".tr(),
+    "icon_savings".tr(),
+    "icon_art".tr(),
+    "icon_music".tr(),
+    "icon_check".tr(),
+  ];
+
   final List<IconData> _iconOptions = [
-    Icons.auto_stories,      
-    Icons.fitness_center,    
-    Icons.water_drop,        
-    Icons.code,              
-    Icons.self_improvement,  
-    Icons.directions_run,    
-    Icons.restaurant,        
-    Icons.bed,               
-    Icons.savings,           
-    Icons.palette,           
-    Icons.music_note,        
-    Icons.check_circle,      
+    Icons.auto_stories,
+    Icons.fitness_center,
+    Icons.water_drop,
+    Icons.code,
+    Icons.self_improvement,
+    Icons.directions_run,
+    Icons.restaurant,
+    Icons.bed,
+    Icons.savings,
+    Icons.palette,
+    Icons.music_note,
+    Icons.check_circle,
   ];
 
   @override
@@ -56,8 +81,8 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
       _titleController.text = widget.habitToEdit!.title;
       _selectedColor = Color(widget.habitToEdit!.colorValue);
       _selectedIcon = IconData(
-         widget.habitToEdit!.iconCode, 
-         fontFamily: 'MaterialIcons'
+        widget.habitToEdit!.iconCode,
+        fontFamily: 'MaterialIcons',
       );
       _frequency = widget.habitToEdit!.frequency;
       _selectedDays = List.from(widget.habitToEdit!.targetDays);
@@ -78,14 +103,16 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
       final updatedHabit = HabitEntity(
         id: widget.habitToEdit!.id,
         title: _titleController.text.trim(),
-        iconCode: _selectedIcon.codePoint, 
+        iconCode: _selectedIcon.codePoint,
         colorValue: _selectedColor.value,
         completedDates: widget.habitToEdit!.completedDates,
         frequency: _frequency,
         targetDays: _selectedDays,
         createdAt: widget.habitToEdit!.createdAt,
       );
-      ref.read(habitNotifierProvider.notifier).updateHabit(updatedHabit, DateTime.now());
+      ref
+          .read(habitNotifierProvider.notifier)
+          .updateHabit(updatedHabit, DateTime.now());
     } else {
       final newHabit = HabitEntity(
         id: const Uuid().v4(),
@@ -97,7 +124,9 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
         targetDays: _selectedDays,
         createdAt: DateTime.now(),
       );
-      ref.read(habitNotifierProvider.notifier).addHabit(newHabit, DateTime.now());
+      ref
+          .read(habitNotifierProvider.notifier)
+          .addHabit(newHabit, DateTime.now());
     }
     Navigator.pop(context);
   }
@@ -115,10 +144,14 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
     return Scaffold(
       // No fixed background color
       appBar: AppBar(
-        title: Text(widget.habitToEdit != null ? "edit_habit".tr() : "new_habit".tr()),
+        title: Text(
+          widget.habitToEdit != null ? "edit_habit".tr() : "new_habit".tr(),
+        ),
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.close, color: colorScheme.onSurface), // Dynamic X icon
+          icon: Icon(Icons.close, color: colorScheme.onSurface),
+          // ACCESSIBILITY: Screen reader will say "Close" instead of "Button"
+          tooltip: "close".tr(), // Dynamic X icon
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -131,7 +164,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
                 letterSpacing: 1.0,
               ),
             ),
-          )
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -140,8 +173,12 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // TITLE INPUT
-            Text("what_do_you_want_to_do".tr(), 
-              style: textTheme.labelSmall?.copyWith(color: labelColor, letterSpacing: 1.2)
+            Text(
+              "what_do_you_want_to_do".tr(),
+              style: textTheme.labelSmall?.copyWith(
+                color: labelColor,
+                letterSpacing: 1.2,
+              ),
             ),
             const SizedBox(height: 8),
             Container(
@@ -152,12 +189,20 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
               ),
               child: TextField(
                 controller: _titleController,
-                style: textTheme.bodyLarge?.copyWith(fontSize: 18, color: colorScheme.onSurface),
+                style: textTheme.bodyLarge?.copyWith(
+                  fontSize: 18,
+                  color: colorScheme.onSurface,
+                ),
                 decoration: InputDecoration(
                   hintText: "example_habit".tr(),
-                  hintStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.5)),
+                  hintStyle: TextStyle(
+                    color: colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
                   border: InputBorder.none,
-                  icon: Icon(Icons.edit_outlined, color: AppColors.primary.withValues(alpha: 0.7)),
+                  icon: Icon(
+                    Icons.edit_outlined,
+                    color: AppColors.primary.withValues(alpha: 0.7),
+                  ),
                 ),
               ),
             ),
@@ -165,12 +210,16 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
             const SizedBox(height: 32),
 
             // FREQUENCY
-            Text("frequency_all_cap", 
-               style: textTheme.labelSmall?.copyWith(color: labelColor, letterSpacing: 1.2)
+            Text(
+              "frequency_all_cap",
+              style: textTheme.labelSmall?.copyWith(
+                color: labelColor,
+                letterSpacing: 1.2,
+              ),
             ),
             const SizedBox(height: 12),
             _buildFrequencyToggle(colorScheme),
-            
+
             if (_frequency == HabitFrequency.specificDays) ...[
               const SizedBox(height: 16),
               _buildDaySelector(colorScheme),
@@ -179,14 +228,18 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
             const SizedBox(height: 32),
 
             // APPEARANCE
-            Text("appearance_all_cap".tr(), 
-               style: textTheme.labelSmall?.copyWith(color: labelColor, letterSpacing: 1.2)
+            Text(
+              "appearance_all_cap".tr(),
+              style: textTheme.labelSmall?.copyWith(
+                color: labelColor,
+                letterSpacing: 1.2,
+              ),
             ),
             const SizedBox(height: 12),
-            
+
             // Color Circles
             SizedBox(
-              height: 50,
+              height: 60,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: _colorOptions.length,
@@ -194,33 +247,50 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
                 itemBuilder: (context, index) {
                   final color = _colorOptions[index];
                   final isSelected = _selectedColor == color;
-                  return GestureDetector(
-                    onTap: () => setState(() => _selectedColor = color),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      width: isSelected ? 48 : 40,
-                      height: isSelected ? 48 : 40,
-                      decoration: BoxDecoration(
-                        color: color,
-                        shape: BoxShape.circle,
-                        border: isSelected 
-                            // The border needs to contrast with the background (White on Dark, Black on Light)
-                            ? Border.all(color: colorScheme.onSurface, width: 2.5) 
+                  return Semantics(
+                    button: true,
+                    selected:
+                        isSelected, // Announces if this option is currently active
+                    label: _colorNames[index],
+                    child: GestureDetector(
+                      onTap: () => setState(() => _selectedColor = color),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: isSelected ? 48 : 40,
+                        height: isSelected ? 48 : 40,
+                        decoration: BoxDecoration(
+                          color: color,
+                          shape: BoxShape.circle,
+                          border: isSelected
+                              // The border needs to contrast with the background (White on Dark, Black on Light)
+                              ? Border.all(
+                                  color: colorScheme.onSurface,
+                                  width: 2.5,
+                                )
+                              : null,
+                          boxShadow: [
+                            if (isSelected)
+                              BoxShadow(
+                                color: color.withValues(alpha: 0.4),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                          ],
+                        ),
+                        child: isSelected
+                            ? const Icon(
+                                Icons.check,
+                                color: Colors.white,
+                                size: 20,
+                              )
                             : null,
-                        boxShadow: [
-                          if (isSelected)
-                            BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 8, offset: const Offset(0, 4))
-                        ]
                       ),
-                      child: isSelected 
-                          ? const Icon(Icons.check, color: Colors.white, size: 20) 
-                          : null,
                     ),
                   );
                 },
               ),
             ),
-            
+
             const SizedBox(height: 24),
 
             // Icon Grid
@@ -235,26 +305,36 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
               itemCount: _iconOptions.length,
               itemBuilder: (context, index) {
                 final iconData = _iconOptions[index];
-                final isSelected = _selectedIcon.codePoint == iconData.codePoint;
-                
-                return GestureDetector(
-                  onTap: () => setState(() => _selectedIcon = iconData),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    decoration: BoxDecoration(
-                      color: isSelected 
-                          ? _selectedColor.withValues(alpha: 0.15) 
-                          : colorScheme.surface, // <--- Dynamic Surface
-                      borderRadius: BorderRadius.circular(12),
-                      border: isSelected 
-                          ? Border.all(color: _selectedColor, width: 2) 
-                          : Border.all(color: Colors.transparent),
-                    ),
-                    child: Icon(
-                      iconData,
-                      // Unselected icons adapt to theme (Black vs White)
-                      color: isSelected ? _selectedColor : colorScheme.onSurface.withValues(alpha: 0.5),
-                      size: 26,
+                final isSelected =
+                    _selectedIcon.codePoint == iconData.codePoint;
+
+                return Semantics(
+                  button: true,
+                  selected: isSelected,
+                  label: _iconNames[index],
+                  child: GestureDetector(
+                    onTap: () => setState(() => _selectedIcon = iconData),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? _selectedColor.withValues(alpha: 0.15)
+                            : colorScheme.surface, // <--- Dynamic Surface
+                        borderRadius: BorderRadius.circular(12),
+                        border: isSelected
+                            ? Border.all(color: _selectedColor, width: 2)
+                            : Border.all(color: Colors.transparent),
+                      ),
+                      child: ExcludeSemantics(
+                        child: Icon(
+                          iconData,
+                          // Unselected icons adapt to theme (Black vs White)
+                          color: isSelected
+                              ? _selectedColor
+                              : colorScheme.onSurface.withValues(alpha: 0.5),
+                          size: 26,
+                        ),
+                      ),
                     ),
                   ),
                 );
@@ -275,20 +355,35 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
         color: colorScheme.surface, // <--- Dynamic
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Row(
-        children: [
-          _buildToggleOption("every_day".tr(), HabitFrequency.daily, colorScheme),
-          _buildToggleOption("specific_days".tr(), HabitFrequency.specificDays, colorScheme),
-        ],
+      child: IntrinsicHeight(
+        child: Row(
+          children: [
+            _buildToggleOption(
+              "every_day".tr(),
+              HabitFrequency.daily,
+              colorScheme,
+            ),
+            _buildToggleOption(
+              "specific_days".tr(),
+              HabitFrequency.specificDays,
+              colorScheme,
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildToggleOption(String label, HabitFrequency val, ColorScheme colorScheme) {
+  Widget _buildToggleOption(
+    String label,
+    HabitFrequency val,
+    ColorScheme colorScheme,
+  ) {
     final isSelected = _frequency == val;
     return Expanded(
       child: GestureDetector(
         onTap: () => setState(() => _frequency = val),
+        behavior: HitTestBehavior.opaque,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -302,7 +397,9 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
             style: TextStyle(
               fontWeight: FontWeight.w600,
               // Selected: White | Unselected: Theme Text Color
-              color: isSelected ? Colors.white : colorScheme.onSurface.withValues(alpha: 0.7),
+              color: isSelected
+                  ? Colors.white
+                  : colorScheme.onSurface.withValues(alpha: 0.7),
             ),
           ),
         ),
@@ -311,7 +408,15 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
   }
 
   Widget _buildDaySelector(ColorScheme colorScheme) {
-    final days = ["Mon".tr(), "Tue".tr(), "Wed".tr(), "Thu".tr(), "Fri".tr(), "Sat".tr(), "Sun".tr()];
+    final days = [
+      "Mon".tr(),
+      "Tue".tr(),
+      "Wed".tr(),
+      "Thu".tr(),
+      "Fri".tr(),
+      "Sat".tr(),
+      "Sun".tr(),
+    ];
     return Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -328,7 +433,9 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
           // Removing default border if you want a cleaner look, or keeping it
-          side: isSelected ? BorderSide.none : BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.1)),
+          side: isSelected
+              ? BorderSide.none
+              : BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.1)),
           onSelected: (selected) {
             setState(() {
               if (selected) {
