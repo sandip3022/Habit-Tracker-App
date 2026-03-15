@@ -15,7 +15,6 @@ class _TimerHomeState extends State<TimerHome> {
 
   static final List<Widget> _pages = <Widget>[
     ClockTab(),
-    // TimerTab(),
     FocusTimerPage(),
     Center(child: Text('Stopwatch'.tr(), style: TextStyle(fontSize: 32))),
   ];
