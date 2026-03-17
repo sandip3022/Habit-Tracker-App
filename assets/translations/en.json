@@ -161,6 +161,20 @@
   "completed_on":"Completed on {}",
   "total":"Total",
   "streak":"Streak",
-  "calculate":"Calculate"
-
+  "calculate":"Calculate",
+  "average_completion_rate":"Average completion rate for the last 30 days is {} percent",
+  "chart_consistency_trend":"Bar chart showing habit consistency over the last 30 days",
+  "habit_success_status":"{} has a success rate of {} percent",
+  "free_member":"Free Member",
+  "user_profile":"{}, {} Profile",
+  "onboarding_progress":"{} of {}",
+  "let_get_started":"Let's get started",
+  "what_should_we_call_you":"What should we\ncall you?",
+  "your_name":"Your Name",
+  "welcome_to_growbit":"Welcome to Growbit",
+  "personalize_experience":"Let's personalize your experience",
+  "choose_language":"Choose Language",
+  "choose_theme":"Choose Color Theme",
+  "light":"Light",
+  "dark":"Dark"
 }

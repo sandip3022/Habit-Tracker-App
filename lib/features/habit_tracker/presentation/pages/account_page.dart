@@ -70,24 +70,26 @@ class _AccountPageState extends ConsumerState<AccountPage> {
               context,
               title: "daily_reminder".tr(),
               icon: Icons.notifications_outlined,
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Show time if enabled
-                  if (_isNotificationOn && _reminderTime != null)
-                    Text(
-                      _reminderTime!.format(context),
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.bold,
+              trailing: ExcludeSemantics(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Show time if enabled
+                    if (_isNotificationOn && _reminderTime != null)
+                      Text(
+                        _reminderTime!.format(context),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
+                    Switch(
+                      value: _isNotificationOn,
+                      activeColor: AppColors.secondary,
+                      onChanged: (val) => _toggleNotifications(val),
                     ),
-                  Switch(
-                    value: _isNotificationOn,
-                    activeColor: AppColors.secondary,
-                    onChanged: (val) => _toggleNotifications(val),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
 
@@ -98,12 +100,14 @@ class _AccountPageState extends ConsumerState<AccountPage> {
               context,
               title: "dark_mode".tr(),
               icon: Icons.dark_mode_outlined,
-              trailing: Switch(
-                value: isDarkMode,
-                activeColor: AppColors.secondary,
-                onChanged: (val) {
-                  ref.read(themeProvider.notifier).toggleTheme(val);
-                },
+              trailing: ExcludeSemantics(
+                child: Switch(
+                  value: isDarkMode,
+                  activeColor: AppColors.secondary,
+                  onChanged: (val) {
+                    ref.read(themeProvider.notifier).toggleTheme(val);
+                  },
+                ),
               ),
             ),
 
@@ -114,37 +118,39 @@ class _AccountPageState extends ConsumerState<AccountPage> {
               title: "language".tr(),
                    // Make sure to add "language" to your JSON files
               icon: Icons.language_outlined,
-              trailing: DropdownButtonHideUnderline(
-                child: DropdownButton<Locale>(
-                  // context.locale comes from easy_localization and holds the current language
-                  value: context.locale,
-                  icon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
-                  dropdownColor: colorScheme.surface,
-                  style: TextStyle(
-                    color: colorScheme.onSurface,
-                    fontWeight: FontWeight.bold,
+              trailing: ExcludeSemantics(
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<Locale>(
+                    // context.locale comes from easy_localization and holds the current language
+                    value: context.locale,
+                    icon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
+                    dropdownColor: colorScheme.surface,
+                    style: TextStyle(
+                      color: colorScheme.onSurface,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    onChanged: (Locale? newLocale) {
+                      if (newLocale != null) {
+                        // This instantly changes the app language and saves the preference!
+                        context.setLocale(newLocale);
+                      }
+                    },
+                    items: const [
+                      DropdownMenuItem(
+                        value: Locale('en'),
+                        child: Text("English"),
+                      ),
+                      DropdownMenuItem(
+                        value: Locale('mr'), // Official locale code for Marathi
+                        child: Text("मराठी"),
+                      ),
+                      DropdownMenuItem(
+                        value: Locale('hi'), // Official locale code for Hindi
+                        child: Text("हिंदी"),
+                      ),
+                
+                    ],
                   ),
-                  onChanged: (Locale? newLocale) {
-                    if (newLocale != null) {
-                      // This instantly changes the app language and saves the preference!
-                      context.setLocale(newLocale);
-                    }
-                  },
-                  items: const [
-                    DropdownMenuItem(
-                      value: Locale('en'),
-                      child: Text("English"),
-                    ),
-                    DropdownMenuItem(
-                      value: Locale('mr'), // Official locale code for Marathi
-                      child: Text("मराठी"),
-                    ),
-                    DropdownMenuItem(
-                      value: Locale('hi'), // Official locale code for Hindi
-                      child: Text("हिंदी"),
-                    ),
-
-                  ],
                 ),
               ),
             ),
@@ -155,10 +161,12 @@ class _AccountPageState extends ConsumerState<AccountPage> {
               context,
               title: "privacy_lock".tr(),
               icon: Icons.lock_outline,
-              trailing: const Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: Colors.grey,
+              trailing: ExcludeSemantics(
+                child: const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: Colors.grey,
+                ),
               ),
               onTap: () {
                 // Navigate to Privacy Lock Page
@@ -173,10 +181,12 @@ class _AccountPageState extends ConsumerState<AccountPage> {
               context,
               title: "export_to_csv".tr(),
               icon: Icons.download_outlined,
-              trailing: const Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: Colors.grey,
+              trailing: ExcludeSemantics(
+                child: const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: Colors.grey,
+                ),
               ),
               onTap: () async {
                 // 1. Get the current list of habits from the provider
@@ -365,44 +375,48 @@ class _AccountPageState extends ConsumerState<AccountPage> {
     ColorScheme colorScheme,
     String _userName,
   ) {
-    return Column(
-      children: [
-        // 1. Circle Avatar with Initials
-        Container(
-          width: 100,
-          height: 100,
-          decoration: BoxDecoration(
-            color: AppColors.secondary.withValues(alpha: 0.1),
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: AppColors.secondary.withValues(alpha: 0.3),
-              width: 2,
+    return Semantics(
+      label: "user_profile".tr(args: [_userName, "free_member".tr()]), // Add to JSON: "User Profile: {}, {}"
+      excludeSemantics: true,
+      child: Column(
+        children: [
+          // 1. Circle Avatar with Initials
+          Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              color: AppColors.secondary.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.secondary.withValues(alpha: 0.3),
+                width: 2,
+              ),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              _getInitials(_userName),
+              style: textTheme.displayMedium?.copyWith(
+                color: AppColors.secondary,
+                fontSize: 32,
+              ),
             ),
           ),
-          alignment: Alignment.center,
-          child: Text(
-            _getInitials(_userName),
-            style: textTheme.displayMedium?.copyWith(
-              color: AppColors.secondary,
-              fontSize: 32,
+          const SizedBox(height: 16),
+          Text(
+            _userName,
+            // Use 'onSurface' so it is Black in Light Mode, White in Dark Mode
+            style: textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
             ),
           ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          _userName,
-          // Use 'onSurface' so it is Black in Light Mode, White in Dark Mode
-          style: textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: colorScheme.onSurface,
+          const SizedBox(height: 4),
+          Text(
+            "free_member".tr(),
+            style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          "Free Member",
-          style: textTheme.bodyMedium?.copyWith(color: Colors.grey),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -413,13 +427,12 @@ class _AccountPageState extends ConsumerState<AccountPage> {
     Widget? trailing,
     VoidCallback? onTap,
   }) {
-    // Access Theme Colors
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       decoration: BoxDecoration(
         color:
-            colorScheme.surface, // <--- Dynamic Surface Color (White vs Slate)
+            colorScheme.surface, 
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -429,24 +442,26 @@ class _AccountPageState extends ConsumerState<AccountPage> {
           ),
         ],
       ),
-      child: ListTile(
-        onTap: onTap,
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.1), // Keep brand tint
-            borderRadius: BorderRadius.circular(8),
+      child: MergeSemantics(
+        child: ListTile(
+          onTap: onTap,
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.1), // Keep brand tint
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ExcludeSemantics(child: Icon(icon, color: colorScheme.onSurface)),
           ),
-          child: Icon(icon, color: AppColors.primary),
+          title: Text(
+            title,
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurface,
+            ),
+          ), // Dynamic Text
+          trailing: trailing,
         ),
-        title: Text(
-          title,
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface,
-          ),
-        ), // Dynamic Text
-        trailing: trailing,
       ),
     );
   }
@@ -471,23 +486,25 @@ class _AccountPageState extends ConsumerState<AccountPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.onSurface,
-                  fontSize: 16,
+          MergeSemantics(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
+                    fontSize: 16,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: TextStyle(color: Colors.grey, fontSize: 12),
-              ),
-            ],
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+              ],
+            ),
           ),
           TextButton(
             onPressed: onTap,
@@ -511,7 +528,6 @@ class _AccountPageState extends ConsumerState<AccountPage> {
     );
   }
 
-  // ... (Helpers _getInitials and _showConfirmationSheet remain similar but ensure Sheet uses Theme colors too)
   String _getInitials(String name) {
     if (name.isEmpty) return "";
     List<String> nameParts = name.trim().split(" ");
@@ -538,13 +554,12 @@ class _AccountPageState extends ConsumerState<AccountPage> {
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor, // Dynamic Sheet BG
+          color: Theme.of(context).scaffoldBackgroundColor, 
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // ... content using Theme.of(context).textTheme ...
             Text(
               title,
               style: TextStyle(
@@ -553,10 +568,12 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                 color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
-            Icon(
-              Icons.warning_amber_rounded,
-              size: 48,
-              color: isCritical ? Colors.red : Colors.orange,
+            ExcludeSemantics(
+              child: Icon(
+                Icons.warning_amber_rounded,
+                size: 48,
+                color: isCritical ? Colors.red : Colors.orange,
+              ),
             ),
             const SizedBox(height: 16),
 

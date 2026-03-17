@@ -70,51 +70,57 @@ class ProgressPage extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // ROW 2: AVG COMPLETION RATE (Keep Primary Color background, it looks good in both)
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
+            Semantics(
+              label: "average_completion_rate".tr(
+                args: [(stats.avgCompletionRate * 100).toStringAsFixed(1)] 
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "completion_rate".tr(),
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.8),
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        "last_30_days".tr(),
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.5),
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    "${(stats.avgCompletionRate * 100).toStringAsFixed(1)}%",
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+              excludeSemantics: true,
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "completion_rate".tr(),
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.8),
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "last_30_days".tr(),
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.5),
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      "${(stats.avgCompletionRate * 100).toStringAsFixed(1)}%",
+                      style: const TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
 
@@ -129,7 +135,9 @@ class ProgressPage extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 12),
-            ProgressBarChart(data: stats.last30Days),
+            Semantics(
+              label: "chart_consistency_trend".tr(),
+              child: ProgressBarChart(data: stats.last30Days)),
 
             const SizedBox(height: 32),
 
@@ -195,32 +203,36 @@ class ProgressPage extends ConsumerWidget {
   ) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: BoxDecoration(
-        color: colorScheme.surface, // <--- Dynamic Surface
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.1), width: 1),
-      ),
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: color,
+    return Semantics(
+      label: "$title: $value",
+      excludeSemantics: true,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: colorScheme.surface, // <--- Dynamic Surface
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withValues(alpha: 0.1), width: 1),
+        ),
+        child: Column(
+          children: [
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 11,
-              color: colorScheme.onSurface.withValues(alpha: 0.6),
+            const SizedBox(height: 4),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 11,
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -237,16 +249,19 @@ class ProgressPage extends ConsumerWidget {
       ),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Color(item.habit.colorValue).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(
-              IconData(item.habit.iconCode, fontFamily: 'MaterialIcons'),
-              size: 20,
-              color: Color(item.habit.colorValue),
+          Semantics(
+            label: "habit_success_status".tr(args: [item.habit.title, (item.rate * 100).toString()]),
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Color(item.habit.colorValue).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                IconData(item.habit.iconCode, fontFamily: 'MaterialIcons'),
+                size: 20,
+                color: Color(item.habit.colorValue),
+              ),
             ),
           ),
           const SizedBox(width: 16),

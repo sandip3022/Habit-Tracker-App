@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker_app_2026/core/services/import_service.dart';
+import 'package:habit_tracker_app_2026/core/theme/theme_provider.dart';
 import 'package:habit_tracker_app_2026/core/utils/validators.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/domain/entities/habit_entity.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/home_page.dart';
@@ -39,9 +40,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     {'title': "meditation".tr(), 'icon': 0xe318, 'color': 0xFF00B894}, // Teal
     {'title': "journaling".tr(), 'icon': 0xe156, 'color': 0xFFE17055}, // Orange
     {
-      'title': "Early_sleep".tr(),
-      'icon': 0xf06b,
-      'color': 0xFF2C3E50,
+      'title': "Early_sleep".tr(), 'icon': 0xf06b, 'color': 0xFF0984E3,
     }, // Midnight
   ];
 
@@ -90,19 +89,26 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
             // Progress Indicator (Optional)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              child: LinearProgressIndicator(
-                value: (_currentPage + 1) / 3,
-                backgroundColor: Colors.grey[200],
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(4),
+              child: Semantics(
+                label: "onboarding_progress".tr(
+                  args: [(_currentPage + 1).toString(), "4"],
+                ), 
+                value: "${((_currentPage + 1) / 4 * 100).toInt()}%",
+                child: LinearProgressIndicator(
+                  value: (_currentPage + 1) / 4,
+                  backgroundColor: Colors.grey[200],
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(4),
+                ),
               ),
             ),
 
@@ -113,6 +119,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     const NeverScrollableScrollPhysics(), // Disable swipe to force buttons
                 onPageChanged: (idx) => setState(() => _currentPage = idx),
                 children: [
+                  _buildWelcomeStep(),
                   _buildNameStep(),
                   _buildHabitStep(),
                   _buildSecurityStep(),
@@ -127,6 +134,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   // --- STEP 1: NAME ---
   Widget _buildNameStep() {
+    final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -134,12 +142,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Let's get started",
-            style: TextStyle(color: AppColors.textSecondary),
+            "let_get_started".tr(),
+            style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6)),
           ),
           const SizedBox(height: 8),
           Text(
-            "What should we\ncall you?",
+            "what_should_we_call_you".tr(),
             style: Theme.of(context).textTheme.displayMedium,
           ),
           const SizedBox(height: 32),
@@ -148,7 +156,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             inputFormatters: [...Validators.nameInputFormatters],
             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             decoration: InputDecoration(
-              hintText: "Your Name",
+              hintText: "your_name".tr(),
               hintStyle: TextStyle(color: Colors.grey[300]),
               border: UnderlineInputBorder(
                 borderSide: BorderSide(color: AppColors.primary),
@@ -239,7 +247,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             child: Text(
               "already_have_backup".tr(),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.primary,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                 decoration: TextDecoration.underline,
                 fontWeight: FontWeight.w600,
               ),
@@ -261,6 +269,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   // --- STEP 2: HABITS ---
   Widget _buildHabitStep() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = ref.watch(themeProvider) == ThemeMode.dark;
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -268,7 +278,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         children: [
           Text(
             "kickstart_your_journey".tr(),
-            style: TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
           ),
           const SizedBox(height: 8),
           Text(
@@ -294,57 +304,66 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               itemBuilder: (context, index) {
                 final habit = _starterHabits[index];
                 final isSelected = _selectedHabits.contains(habit['title']);
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      if (isSelected) {
-                        _selectedHabits.remove(habit['title']);
-                      } else {
-                        _selectedHabits.add(habit['title']);
-                      }
-                    });
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    decoration: BoxDecoration(
-                      color: isSelected ? AppColors.primary : AppColors.surface,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
+                return Semantics(
+                  button: true,
+                  selected: isSelected,
+                  label: habit['title'],
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (isSelected) {
+                          _selectedHabits.remove(habit['title']);
+                        } else {
+                          _selectedHabits.add(habit['title']);
+                        }
+                      });
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      decoration: BoxDecoration(
                         color: isSelected
-                            ? Colors.transparent
-                            : Colors.grey[200]!,
-                      ),
-                      boxShadow: isSelected
-                          ? [
-                              BoxShadow(
-                                color: AppColors.primary.withOpacity(0.4),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ]
-                          : [],
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          IconData(habit['icon'], fontFamily: 'MaterialIcons'),
-                          size: 32,
+                            ? AppColors.primary
+                            : colorScheme.surface,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
                           color: isSelected
-                              ? Colors.white
-                              : Color(habit['color']),
+                              ? Colors.transparent
+                              : Colors.grey[200]!,
                         ),
-                        const SizedBox(height: 12),
-                        Text(
-                          habit['title'],
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: isSelected
-                                ? Colors.white
-                                : AppColors.textPrimary,
-                          ),
+                        boxShadow: isSelected
+                            ? [
+                                BoxShadow(
+                                  color: AppColors.primary.withOpacity(0.4),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ]
+                            : [],
+                      ),
+                      child: ExcludeSemantics(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              IconData(
+                                habit['icon'],
+                                fontFamily: 'MaterialIcons',
+                              ),
+                              size: 32,
+                              color: 
+                                   Color(habit['color']),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              habit['title'],
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: isSelected ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 );
@@ -354,7 +373,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
           Row(
             children: [
-              TextButton(onPressed: _nextPage, child: Text("skip".tr())),
+              TextButton(onPressed: _nextPage, child: Text("skip".tr(),style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6)),)),
               const Spacer(),
               ElevatedButton(
                 onPressed: _nextPage,
@@ -369,6 +388,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   // --- STEP 3: SECURITY ---
   Widget _buildSecurityStep() {
+    final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -385,7 +405,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           Text(
             "secure_your_journal".tr(),
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6)),
           ),
           const SizedBox(height: 48),
 
@@ -409,11 +429,151 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           TextButton(
             onPressed: _finishOnboarding,
             child: Text(
-              "skip_for_now".tr(),
-              style: TextStyle(color: AppColors.textSecondary),
+              "skip_security".tr(),
+              style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6)),
             ),
           ),
         ],
+      ),
+    );
+  }
+  // --- STEP 1: WELCOME & PREFERENCES ---
+  Widget _buildWelcomeStep() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    // Read the current theme state to highlight the correct card
+    final isDark = ref.watch(themeProvider) == ThemeMode.dark;
+
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            "welcome_to_growbit".tr(), // Add this to JSON!
+            style: textTheme.displayMedium,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "personalize_experience".tr(), // Add this to JSON!
+            style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 16),
+          ),
+          const SizedBox(height: 48),
+
+          // --- LANGUAGE SELECTOR ---
+          Text(
+            "choose_language".tr(), // Add this to JSON!
+            style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            decoration: BoxDecoration(
+              color: colorScheme.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<Locale>(
+                isExpanded: true,
+                value: context.locale,
+                dropdownColor: colorScheme.surface,
+                icon: const Icon(Icons.language, color: Colors.grey),
+                items: const [
+                  DropdownMenuItem(value: Locale('en'), child: Text("English")),
+                  DropdownMenuItem(value: Locale('mr'), child: Text("मराठी")),
+                  DropdownMenuItem(value: Locale('hi'), child: Text("हिंदी")),
+                ],
+                onChanged: (Locale? newLocale) {
+                  if (newLocale != null) {
+                    context.setLocale(newLocale); // Instantly translates the page!
+                  }
+                },
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 32),
+
+          // --- THEME SELECTOR ---
+          Text(
+            "choose_theme".tr(), // Add this to JSON!
+            style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildThemeCard(
+                  title: "light".tr(),
+                  icon: Icons.wb_sunny_outlined,
+                  isSelected: !isDark,
+                  onTap: () => ref.read(themeProvider.notifier).toggleTheme(false),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildThemeCard(
+                  title: "dark".tr(),
+                  icon: Icons.nightlight_round,
+                  isSelected: isDark,
+                  onTap: () => ref.read(themeProvider.notifier).toggleTheme(true),
+                ),
+              ),
+            ],
+          ),
+
+          const Spacer(),
+
+          // --- NEXT BUTTON ---
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _nextPage,
+              child: Text("next_step".tr()),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Helper Widget for the Theme Cards
+  Widget _buildThemeCard({
+    required String title,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : colorScheme.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : Colors.grey.withValues(alpha: 0.3),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, size: 20, color: isSelected ? AppColors.primary : Colors.grey),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isSelected ? AppColors.primary : colorScheme.onSurface,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
