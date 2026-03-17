@@ -86,7 +86,7 @@ static ThemeData get darkTheme{
     colorScheme: const ColorScheme.dark(
         primary: AppColors.primary, // Keep Brand Color
         secondary: AppColors.secondary,
-        surface: Color(0xFF1E293B), // Lighter Slate for Cards
+        surface: AppColors.darkSurface, // Lighter Slate for Cards
         error: AppColors.errorDark, // Use darker red for better contrast on dark backgrounds
         onPrimary: Colors.white,
         onSecondary: Colors.white,
@@ -109,7 +109,7 @@ static ThemeData get darkTheme{
       ),
       
       cardTheme: CardThemeData(
-        color: const Color(0xFF1E293B), // Dark Surface
+        color: AppColors.darkSurface, // Dark Surface
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),

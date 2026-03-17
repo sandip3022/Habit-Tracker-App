@@ -170,5 +170,11 @@
   "onboarding_progress": "{} पैकी {}",
   "let_get_started": "चला सुरुवात करूया",
   "what_should_we_call_you": "तुम्हाला आम्ही\nकशा नावाने हाक मारू?",
-  "your_name": "तुमचे नाव"
+  "your_name": "तुमचे नाव",
+  "welcome_to_growbit": "Growbit मध्ये स्वागत आहे",
+  "personalize_experience": "चला तुमचा अनुभव वैयक्तिक बनवूया",
+  "choose_language": "भाषा निवडा",
+  "choose_theme": "रंग थीम निवडा",
+  "light": "लाइट",
+  "dark": "डार्क"
 }

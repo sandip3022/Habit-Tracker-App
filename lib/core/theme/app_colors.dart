@@ -10,6 +10,7 @@ class AppColors {
   static const Color darkBackground = Color(0xFF0F172A);
   static const Color surface = Colors.white;
   static const Color error = Color(0xFFE57373);
+  static const Color darkSurface = Color(0xFF1E293B);
 
   // 2. TEXT COLORS
   static const Color textPrimary = Color(0xFF2D3436);
