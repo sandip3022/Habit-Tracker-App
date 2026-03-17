@@ -98,11 +98,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             // Progress Indicator (Optional)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              child: LinearProgressIndicator(
-                value: (_currentPage + 1) / 3,
-                backgroundColor: Colors.grey[200],
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(4),
+              child: Semantics(
+                label: "onboarding_progress".tr(
+                  args: [(_currentPage + 1).toString(), "3"],
+                ), // e.g., "Step 1 of 3"
+                value: "${((_currentPage + 1) / 3 * 100).toInt()}%",
+                child: LinearProgressIndicator(
+                  value: (_currentPage + 1) / 3,
+                  backgroundColor: Colors.grey[200],
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(4),
+                ),
               ),
             ),
 
@@ -134,12 +140,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Let's get started",
+            "let_get_started".tr(),
             style: TextStyle(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 8),
           Text(
-            "What should we\ncall you?",
+            "what_should_we_call_you".tr(),
             style: Theme.of(context).textTheme.displayMedium,
           ),
           const SizedBox(height: 32),
@@ -148,7 +154,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             inputFormatters: [...Validators.nameInputFormatters],
             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             decoration: InputDecoration(
-              hintText: "Your Name",
+              hintText: "your_name".tr(),
               hintStyle: TextStyle(color: Colors.grey[300]),
               border: UnderlineInputBorder(
                 borderSide: BorderSide(color: AppColors.primary),
@@ -294,57 +300,69 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               itemBuilder: (context, index) {
                 final habit = _starterHabits[index];
                 final isSelected = _selectedHabits.contains(habit['title']);
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      if (isSelected) {
-                        _selectedHabits.remove(habit['title']);
-                      } else {
-                        _selectedHabits.add(habit['title']);
-                      }
-                    });
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    decoration: BoxDecoration(
-                      color: isSelected ? AppColors.primary : AppColors.surface,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
+                return Semantics(
+                  button: true,
+                  selected: isSelected,
+                  label: habit['title'],
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (isSelected) {
+                          _selectedHabits.remove(habit['title']);
+                        } else {
+                          _selectedHabits.add(habit['title']);
+                        }
+                      });
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      decoration: BoxDecoration(
                         color: isSelected
-                            ? Colors.transparent
-                            : Colors.grey[200]!,
-                      ),
-                      boxShadow: isSelected
-                          ? [
-                              BoxShadow(
-                                color: AppColors.primary.withOpacity(0.4),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ]
-                          : [],
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          IconData(habit['icon'], fontFamily: 'MaterialIcons'),
-                          size: 32,
+                            ? AppColors.primary
+                            : AppColors.surface,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
                           color: isSelected
-                              ? Colors.white
-                              : Color(habit['color']),
+                              ? Colors.transparent
+                              : Colors.grey[200]!,
                         ),
-                        const SizedBox(height: 12),
-                        Text(
-                          habit['title'],
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: isSelected
-                                ? Colors.white
-                                : AppColors.textPrimary,
-                          ),
+                        boxShadow: isSelected
+                            ? [
+                                BoxShadow(
+                                  color: AppColors.primary.withOpacity(0.4),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ]
+                            : [],
+                      ),
+                      child: ExcludeSemantics(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              IconData(
+                                habit['icon'],
+                                fontFamily: 'MaterialIcons',
+                              ),
+                              size: 32,
+                              color: isSelected
+                                  ? Colors.white
+                                  : Color(habit['color']),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              habit['title'],
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: isSelected
+                                    ? Colors.white
+                                    : AppColors.textPrimary,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 );
@@ -409,7 +427,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           TextButton(
             onPressed: _finishOnboarding,
             child: Text(
-              "skip_for_now".tr(),
+              "skip_security".tr(),
               style: TextStyle(color: AppColors.textSecondary),
             ),
           ),

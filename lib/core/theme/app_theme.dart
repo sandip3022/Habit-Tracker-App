@@ -15,7 +15,7 @@ class AppTheme {
         primary: AppColors.primary,
         secondary: AppColors.secondary,
         surface: AppColors.surface,
-        error: AppColors.error,
+        error: AppColors.errorLight,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onSurface: AppColors.textPrimary,
@@ -80,14 +80,14 @@ static ThemeData get darkTheme{
     useMaterial3: true,
     brightness: Brightness.dark,
 
-    primaryColor: AppColors.primary,
+    primaryColor: AppColors.primaryDark,
     scaffoldBackgroundColor: AppColors.darkBackground,
 
     colorScheme: const ColorScheme.dark(
         primary: AppColors.primary, // Keep Brand Color
         secondary: AppColors.secondary,
         surface: Color(0xFF1E293B), // Lighter Slate for Cards
-        error: AppColors.error,
+        error: AppColors.errorDark, // Use darker red for better contrast on dark backgrounds
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onSurface: Colors.white, // White text on dark
@@ -112,6 +112,16 @@ static ThemeData get darkTheme{
         color: const Color(0xFF1E293B), // Dark Surface
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primaryDark,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        ),
       ),
 
       // Floating Action Button
