@@ -123,11 +123,6 @@ Future<void> toggleBiometric(bool newValue) async {
 }
 
 
-
-
-
-
-
 final privacyProvider =
     StateNotifierProvider<PrivacyNotifier, PrivacyState>(
   (ref) => PrivacyNotifier(),

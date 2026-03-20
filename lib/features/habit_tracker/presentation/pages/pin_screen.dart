@@ -101,29 +101,34 @@ class _PinScreenState extends ConsumerState<PinScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // 1. Title
-          Text(
-            _displayTitle, 
-            style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)
+          Semantics(
+            header: true,
+            child: Text(
+              _displayTitle, 
+              style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)
+            ),
           ),
           const SizedBox(height: 30),
 
           // 2. Dots
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(4, (index) {
-              return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 8),
-                width: 16,
-                height: 16,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: index < _enteredPin.length 
-                      ? AppColors.primary 
-                      // Unfilled dots: Dynamic grey
-                      : AppColors.primary.withValues(alpha: isDark ? 0.4 : 0.2),
-                ),
-              );
-            }),
+          ExcludeSemantics(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(4, (index) {
+                return Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  width: 16,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: index < _enteredPin.length 
+                        ? AppColors.primary 
+                        // Unfilled dots: Dynamic grey
+                        : AppColors.primary.withValues(alpha: isDark ? 0.4 : 0.2),
+                  ),
+                );
+              }),
+            ),
           ),
           
           const Spacer(),
@@ -145,36 +150,44 @@ class _PinScreenState extends ConsumerState<PinScreen> {
                 if (index == 9) return const SizedBox(); // Empty bottom left
                 if (index == 11) {
                   // Backspace
-                  return IconButton(
-                    onPressed: _onDeleteTap,
-                    icon: const Icon(Icons.backspace_outlined, size: 28),
-                    // Dynamic Icon Color
-                    color: colorScheme.onSurface,
+                  return Semantics(
+                    label: "delete".tr(),
+                    button: true,
+                    child: IconButton(
+                      onPressed: _onDeleteTap,
+                      icon: const Icon(Icons.backspace_outlined, size: 28),
+                      // Dynamic Icon Color
+                      color: colorScheme.onSurface,
+                    ),
                   );
                 }
                 
                 String val = (index == 10) ? "0" : "${index + 1}";
                 
-                return GestureDetector(
-                  onTap: () => _onNumberTap(val),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      // Dynamic Key Background (White vs Slate)
-                      color: colorScheme.surface,
-                      border: Border.all(
-                        // Dynamic Border (Grey vs Subtle White)
-                        color: isDark ? Colors.white12 : Colors.grey.withValues(alpha: 0.2)
+                return Semantics(
+                  button: true,
+                  value: val,
+                  child: GestureDetector(
+                    onTap: () => _onNumberTap(val),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        // Dynamic Key Background (White vs Slate)
+                        color: colorScheme.surface,
+                        border: Border.all(
+                          // Dynamic Border (Grey vs Subtle White)
+                          color: isDark ? Colors.white12 : Colors.grey.withValues(alpha: 0.2)
+                        ),
                       ),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      val,
-                      style: TextStyle(
-                        fontSize: 24, 
-                        fontWeight: FontWeight.bold,
-                        // Dynamic Number Color
-                        color: colorScheme.onSurface
+                      alignment: Alignment.center,
+                      child: Text(
+                        val,
+                        style: TextStyle(
+                          fontSize: 24, 
+                          fontWeight: FontWeight.bold,
+                          // Dynamic Number Color
+                          color: colorScheme.onSurface
+                        ),
                       ),
                     ),
                   ),

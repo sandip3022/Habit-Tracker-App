@@ -176,5 +176,7 @@
   "choose_language": "भाषा चुनें",
   "choose_theme": "रंग थीम चुनें",
   "light": "लाइट",
-  "dark": "डार्क"
+  "dark": "डार्क",
+  "enter_pin": "PIN दर्ज करें",
+  "app_is_loading": "Growbit ऐप लोड हो रहा है"
 }

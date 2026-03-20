@@ -176,5 +176,7 @@
   "choose_language":"Choose Language",
   "choose_theme":"Choose Color Theme",
   "light":"Light",
-  "dark":"Dark"
+  "dark":"Dark",
+  "enter_pin":"Enter PIN",
+  "app_is_loading":"Growbit app is loading"
 }
