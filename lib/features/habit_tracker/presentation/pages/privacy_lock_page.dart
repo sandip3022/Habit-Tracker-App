@@ -53,7 +53,7 @@ class PrivacyLockPage extends ConsumerWidget {
             _buildToggleCard(
               context,
               title: "biometric_unlock".tr(),
-              subtitle: "faceid_fingerprint".tr(),
+              subtitle: "fingerprint".tr(),
               icon: Icons.fingerprint,
               value: privacyState.isBiometricEnabled,
               onChanged: (val) {

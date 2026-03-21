@@ -56,7 +56,7 @@
   "incorrect_pin": "Incorrect PIN",
   "secure_your_habits": "SECURE YOUR HABITS",
   "biometric_unlock": "Biometric Unlock",
-  "faceid_fingerprint": "FaceID / Fingerprint",
+  "fingerprint": "Fingerprint",
   "pin_code": "PIN Code",
   "pin_code_subtitle": "4-digit secure code",
   "enter_old_pin": "Enter Old PIN",
@@ -86,7 +86,7 @@
   "zero": "0",
   "days": "Days",
   "locked": "Locked",
-  "unlock_with_faceid_fingerprint": "Unlock with FaceID / Fingerprint",
+  "unlock_with_faceid_fingerprint": "Unlock with Fingerprint",
   "excercise": "Excercise",
   "read_books": "Read Books",
   "healthy_eating": "Healthy Eating",
@@ -178,5 +178,6 @@
   "light":"Light",
   "dark":"Dark",
   "enter_pin":"Enter PIN",
-  "app_is_loading":"Growbit app is loading"
+  "app_is_loading":"Growbit app is loading",
+  "today" : "Today"
 }

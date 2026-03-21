@@ -56,7 +56,7 @@
   "incorrect_pin": "चुकीचा PIN",
   "secure_your_habits": "तुमच्या सवयी सुरक्षित ठेवा",
   "biometric_unlock": "बायोमेट्रिक अनलॉक",
-  "faceid_fingerprint": "FaceID / फिंगरप्रिंट",
+  "fingerprint": "फिंगरप्रिंट",
   "pin_code": "PIN कोड",
   "pin_code_subtitle": "4-अंकी सुरक्षित कोड",
   "enter_old_pin": "जुना PIN टाका",
@@ -86,7 +86,7 @@
   "zero": "0",
   "days": "दिवस",
   "locked": "लॉक केलेले",
-  "unlock_with_faceid_fingerprint": "FaceID / फिंगरप्रिंटने अनलॉक करा",
+  "unlock_with_fingerprint": "फिंगरप्रिंटने अनलॉक करा",
   "excercise": "व्यायाम",
   "read_books": "पुस्तके वाचा",
   "healthy_eating": "आरोग्यदायी आहार",
@@ -178,5 +178,6 @@
   "light": "लाइट",
   "dark": "डार्क",
   "enter_pin": "PIN प्रविष्ट करा",
-  "app_is_loading": "Growbit ॲप लोड होत आहे"
+  "app_is_loading": "Growbit ॲप लोड होत आहे",
+  "today": "आज"
 }

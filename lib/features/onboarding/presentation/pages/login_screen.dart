@@ -73,7 +73,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _checkBiometric,
-              child: const Text("unlock_with_faceid_fingerprint").tr(),
+              child: const Text("unlock_with_fingerprint").tr(),
             ),
           ],
         ),
