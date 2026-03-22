@@ -207,7 +207,7 @@ class PrivacyLockPage extends ConsumerWidget {
               color: colorScheme.primary.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: colorScheme.onPrimary), // Dynamic Icon Color
+            child: Icon(icon, color: colorScheme.onSurface), // Dynamic Icon Color
           ),
           const SizedBox(width: 16),
           Expanded(

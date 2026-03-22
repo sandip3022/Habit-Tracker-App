@@ -158,7 +158,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
             child: Text(
               "save_all_cap".tr(),
               style: textTheme.labelLarge?.copyWith(
-                color: colorScheme.onPrimary,
+                color: colorScheme.onSurface,
                 letterSpacing: 1.0,
               ),
             ),

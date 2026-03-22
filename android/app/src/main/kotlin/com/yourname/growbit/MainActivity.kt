@@ -1,4 +1,4 @@
-package com.yourname.growbit
+package com.yourname.grobit
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 
