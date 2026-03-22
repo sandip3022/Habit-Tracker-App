@@ -25,13 +25,13 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
   List<int> _selectedDays = [];
 
   final List<Color> _colorOptions = [
-    const Color(0xFF2C3E50), // Midnight
-    const Color(0xFFFF6B6B), // Coral
-    const Color(0xFF6C5CE7), // Purple
-    const Color(0xFF00B894), // Teal
-    const Color(0xFF0984E3), // Blue
-    const Color(0xFFE17055), // Orange
-    const Color(0xFFFD79A8), // Pink
+    AppColors.airForceBlue,
+    AppColors.softCoral,
+    AppColors.purple,
+    AppColors.teal,
+    AppColors.blue,
+    AppColors.orange,
+    AppColors.pink,
   ];
 
   final List<String> _colorNames = [
@@ -160,7 +160,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
             child: Text(
               "save_all_cap".tr(),
               style: textTheme.labelLarge?.copyWith(
-                color: AppColors.primary,
+                color: colorScheme.onPrimary,
                 letterSpacing: 1.0,
               ),
             ),
@@ -201,7 +201,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
                   border: InputBorder.none,
                   icon: Icon(
                     Icons.edit_outlined,
-                    color: AppColors.primary.withValues(alpha: 0.7),
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
               ),

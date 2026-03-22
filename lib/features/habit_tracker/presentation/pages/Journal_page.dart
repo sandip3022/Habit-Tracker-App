@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:habit_tracker_app_2026/core/theme/app_colors.dart';
 
 import 'package:habit_tracker_app_2026/features/habit_tracker/domain/entities/habit_entity.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/add_habit_page.dart';
@@ -201,6 +202,9 @@ class _JournalPageState extends ConsumerState<JournalPage> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text("cancel").tr(),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.inverseSurface,
+            ),
           ),
           TextButton(
             onPressed: () {
@@ -208,9 +212,13 @@ class _JournalPageState extends ConsumerState<JournalPage> {
               ref.read(habitNotifierProvider.notifier).deleteHabit(habit, date);
               Navigator.pop(context);
             },
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
             child: const Text("delete").tr(),
           ),
         ],
+        
       ),
     );
   }

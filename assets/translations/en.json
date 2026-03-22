@@ -46,7 +46,6 @@
   "journal": "Journal",
   "progress": "Progress",
   "delete_habit_question": "Delete Habit?",
-  "delete_habit_confirmation": "Delete {}?",
   "cancel": "Cancel",
   "delete": "Delete",
   "enter_your_pin": "Enter your PIN",
@@ -179,5 +178,7 @@
   "dark":"Dark",
   "enter_pin":"Enter PIN",
   "app_is_loading":"Growbit app is loading",
-  "today" : "Today"
+  "today" : "Today",
+  "delete_habit": "Delete Habit",
+  "delete_habit_confirmation": "Are you sure you want to delete the habit '{}'?"
 }

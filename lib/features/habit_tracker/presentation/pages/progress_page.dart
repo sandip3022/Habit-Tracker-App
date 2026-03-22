@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/habit_history_page.dart';
 import 'package:habit_tracker_app_2026/main.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/logic/progress_calculator.dart';
@@ -72,7 +73,7 @@ class ProgressPage extends ConsumerWidget {
             // ROW 2: AVG COMPLETION RATE (Keep Primary Color background, it looks good in both)
             Semantics(
               label: "average_completion_rate".tr(
-                args: [(stats.avgCompletionRate * 100).toStringAsFixed(1)] 
+                args: [(stats.avgCompletionRate * 100).toStringAsFixed(1)],
               ),
               excludeSemantics: true,
               child: Container(
@@ -137,7 +138,8 @@ class ProgressPage extends ConsumerWidget {
             const SizedBox(height: 12),
             Semantics(
               label: "chart_consistency_trend".tr(),
-              child: ProgressBarChart(data: stats.last30Days)),
+              child: ProgressBarChart(data: stats.last30Days),
+            ),
 
             const SizedBox(height: 32),
 
@@ -149,7 +151,7 @@ class ProgressPage extends ConsumerWidget {
                     context,
                     "perfect_days".tr(),
                     "${stats.perfectDays}",
-                    AppColors.secondary,
+                    AppColors.green,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -158,7 +160,7 @@ class ProgressPage extends ConsumerWidget {
                     context,
                     "partial_days".tr(),
                     "${stats.partialDays}",
-                    AppColors.primary,
+                    AppColors.yellow,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -240,51 +242,64 @@ class ProgressPage extends ConsumerWidget {
   Widget _buildLeaderboardTile(BuildContext context, HabitSuccessRate item) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colorScheme.surface, // <--- Dynamic Surface
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Semantics(
-            label: "habit_success_status".tr(args: [item.habit.title, (item.rate * 100).toString()]),
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Color(item.habit.colorValue).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => HabitHistoryPage(habit: item.habit),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: colorScheme.surface, // <--- Dynamic Surface
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: colorScheme.primary.withValues(alpha: 0.1), width: 1),
+        ),
+        child: Row(
+          children: [
+            Semantics(
+              label: "habit_success_status".tr(
+                args: [item.habit.title, (item.rate * 100).toString()],
               ),
-              child: Icon(
-                IconData(item.habit.iconCode, fontFamily: 'MaterialIcons'),
-                size: 20,
-                color: Color(item.habit.colorValue),
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Color(item.habit.colorValue).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  IconData(item.habit.iconCode, fontFamily: 'MaterialIcons'),
+                  size: 20,
+                  color: Color(item.habit.colorValue),
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              item.habit.title,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                item.habit.title,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  color: colorScheme.onSurface,
+                ), // Dynamic Text
+              ),
+            ),
+            Text(
+              "${(item.rate * 100).toInt()}%",
               style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-                color: colorScheme.onSurface,
-              ), // Dynamic Text
+                fontWeight: FontWeight.bold,
+                color: item.rate > 0.8
+                    ? AppColors.green
+                    : (item.rate > 0.5 ? AppColors.yellow : AppColors.red),
+              ),
             ),
-          ),
-          Text(
-            "${(item.rate * 100).toInt()}%",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: item.rate > 0.8
-                  ? Colors.green
-                  : (item.rate > 0.5 ? Colors.orange : Colors.red),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -27,4 +27,19 @@ class AppColors {
 
   static Color secondaryTint10 = secondary.withValues(alpha: 0.1);
   static Color secondaryTint20 = secondary.withValues(alpha: 0.2);
+
+ 
+
+  static Color airForceBlue = const Color(0xFF5D8AA8);
+  static Color softCoral = const Color(0xFFFF6B6B);
+  static Color purple = const Color(0xFF6C5CE7);
+  static Color teal = const Color(0xFF00B894);
+  static Color blue = const Color(0xFF0984E3);
+  static Color orange = const Color(0xFFE17055);
+  static Color pink = const Color(0xFFFD79A8);
+
+
+  static Color green = const Color(0xFF27AE60);
+  static Color yellow = const Color(0xFFE17055);
+  static Color red = const Color(0xFFE74C3C);
 }

@@ -21,7 +21,7 @@ class ProgressBarChart extends StatelessWidget {
     ); // Adaptive Grey
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: colorScheme.surface, // <--- Dynamic Surface
         borderRadius: BorderRadius.circular(16),
@@ -92,13 +92,14 @@ class ProgressBarChart extends StatelessWidget {
                                   message:
                                       "${DateFormat('MMM d').format(day.date)}: ${(day.percentage * 100).toInt()}%",
                                   child: Container(
-                                    width: 6,
+                                    width: 4,
                                     height: chartHeight * day.percentage,
                                     decoration: BoxDecoration(
                                       // Pass isDark to helper to fix Grey bars
                                       color: _getBarColor(
                                         day.percentage,
                                         isDark,
+                                        colorScheme,
                                       ),
                                       borderRadius: BorderRadius.circular(4),
                                     ),
@@ -111,13 +112,20 @@ class ProgressBarChart extends StatelessWidget {
                           const SizedBox(height: 8),
 
                           // X-AXIS LABEL
-                          if ((data.length - 1 - index) % 5 == 0)
-                            Text(
-                              DateFormat('d').format(day.date),
-                              style: TextStyle(fontSize: 10, color: labelColor),
-                            )
-                          else
-                            const SizedBox(height: 12),
+                          SizedBox(
+                            height: 16,
+                            child: ((data.length - 1 - index) % 5 == 0)
+                                ? RotatedBox(
+                                  quarterTurns: -1,
+                                  child: Text(
+                                      DateFormat('d').format(day.date),
+                                      style: TextStyle(fontSize: 5, color: labelColor,fontWeight: FontWeight.w800,),
+                                      textAlign: TextAlign.center,
+                                      
+                                    ),
+                                )
+                                : const SizedBox.shrink(),
+                          )
                         ],
                       ),
                     );
@@ -148,12 +156,12 @@ class ProgressBarChart extends StatelessWidget {
     return Text(text, style: TextStyle(fontSize: 10, color: color));
   }
 
-  Color _getBarColor(double percentage, bool isDark) {
+  Color _getBarColor(double percentage, bool isDark, ColorScheme colorScheme) {
     if (percentage == 1.0) return AppColors.secondary; // Perfect
 
     // Fix: In Dark Mode, Grey[300] is too bright. Use white10 (subtle grey).
     if (percentage == 0.0) return isDark ? Colors.white10 : Colors.grey[300]!;
 
-    return AppColors.primary.withValues(alpha: 0.6); // Partial
+    return colorScheme.onSurface.withValues(alpha: 0.6); // Partial
   }
 }

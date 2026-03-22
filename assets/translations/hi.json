@@ -46,7 +46,7 @@
   "journal": "जर्नल",
   "progress": "प्रगति",
   "delete_habit_question": "आदत हटाएं?",
-  "delete_habit_confirmation": "{} हटाएं?",
+  "delete_habit_confirmation": "क्या आप वाकई आदत '{}' को हटाना चाहते हैं?",
   "cancel": "रद्द करें",
   "delete": "हटाएं",
   "enter_your_pin": "अपना PIN दर्ज करें",
@@ -179,5 +179,6 @@
   "dark": "डार्क",
   "enter_pin": "PIN दर्ज करें",
   "app_is_loading": "Growbit ऐप लोड हो रहा है",
-  "today": "आज"
+  "today": "आज",
+  delete_habit: "आदत हटाएं"
 }

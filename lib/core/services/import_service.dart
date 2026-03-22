@@ -50,17 +50,17 @@ class ImportService {
         // Map the row columns back into a HabitEntity.
         importedHabits.add(
           HabitEntity(
-            id: row[6].toString(),                // [6] is sys_id
-            title: row[0].toString(),             // [0] is Habit Title
-            iconCode: int.parse(row[7].toString()), // [7] is sys_icon
-            colorValue: int.parse(row[8].toString()), // [8] is sys_color
+            id: row[6].toString(),                
+            title: row[0].toString(), 
             frequency: HabitFrequency.values.firstWhere(
-              (e) => e.name.toUpperCase() == row[1].toString().toUpperCase(), // [1] is Frequency
+              (e) => e.name.toUpperCase() == row[1].toString().toUpperCase(),
               orElse: () => HabitFrequency.daily,
             ),
-            targetDays: _parseDaysList(row[9].toString()), // [9] is sys_targetDays
             completedDates: _parseDatesList(row[5].toString()), // [5] is All Completed Dates
-            createdAt: DateTime.tryParse(row[4].toString()) ?? DateTime.now(), // [4] is Created Date
+            createdAt: DateTime.tryParse(row[4].toString()) ?? DateTime.now(),             
+            iconCode: int.parse(row[7].toString()), 
+            colorValue: int.parse(row[8].toString()),
+            targetDays: _parseDaysList(row[9].toString()), // [9] is sys_targetDays
           ),
         );
       } catch (e) {
@@ -72,7 +72,6 @@ class ImportService {
     // D. Hand the finished list back to the Main Isolate!
     return importedHabits;
   }
-  // --- Helper parsing methods for the Background Isolate ---
 
   static List<int> _parseDaysList(String data) {
     if (data.isEmpty) return [];
