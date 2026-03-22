@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.yourname.growbit"
+    namespace = "com.yourname.grobit"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 

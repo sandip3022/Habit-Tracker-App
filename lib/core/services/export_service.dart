@@ -54,7 +54,7 @@ class ExportService {
       
       // 5. Trigger the direct Native Download
       final String? resultPath = await FileSaver.instance.saveAs(
-        name: 'Growbit_Export_$timestamp',
+        name: 'GroBit_Export_$timestamp',
         bytes: bytes,
         ext: 'csv',
         mimeType: MimeType.csv,

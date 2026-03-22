@@ -1,11 +1,11 @@
-# 🪴 Growbit - Your Local-First Habit Tracker
+# 🪴 GroBit - Your Local-First Habit Tracker
 
 [![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?style=for-the-badge&logo=Flutter&logoColor=white)](https://flutter.dev/)
 [![Riverpod](https://img.shields.io/badge/Riverpod-State%20Management-blue?style=for-the-badge)](https://riverpod.dev/)
 [![Hive](https://img.shields.io/badge/Hive-Local%20Database-yellow?style=for-the-badge)](https://pub.dev/packages/hive)
 [![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-lightgrey?style=for-the-badge)]()
 
-**Growbit** is a beautifully crafted, privacy-centric habit tracker built with Flutter. Designed with a "Modern Journal" aesthetic, it helps users build routines, track streaks, and maintain focus—all without requiring an internet connection or cloud account. **Your data belongs to you.**
+**GroBit** is a beautifully crafted, privacy-centric habit tracker built with Flutter. Designed with a "Modern Journal" aesthetic, it helps users build routines, track streaks, and maintain focus—all without requiring an internet connection or cloud account. **Your data belongs to you.**
 
 ---
 
@@ -33,7 +33,7 @@
 
 ## 🏗️ App Architecture
 
-Growbit is built using **Clean Architecture** principles to ensure the codebase remains scalable, testable, and highly maintainable. 
+GroBit is built using **Clean Architecture** principles to ensure the codebase remains scalable, testable, and highly maintainable. 
 
 
 
@@ -63,7 +63,7 @@ The app is divided into three distinct layers:
 
 ## 🚀 Getting Started
 
-Follow these steps to run Growbit on your local machine.
+Follow these steps to run GroBit on your local machine.
 
 ### Prerequisites
 * Flutter SDK (v3.22.0 or higher)
