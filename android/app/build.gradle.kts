@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.yourname.growbit"
+    namespace = "com.yourname.grobit"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -22,7 +22,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.yourname.growbit"
+        applicationId = "com.yourname.grobit"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -35,7 +35,7 @@ android {
         release {
             // Enables code shrinking (which triggers R8)
             isMinifyEnabled = true 
-            isShrinkResources = false
+            isShrinkResources = true
 
             // TODO: Add your own signing config for the release build.
             signingConfig = signingConfigs.getByName("debug")

@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/home_page.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/pin_screen.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/state_management/privacy_provider.dart';
-import '../../../../core/theme/app_colors.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -45,6 +44,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final privacyState = ref.watch(privacyProvider);
+    final colorScheme = Theme.of(context).colorScheme;
 
     // If User has PIN enabled, show the keypad directly in this screen
     if (privacyState.isPinEnabled) {
@@ -57,21 +57,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     // If Only Biometric is enabled (rare case if PIN is usually fallback)
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Icon(Icons.fingerprint, size: 80, color: AppColors.primary),
-            const SizedBox(height: 24),
+            Icon(Icons.fingerprint, size: 80, color: colorScheme.primary),
+            const SizedBox(height: 20),
             Text(
               "locked".tr(),
-              style: Theme.of(context).textTheme.displayMedium,
+              style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                color: colorScheme.onSurface,
+              ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _checkBiometric,
-              child: const Text("unlock_with_faceid_fingerprint").tr(),
+              child: const Text("unlock_with_fingerprint").tr(),
             ),
           ],
         ),

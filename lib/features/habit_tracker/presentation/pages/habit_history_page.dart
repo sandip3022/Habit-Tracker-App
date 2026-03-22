@@ -15,15 +15,11 @@ class HabitHistoryPage extends StatefulWidget {
 class _HabitHistoryPageState extends State<HabitHistoryPage> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  late Set<String> _completedDateStrings;
 
   @override
   void initState() {
     super.initState();
     // PERFORMANCE UPGRADE: Convert list of DateTimes to a Set of YYYY-MM-DD strings for O(1) lookup
-    _completedDateStrings = widget.habit.completedDates
-        .map((d) => "${d.year}-${d.month}-${d.day}")
-        .toSet();
   }
 
   @override

@@ -12,7 +12,7 @@ class PrivacyLockPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final privacyState = ref.watch(privacyProvider);
     final notifier = ref.read(privacyProvider.notifier);
-    
+
     // 1. Access Theme Data
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
@@ -24,7 +24,10 @@ class PrivacyLockPage extends ConsumerWidget {
     return Scaffold(
       // No fixed background color (Scaffold uses Theme default)
       appBar: AppBar(
-        title: Text("privacy_lock".tr(), style: textTheme.displayMedium?.copyWith(fontSize: 22)),
+        title: Text(
+          "privacy_lock".tr(),
+          style: textTheme.displayMedium?.copyWith(fontSize: 22),
+        ),
         elevation: 0,
         leading: IconButton(
           // Dynamic Icon Color
@@ -39,7 +42,10 @@ class PrivacyLockPage extends ConsumerWidget {
           children: [
             Text(
               "secure_your_habits".tr(),
-              style: textTheme.labelSmall?.copyWith(color: labelColor, letterSpacing: 1.2),
+              style: textTheme.labelSmall?.copyWith(
+                color: labelColor,
+                letterSpacing: 1.2,
+              ),
             ),
             const SizedBox(height: 16),
 
@@ -47,7 +53,7 @@ class PrivacyLockPage extends ConsumerWidget {
             _buildToggleCard(
               context,
               title: "biometric_unlock".tr(),
-              subtitle: "faceid_fingerprint".tr(),
+              subtitle: "fingerprint".tr(),
               icon: Icons.fingerprint,
               value: privacyState.isBiometricEnabled,
               onChanged: (val) {
@@ -102,22 +108,36 @@ class PrivacyLockPage extends ConsumerWidget {
               const SizedBox(height: 16),
               GestureDetector(
                 onTap: () {
-                   // Change PIN Logic: Verify Old -> Set New
-                   Navigator.push(context, MaterialPageRoute(builder: (_) => PinScreen(
-                     mode: PinMode.verify,
-                     title: "enter_old_pin".tr(),
-                     onSuccess: (_) {
-                       // Old PIN correct, navigate to Set New
-                       Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => PinScreen(
-                         mode: PinMode.create,
-                         onSuccess: (newPin) {
-                            notifier.setPin(newPin);
-                            Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("PIN Updated")));
-                         },
-                       )));
-                     },
-                   )));
+                  // Change PIN Logic: Verify Old -> Set New
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PinScreen(
+                        mode: PinMode.verify,
+                        title: "enter_old_pin".tr(),
+                        onSuccess: (_) {
+                          // Old PIN correct, navigate to Set New
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => PinScreen(
+                                mode: PinMode.create,
+                                onSuccess: (newPin) {
+                                  notifier.setPin(newPin);
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("PIN Updated"),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  );
                 },
                 child: Container(
                   padding: const EdgeInsets.all(16),
@@ -127,24 +147,35 @@ class PrivacyLockPage extends ConsumerWidget {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.lock_reset, color: AppColors.primary),
+                      Icon(Icons.lock_reset, color: colorScheme.onPrimary),
                       const SizedBox(width: 16),
                       // Dynamic Text Color
-                      Text("change_pin".tr(), style: TextStyle(fontWeight: FontWeight.w600, color: colorScheme.onSurface)),
+                      Text(
+                        "change_pin".tr(),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
                       const Spacer(),
-                      Icon(Icons.arrow_forward_ios, size: 14, color: colorScheme.onSurface.withValues(alpha: 0.5)),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        size: 14,
+                        color: colorScheme.onPrimary.withValues(alpha: 0.5),
+                      ),
                     ],
                   ),
                 ),
               ),
-            ]
+            ],
           ],
         ),
       ),
     );
   }
 
-  Widget _buildToggleCard(BuildContext context, {
+  Widget _buildToggleCard(
+    BuildContext context, {
     required String title,
     required String subtitle,
     required IconData icon,
@@ -162,10 +193,10 @@ class PrivacyLockPage extends ConsumerWidget {
         boxShadow: [
           // Shadow mostly for light mode
           BoxShadow(
-             color: Colors.black.withValues(alpha: 0.03), 
-             blurRadius: 10, 
-             offset: const Offset(0, 4)
-          )
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       child: Row(
@@ -173,10 +204,10 @@ class PrivacyLockPage extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.05),
+              color: colorScheme.primary.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: AppColors.primary),
+            child: Icon(icon, color: colorScheme.onSurface), // Dynamic Icon Color
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -184,10 +215,23 @@ class PrivacyLockPage extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Dynamic Text Color
-                Text(title, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: colorScheme.onSurface)),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 // Dynamic Subtitle Color
-                Text(subtitle, style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 12)),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                    fontSize: 12,
+                  ),
+                ),
               ],
             ),
           ),

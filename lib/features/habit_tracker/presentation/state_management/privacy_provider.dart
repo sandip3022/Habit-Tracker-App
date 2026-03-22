@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
@@ -6,18 +8,21 @@ class PrivacyState {
   final bool isBiometricEnabled;
   final bool isPinEnabled;
   final bool isAuthenicated;
+  final bool isBlurred;
 
   PrivacyState({
     this.isBiometricEnabled = false,
     this.isPinEnabled = false,
     this.isAuthenicated = false,
+    this.isBlurred = false,
   });
 
-  PrivacyState copyWith({bool? bio, bool? pin, bool? auth}) {
+  PrivacyState copyWith({bool? bio, bool? pin, bool? auth, bool? blurred}) {
     return PrivacyState(
       isBiometricEnabled: bio ?? isBiometricEnabled,
       isPinEnabled: pin ?? isPinEnabled,
       isAuthenicated: auth ?? isAuthenicated,
+      isBlurred: blurred ?? isBlurred,
     );
   }
 }
@@ -115,17 +120,18 @@ Future<void> toggleBiometric(bool newValue) async {
       
     } catch (e) {
       // Handle errors (e.g., user clicked out, hardware error)
-      print("Biometric Error: $e");
+      log("Biometric Error: $e");
     }
   }
 
+void lockApp() {
+    state = state.copyWith(auth: false);
+  }
 
+void setBlur(bool value) {
+    state = state.copyWith(blurred: value);
+  }
 }
-
-
-
-
-
 
 
 final privacyProvider =

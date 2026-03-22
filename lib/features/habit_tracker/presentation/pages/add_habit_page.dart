@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:habit_tracker_app_2026/core/constants/app_icons.dart';
 import 'package:habit_tracker_app_2026/main.dart';
 import 'package:uuid/uuid.dart';
 import '../../domain/entities/habit_entity.dart';
@@ -25,13 +26,13 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
   List<int> _selectedDays = [];
 
   final List<Color> _colorOptions = [
-    const Color(0xFF2C3E50), // Midnight
-    const Color(0xFFFF6B6B), // Coral
-    const Color(0xFF6C5CE7), // Purple
-    const Color(0xFF00B894), // Teal
-    const Color(0xFF0984E3), // Blue
-    const Color(0xFFE17055), // Orange
-    const Color(0xFFFD79A8), // Pink
+    AppColors.airForceBlue,
+    AppColors.softCoral,
+    AppColors.purple,
+    AppColors.teal,
+    AppColors.blue,
+    AppColors.orange,
+    AppColors.pink,
   ];
 
   final List<String> _colorNames = [
@@ -80,10 +81,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
     if (widget.habitToEdit != null) {
       _titleController.text = widget.habitToEdit!.title;
       _selectedColor = Color(widget.habitToEdit!.colorValue);
-      _selectedIcon = IconData(
-        widget.habitToEdit!.iconCode,
-        fontFamily: 'MaterialIcons',
-      );
+      _selectedIcon = AppIcons.getIcon(widget.habitToEdit!.iconCode);
       _frequency = widget.habitToEdit!.frequency;
       _selectedDays = List.from(widget.habitToEdit!.targetDays);
     } else {
@@ -160,7 +158,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
             child: Text(
               "save_all_cap".tr(),
               style: textTheme.labelLarge?.copyWith(
-                color: AppColors.primary,
+                color: colorScheme.onSurface,
                 letterSpacing: 1.0,
               ),
             ),
@@ -201,7 +199,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
                   border: InputBorder.none,
                   icon: Icon(
                     Icons.edit_outlined,
-                    color: AppColors.primary.withValues(alpha: 0.7),
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
               ),

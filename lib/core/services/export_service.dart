@@ -15,7 +15,7 @@ class ExportService {
         "Current Streak",
         "Total Completions",
         "Created Date",
-        "All Completed Dates" 
+        "All Completed Dates",
         "sys_id", 
         "sys_icon", 
         "sys_color", 
@@ -28,7 +28,7 @@ class ExportService {
             .map((date) => DateFormat('yyyy-MM-dd').format(date))
             .join(' | ');
 
-        habit.targetDays.join('|');
+        String targetDaysStr = habit.targetDays.join(' | ');
 
         rows.add([
           habit.title,
@@ -40,6 +40,7 @@ class ExportService {
           habit.id,
           habit.iconCode,
           habit.colorValue,
+          targetDaysStr
           
         ]);
       }
@@ -53,7 +54,7 @@ class ExportService {
       
       // 5. Trigger the direct Native Download
       final String? resultPath = await FileSaver.instance.saveAs(
-        name: 'Growbit_Export_$timestamp',
+        name: 'GroBit_Export_$timestamp',
         bytes: bytes,
         ext: 'csv',
         mimeType: MimeType.csv,

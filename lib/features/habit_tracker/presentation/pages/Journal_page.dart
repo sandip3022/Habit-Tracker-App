@@ -200,6 +200,9 @@ class _JournalPageState extends ConsumerState<JournalPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.inverseSurface,
+            ),
             child: const Text("cancel").tr(),
           ),
           TextButton(
@@ -208,9 +211,13 @@ class _JournalPageState extends ConsumerState<JournalPage> {
               ref.read(habitNotifierProvider.notifier).deleteHabit(habit, date);
               Navigator.pop(context);
             },
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
             child: const Text("delete").tr(),
           ),
         ],
+        
       ),
     );
   }
