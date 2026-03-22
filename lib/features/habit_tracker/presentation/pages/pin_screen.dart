@@ -91,11 +91,6 @@ class _PinScreenState extends ConsumerState<PinScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          // Dynamic Icon Color
-          icon: Icon(Icons.close, color: colorScheme.onSurface),
-          onPressed: () => Navigator.pop(context),
-        ),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,

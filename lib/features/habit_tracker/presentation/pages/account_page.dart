@@ -6,6 +6,8 @@ import 'package:habit_tracker_app_2026/core/services/import_service.dart';
 import 'package:habit_tracker_app_2026/core/services/notification_service.dart';
 import 'package:habit_tracker_app_2026/core/services/user_provider.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/privacy_lock_page.dart';
+import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/state_management/privacy_provider.dart';
+import 'package:habit_tracker_app_2026/features/onboarding/presentation/pages/login_screen.dart';
 import 'package:habit_tracker_app_2026/main.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_provider.dart';
@@ -298,6 +300,41 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                 }
               },
             ),
+            const SizedBox(height: 16),
+            _buildSettingsCard(
+              context,
+              title: "log_out".tr(),
+              icon: Icons.logout_outlined,
+              trailing: ExcludeSemantics(
+                child: const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: Colors.grey,
+                ),
+              ),
+              onTap: () {
+                  final privacyState = ref.read(privacyProvider);
+
+                  if (privacyState.isPinEnabled || privacyState.isBiometricEnabled) {
+                    // If any privacy lock is enabled, require authentication before logging out
+                    ref.read(privacyProvider.notifier).lockApp();
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("please_setup_security_first".tr()), // Make sure to add this to your JSON files
+        backgroundColor: colorScheme.errorContainer,
+      ),
+    );
+                  }
+
+               
+              },
+            ),
+            
 
             const SizedBox(height: 40),
 

@@ -180,5 +180,7 @@
   "enter_pin": "PIN प्रविष्ट करा",
   "app_is_loading": "Growbit ॲप लोड होत आहे",
   "today": "आज",
-  "delete_habit": "सवय सोडा"
+  "delete_habit": "सवय सोडा",
+  "log_out": "बाहेर पडा",
+  "please_setup_security_first": "हे वैशिष्ट्य वापरण्यासाठी, कृपया आधी सुरक्षा सेट करा."
 }
