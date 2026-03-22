@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:habit_tracker_app_2026/core/constants/app_icons.dart';
 import 'package:habit_tracker_app_2026/main.dart';
 import 'package:uuid/uuid.dart';
 import '../../domain/entities/habit_entity.dart';
@@ -80,10 +81,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
     if (widget.habitToEdit != null) {
       _titleController.text = widget.habitToEdit!.title;
       _selectedColor = Color(widget.habitToEdit!.colorValue);
-      _selectedIcon = IconData(
-        widget.habitToEdit!.iconCode,
-        fontFamily: 'MaterialIcons',
-      );
+      _selectedIcon = AppIcons.getIcon(widget.habitToEdit!.iconCode);
       _frequency = widget.habitToEdit!.frequency;
       _selectedDays = List.from(widget.habitToEdit!.targetDays);
     } else {

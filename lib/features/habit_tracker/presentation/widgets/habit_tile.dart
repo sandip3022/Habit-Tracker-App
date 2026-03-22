@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:habit_tracker_app_2026/core/constants/app_icons.dart';
 import '../../domain/entities/habit_entity.dart';
 import '../../../../core/theme/app_colors.dart';
 
@@ -168,11 +169,8 @@ class HabitTile extends StatelessWidget {
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(14),
       ),
-      child: Icon(
-        IconData(habit.iconCode, fontFamily: 'MaterialIcons'),
-        color: color,
-        size: 26,
-      ),
+      child:
+          Icon(AppIcons.getIcon(habit.iconCode), color: color, size: 26),
     );
   }
 

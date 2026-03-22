@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:habit_tracker_app_2026/core/constants/app_icons.dart';
 import 'package:habit_tracker_app_2026/core/services/import_service.dart';
 import 'package:habit_tracker_app_2026/core/theme/theme_provider.dart';
 import 'package:habit_tracker_app_2026/core/utils/validators.dart';
@@ -343,15 +344,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              IconData(
-                                habit['icon'],
-                                fontFamily: 'MaterialIcons',
-                              ),
-                              size: 32,
-                              color: 
-                                   Color(habit['color']),
-                            ),
+                            Icon(AppIcons.getIcon(habit['icon']), color: Color(habit['color']), size: 26),
                             const SizedBox(height: 12),
                             Text(
                               habit['title'],

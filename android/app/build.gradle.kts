@@ -35,7 +35,7 @@ android {
         release {
             // Enables code shrinking (which triggers R8)
             isMinifyEnabled = true 
-            isShrinkResources = false
+            isShrinkResources = true
 
             // TODO: Add your own signing config for the release build.
             signingConfig = signingConfigs.getByName("debug")

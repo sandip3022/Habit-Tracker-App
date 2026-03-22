@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:habit_tracker_app_2026/core/constants/app_icons.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/habit_history_page.dart';
 import 'package:habit_tracker_app_2026/main.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -257,7 +258,10 @@ class ProgressPage extends ConsumerWidget {
         decoration: BoxDecoration(
           color: colorScheme.surface, // <--- Dynamic Surface
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: colorScheme.primary.withValues(alpha: 0.1), width: 1),
+          border: Border.all(
+            color: colorScheme.primary.withValues(alpha: 0.1),
+            width: 1,
+          ),
         ),
         child: Row(
           children: [
@@ -272,9 +276,9 @@ class ProgressPage extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
-                  IconData(item.habit.iconCode, fontFamily: 'MaterialIcons'),
-                  size: 20,
+                  AppIcons.getIcon(item.habit.iconCode),
                   color: Color(item.habit.colorValue),
+                  size: 26,
                 ),
               ),
             ),
