@@ -21,7 +21,7 @@ class _SecurityLifecycleWrapperState
   DateTime? _backgroundTime;
   bool _isBlurred = false;
 
-  final Duration _timeoutDuration = const Duration(seconds: 10);
+  final Duration _timeoutDuration = const Duration(minutes: 3);
 
   @override
   void initState() {
