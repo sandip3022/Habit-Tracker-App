@@ -16,11 +16,9 @@ class AppColors {
   static const Color textPrimary = Color(0xFF2D3436);
   static const Color textSecondary = Color(0xFF636E72);
 
-  // Separated Error colors for Light/Dark contrast compliance
   static const Color errorLight = Color(0xFFD32F2F); // Darker red for White backgrounds
   static const Color errorDark = Color(0xFFE57373); // Soft red for Dark backgrounds
 
-  // 3. TINT GENERATOR (Your Request)
   // Returns the color with specific opacity (e.g., 10%, 20%)
   static Color primaryTint10 = primary.withValues(alpha: 0.1);
   static Color primaryTint20 = primary.withValues(alpha: 0.2);
