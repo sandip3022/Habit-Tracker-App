@@ -36,11 +36,10 @@ class HabitModel extends HabitEntity {
           completedDates: completedDates,
           frequency: HabitFrequency.values.length > frequencyIndex 
     ? HabitFrequency.values[frequencyIndex] 
-    : HabitFrequency.daily, // Convert Int -> Enum
+    : HabitFrequency.daily, 
           targetDays: targetDays,
         );
 
-  // THIS IS THE MISSING FACTORY CAUSING YOUR ERROR
   factory HabitModel.fromEntity(HabitEntity entity) {
     return HabitModel(
       id: entity.id,
@@ -48,7 +47,7 @@ class HabitModel extends HabitEntity {
       iconCode: entity.iconCode,
       colorValue: entity.colorValue,
       completedDates: entity.completedDates,
-      frequencyIndex: entity.frequency.index, // Convert Enum -> Int
+      frequencyIndex: entity.frequency.index, 
       targetDays: entity.targetDays,
     );
   }

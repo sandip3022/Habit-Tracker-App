@@ -13,11 +13,9 @@ class NotificationService {
   Future<void> init() async {
     tz.initializeTimeZones();
 
-    // Android Settings
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('ic_launcher'); // Uses your app icon
+        AndroidInitializationSettings('ic_notification'); 
 
-    // iOS Settings
     const DarwinInitializationSettings initializationSettingsDarwin =
         DarwinInitializationSettings(
       requestSoundPermission: false,
@@ -34,12 +32,10 @@ class NotificationService {
   }
 
   Future<bool> requestPermissions() async {
-    // Android 13+
     final bool? androidGranted = await flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.requestNotificationsPermission();
 
-    // iOS
     final bool? iosGranted = await flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
         ?.requestPermissions(alert: true, badge: true, sound: true);
@@ -66,7 +62,7 @@ class NotificationService {
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time, // Repeats daily at this time
+      matchDateTimeComponents: DateTimeComponents.time,
     );
   }
 

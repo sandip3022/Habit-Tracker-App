@@ -14,7 +14,6 @@ class ToggleHabitCompletion {
 
     List<DateTime> updatedDates = List.from(habit.completedDates);
     
-    // 2. Business Logic: Toggle
     if (isCompleted) {
       updatedDates.removeWhere((d) => 
         d.year == date.year && d.month == date.month && d.day == date.day
@@ -23,7 +22,7 @@ class ToggleHabitCompletion {
       updatedDates.add(date);
     }
 
-    // 3. Create new Entity (Immutability)
+    // Create new Entity (Immutability)
     final updatedHabit = HabitEntity(
       id: habit.id,
       title: habit.title,
@@ -34,7 +33,7 @@ class ToggleHabitCompletion {
       targetDays: habit.targetDays,
     );
 
-    // 4. Save via Repository
+    // Save via Repository
     await repository.updateHabit(updatedHabit);
   }
 }

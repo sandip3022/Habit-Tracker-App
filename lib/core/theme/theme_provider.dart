@@ -9,7 +9,6 @@ class ThemeNotifier  extends StateNotifier<ThemeMode>{
     _loadTheme();
   }
 
-
   void _loadTheme(){
     final box = Hive.box('settings');
     final isDark = box.get('isDarkMode',defaultValue: false);
