@@ -14,7 +14,7 @@ class NotificationService {
     tz.initializeTimeZones();
 
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('ic_notification'); 
+        AndroidInitializationSettings('@drawable/ic_notification'); 
 
     const DarwinInitializationSettings initializationSettingsDarwin =
         DarwinInitializationSettings(
