@@ -26,8 +26,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   String newName = "Guest";
 
   int _currentPage = 0;
-  final Set<String> _selectedHabits =
-      {}; // Store IDs of selected predefined habits
+  final Set<String> _selectedHabits = {};
 
   // Pre-defined habits for Step 2
   final List<Map<String, dynamic>> _starterHabits = [
@@ -41,7 +40,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     {'title': "meditation".tr(), 'icon': 0xe318, 'color': 0xFF00B894}, // Teal
     {'title': "journaling".tr(), 'icon': 0xe156, 'color': 0xFFE17055}, // Orange
     {
-      'title': "Early_sleep".tr(), 'icon': 0xf06b, 'color': 0xFF0984E3,
+      'title': "Early_sleep".tr(),
+      'icon': 0xf06b,
+      'color': 0xFF0984E3,
     }, // Midnight
   ];
 
@@ -53,7 +54,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Future<void> _finishOnboarding() async {
-    // 1. Create selected habits
     for (var habitData in _starterHabits) {
       if (_selectedHabits.contains(habitData['title'])) {
         final habit = HabitEntity(
@@ -72,7 +72,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       }
     }
 
-    // 2. Save Name & Complete Flag
     await ref.read(userProvider.notifier).setName(_nameController.text.trim());
     await ref.read(userProvider.notifier).completeOnboarding();
 
@@ -95,13 +94,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Progress Indicator (Optional)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
               child: Semantics(
                 label: "onboarding_progress".tr(
                   args: [(_currentPage + 1).toString(), "4"],
-                ), 
+                ),
                 value: "${((_currentPage + 1) / 4 * 100).toInt()}%",
                 child: LinearProgressIndicator(
                   value: (_currentPage + 1) / 4,
@@ -116,7 +114,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               child: PageView(
                 controller: _pageController,
                 physics:
-                    const NeverScrollableScrollPhysics(), // Disable swipe to force buttons
+                    const NeverScrollableScrollPhysics(),
                 onPageChanged: (idx) => setState(() => _currentPage = idx),
                 children: [
                   _buildWelcomeStep(),
@@ -143,7 +141,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         children: [
           Text(
             "let_get_started".tr(),
-            style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6)),
+            style: TextStyle(
+              color: colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
           ),
           const SizedBox(height: 8),
           Text(
@@ -170,11 +170,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           const Spacer(),
           // Spacing
 
-          // --- RESTORE BACKUP BUTTON ---
           TextButton(
             onPressed: () async {
               try {
-                // 1. Open the file picker
                 final importedHabits =
                     await ImportService.importHabitsFromCSV();
 
@@ -194,7 +192,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   return;
                 }
 
-                // 2. Show loading state
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text("restoring_your_habits".tr()),
@@ -202,7 +199,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ),
                 );
 
-                // 3. Save the imported habits to Hive
                 await ref
                     .read(habitNotifierProvider.notifier)
                     .importHabits(importedHabits);
@@ -213,7 +209,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     : _nameController.text.trim();
                 ref.read(userProvider.notifier).setName(newName);
 
-                // 5. Navigate directly to the Home Page, skipping the rest of the wizard
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
@@ -247,7 +242,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             child: Text(
               "already_have_backup".tr(),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
                 decoration: TextDecoration.underline,
                 fontWeight: FontWeight.w600,
               ),
@@ -278,7 +275,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         children: [
           Text(
             "kickstart_your_journey".tr(),
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
+            style: TextStyle(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
           ),
           const SizedBox(height: 8),
           Text(
@@ -344,13 +345,19 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(AppIcons.getIcon(habit['icon']), color: Color(habit['color']), size: 26),
+                            Icon(
+                              AppIcons.getIcon(habit['icon']),
+                              color: Color(habit['color']),
+                              size: 26,
+                            ),
                             const SizedBox(height: 12),
                             Text(
                               habit['title'],
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: isSelected ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
+                                color: isSelected
+                                    ? colorScheme.onPrimaryContainer
+                                    : colorScheme.onSurface,
                               ),
                             ),
                           ],
@@ -365,7 +372,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
           Row(
             children: [
-              TextButton(onPressed: _nextPage, child: Text("skip".tr(),style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6)),)),
+              TextButton(
+                onPressed: _nextPage,
+                child: Text(
+                  "skip".tr(),
+                  style: TextStyle(
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ),
+              ),
               const Spacer(),
               ElevatedButton(
                 onPressed: _nextPage,
@@ -397,7 +412,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           Text(
             "secure_your_journal".tr(),
             textAlign: TextAlign.center,
-            style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6)),
+            style: TextStyle(
+              color: colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
           ),
           const SizedBox(height: 48),
 
@@ -422,13 +439,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             onPressed: _finishOnboarding,
             child: Text(
               "skip_security".tr(),
-              style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6)),
+              style: TextStyle(
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
             ),
           ),
         ],
       ),
     );
   }
+
   // --- STEP 1: WELCOME & PREFERENCES ---
   Widget _buildWelcomeStep() {
     final colorScheme = Theme.of(context).colorScheme;
@@ -449,7 +469,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           const SizedBox(height: 8),
           Text(
             "personalize_experience".tr(), // Add this to JSON!
-            style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 16),
+            style: TextStyle(
+              color: colorScheme.onSurface.withValues(alpha: 0.6),
+              fontSize: 16,
+            ),
           ),
           const SizedBox(height: 48),
 
@@ -479,7 +502,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 ],
                 onChanged: (Locale? newLocale) {
                   if (newLocale != null) {
-                    context.setLocale(newLocale); // Instantly translates the page!
+                    context.setLocale(
+                      newLocale,
+                    ); // Instantly translates the page!
                   }
                 },
               ),
@@ -501,7 +526,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   title: "light".tr(),
                   icon: Icons.wb_sunny_outlined,
                   isSelected: !isDark,
-                  onTap: () => ref.read(themeProvider.notifier).toggleTheme(false),
+                  onTap: () =>
+                      ref.read(themeProvider.notifier).toggleTheme(false),
                 ),
               ),
               const SizedBox(width: 16),
@@ -510,7 +536,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   title: "dark".tr(),
                   icon: Icons.nightlight_round,
                   isSelected: isDark,
-                  onTap: () => ref.read(themeProvider.notifier).toggleTheme(true),
+                  onTap: () =>
+                      ref.read(themeProvider.notifier).toggleTheme(true),
                 ),
               ),
             ],
@@ -539,23 +566,31 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     required VoidCallback onTap,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : colorScheme.surface,
+          color: isSelected
+              ? AppColors.primary.withValues(alpha: 0.1)
+              : colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.primary : Colors.grey.withValues(alpha: 0.3),
+            color: isSelected
+                ? AppColors.primary
+                : Colors.grey.withValues(alpha: 0.3),
             width: isSelected ? 2 : 1,
           ),
         ),
         child: Column(
           children: [
-            Icon(icon, size: 20, color: isSelected ? AppColors.primary : Colors.grey),
+            Icon(
+              icon,
+              size: 20,
+              color: isSelected ? AppColors.primary : Colors.grey,
+            ),
             const SizedBox(height: 8),
             Text(
               title,

@@ -42,7 +42,6 @@ class PrivacyNotifier extends StateNotifier<PrivacyState> {
     state = state.copyWith(pin: pin != null, bio: bio == 'true');
   }
 
-  // --- PIN LOGIC ---
   Future<void> setPin(String pin) async {
     await _storage.write(key: 'user_pin', value: pin);
     state = state.copyWith(pin: true);
@@ -62,9 +61,6 @@ class PrivacyNotifier extends StateNotifier<PrivacyState> {
     return false;
   }
 
-  // --- BIOMETRIC LOGIC ---
-  
-
   Future<void> authenticateuser() async {
     if (state.isBiometricEnabled) {
       try {
@@ -79,25 +75,26 @@ class PrivacyNotifier extends StateNotifier<PrivacyState> {
     }
   }
 
-Future<void> toggleBiometric(bool newValue) async {
+  Future<void> toggleBiometric(bool newValue) async {
     // 1. Check if device supports biometrics first
-    final bool canAuthenticate = await _auth.canCheckBiometrics || await _auth.isDeviceSupported();
+    final bool canAuthenticate =
+        await _auth.canCheckBiometrics || await _auth.isDeviceSupported();
     if (!canAuthenticate) {
       // Hardware not available
-      return; 
+      return;
     }
 
     // 2. Define the security prompt message
     final String reason = newValue
         ? 'Authenticate to ENABLE Biometric Lock'
-        : 'Authenticate to DISABLE Biometric Lock'; // <-- New secure message
+        : 'Authenticate to DISABLE Biometric Lock';
 
     try {
       // 3. Trigger the Pop-up
       final bool didAuthenticate = await _auth.authenticate(
         localizedReason: reason,
         options: const AuthenticationOptions(
-          biometricOnly: true, // Forces FaceID/Fingerprint (no fallback to system PIN)
+          biometricOnly: true,
           stickyAuth: true,
         ),
       );
@@ -114,27 +111,20 @@ Future<void> toggleBiometric(bool newValue) async {
           state = state.copyWith(bio: false);
         }
       }
-      // If didAuthenticate is false (User cancelled), we do nothing.
-      // The Switch in the UI will automatically snap back to its previous state
-      // because the 'state.isBiometricEnabled' variable didn't change.
-      
     } catch (e) {
-      // Handle errors (e.g., user clicked out, hardware error)
       log("Biometric Error: $e");
     }
   }
 
-void lockApp() {
+  void lockApp() {
     state = state.copyWith(auth: false);
   }
 
-void setBlur(bool value) {
+  void setBlur(bool value) {
     state = state.copyWith(blurred: value);
   }
 }
 
-
-final privacyProvider =
-    StateNotifierProvider<PrivacyNotifier, PrivacyState>(
+final privacyProvider = StateNotifierProvider<PrivacyNotifier, PrivacyState>(
   (ref) => PrivacyNotifier(),
 );

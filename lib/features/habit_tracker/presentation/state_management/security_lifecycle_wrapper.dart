@@ -26,13 +26,11 @@ class _SecurityLifecycleWrapperState
   @override
   void initState() {
     super.initState();
-    // Start listening to the device's app lifecycle (background/foreground)
     WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void dispose() {
-    // Stop listening when destroyed
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -50,9 +48,7 @@ class _SecurityLifecycleWrapperState
     if (state == AppLifecycleState.inactive ||
         state == AppLifecycleState.hidden ||
         state == AppLifecycleState.paused) {
-      if (_backgroundTime == null) {
-        _backgroundTime = DateTime.now();
-      }
+      _backgroundTime ??= DateTime.now();
 
       setState(() {
         _isBlurred = true;
@@ -84,20 +80,14 @@ class _SecurityLifecycleWrapperState
     final bool hasSecurityEnabled =
         privacyState.isPinEnabled || privacyState.isBiometricEnabled;
 
-    // The app is "locked" if they have security enabled, but auth is currently false
     final bool isLocked = hasSecurityEnabled && !privacyState.isAuthenicated;
 
-    // We blur the screen if security is enabled AND the app is in the app switcher or background
     final bool shouldBlur = _isBlurred;
 
     return Stack(
       children: [
-        // --- 1. THE MAIN CONTENT ---
-        // SECURITY FEATURE: Conditional rendering is much safer than Navigator routing.
-        // If the app is locked, the actual app UI doesn't even exist in memory.
         isLocked ? const LoginScreen() : widget.child,
 
-        // --- 2. THE APP SWITCHER BLUR ---
         if (shouldBlur)
           Positioned.fill(
             child: BackdropFilter(

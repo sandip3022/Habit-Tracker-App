@@ -51,8 +51,8 @@ class TimerNotifier extends StateNotifier<TimerState> {
         if (state.remainingSeconds > 0) {
           state = state.copyWith(remainingSeconds: state.remainingSeconds - 1);
         } else {
-          stop(); // Timer finished
-          _playAlarmVibration(); // Trigger the buzz!
+          stop(); 
+          _playAlarmVibration();
         }
       });
     }
@@ -69,7 +69,6 @@ class TimerNotifier extends StateNotifier<TimerState> {
   }
 
   void _playAlarmVibration() async {
-    // Vibrate 4 times in quick succession
     for (int i = 0; i < 4; i++) {
       HapticFeedback.heavyImpact();
       await Future.delayed(const Duration(milliseconds: 400));

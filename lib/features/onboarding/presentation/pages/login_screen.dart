@@ -46,7 +46,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final privacyState = ref.watch(privacyProvider);
     final colorScheme = Theme.of(context).colorScheme;
 
-    // If User has PIN enabled, show the keypad directly in this screen
     if (privacyState.isPinEnabled) {
       return PinScreen(
         mode: PinMode.verify,
@@ -55,7 +54,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       );
     }
 
-    // If Only Biometric is enabled (rare case if PIN is usually fallback)
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(

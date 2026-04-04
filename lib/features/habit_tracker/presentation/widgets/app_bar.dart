@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../../../core/theme/app_colors.dart'; 
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -17,7 +16,6 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 1. Get Dynamic Colors from Theme
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -25,7 +23,6 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     final String dateText = DateFormat('EEEE, MMM d').format(DateTime.now()).toUpperCase();
 
     return AppBar(
-      // AppBar automatically uses the Theme's scaffoldBackgroundColor (White or Dark Slate)
       elevation: 0,
       toolbarHeight: 80,
       automaticallyImplyLeading: false, 
@@ -71,10 +68,9 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
               height: 48,
               width: 48,
               decoration: BoxDecoration(
-                color: colorScheme.surface, // <--- Dynamic Surface (White vs Dark Slate)
+                color: colorScheme.surface, 
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  // Border is subtle grey in light mode, invisible in dark
                   color: isDark ? Colors.transparent : AppColors.textSecondary.withValues(alpha: 0.1),
                 ),
                 boxShadow: [

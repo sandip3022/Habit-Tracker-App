@@ -131,16 +131,13 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
 
   @override
   Widget build(BuildContext context) {
-    // 1. Get Theme Colors
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Helper text color (Grey in Light, Lighter Grey in Dark)
     final labelColor = isDark ? Colors.grey[400] : AppColors.textSecondary;
 
     return Scaffold(
-      // No fixed background color
       appBar: AppBar(
         title: Text(
           widget.habitToEdit != null ? "edit_habit".tr() : "new_habit".tr(),
@@ -148,8 +145,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.close, color: colorScheme.onSurface),
-          // ACCESSIBILITY: Screen reader will say "Close" instead of "Button"
-          tooltip: "close".tr(), // Dynamic X icon
+          tooltip: "close".tr(), 
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -182,7 +178,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               decoration: BoxDecoration(
-                color: colorScheme.surface, // <--- Dynamic Surface
+                color: colorScheme.surface, 
                 borderRadius: BorderRadius.circular(16),
               ),
               child: TextField(
@@ -225,7 +221,6 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
 
             const SizedBox(height: 32),
 
-            // APPEARANCE
             Text(
               "appearance_all_cap".tr(),
               style: textTheme.labelSmall?.copyWith(
@@ -235,7 +230,6 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
             ),
             const SizedBox(height: 12),
 
-            // Color Circles
             SizedBox(
               height: 60,
               child: ListView.separated(
@@ -248,7 +242,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
                   return Semantics(
                     button: true,
                     selected:
-                        isSelected, // Announces if this option is currently active
+                        isSelected, 
                     label: _colorNames[index],
                     child: GestureDetector(
                       onTap: () => setState(() => _selectedColor = color),
@@ -260,7 +254,6 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
                           color: color,
                           shape: BoxShape.circle,
                           border: isSelected
-                              // The border needs to contrast with the background (White on Dark, Black on Light)
                               ? Border.all(
                                   color: colorScheme.onSurface,
                                   width: 2.5,
@@ -291,7 +284,6 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
 
             const SizedBox(height: 24),
 
-            // Icon Grid
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -317,7 +309,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
                       decoration: BoxDecoration(
                         color: isSelected
                             ? _selectedColor.withValues(alpha: 0.15)
-                            : colorScheme.surface, // <--- Dynamic Surface
+                            : colorScheme.surface, 
                         borderRadius: BorderRadius.circular(12),
                         border: isSelected
                             ? Border.all(color: _selectedColor, width: 2)
@@ -326,7 +318,6 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
                       child: ExcludeSemantics(
                         child: Icon(
                           iconData,
-                          // Unselected icons adapt to theme (Black vs White)
                           color: isSelected
                               ? _selectedColor
                               : colorScheme.onSurface.withValues(alpha: 0.5),
@@ -345,7 +336,6 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
     );
   }
 
-  // --- WIDGETS ---
   Widget _buildFrequencyToggle(ColorScheme colorScheme) {
     return Container(
       padding: const EdgeInsets.all(4),
