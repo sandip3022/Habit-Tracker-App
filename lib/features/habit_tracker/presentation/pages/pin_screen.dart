@@ -87,7 +87,6 @@ class _PinScreenState extends ConsumerState<PinScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      // No fixed background color (Uses Theme Default)
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -105,7 +104,6 @@ class _PinScreenState extends ConsumerState<PinScreen> {
           ),
           const SizedBox(height: 30),
 
-          // 2. Dots
           ExcludeSemantics(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -118,7 +116,6 @@ class _PinScreenState extends ConsumerState<PinScreen> {
                     shape: BoxShape.circle,
                     color: index < _enteredPin.length 
                         ? AppColors.primary 
-                        // Unfilled dots: Dynamic grey
                         : AppColors.primary.withValues(alpha: isDark ? 0.4 : 0.2),
                   ),
                 );
@@ -128,7 +125,6 @@ class _PinScreenState extends ConsumerState<PinScreen> {
           
           const Spacer(),
 
-          // 3. Numpad
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
             child: GridView.builder(
@@ -144,7 +140,6 @@ class _PinScreenState extends ConsumerState<PinScreen> {
               itemBuilder: (context, index) {
                 if (index == 9) return const SizedBox(); // Empty bottom left
                 if (index == 11) {
-                  // Backspace
                   return Semantics(
                     label: "delete".tr(),
                     button: true,
@@ -167,10 +162,8 @@ class _PinScreenState extends ConsumerState<PinScreen> {
                     child: Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        // Dynamic Key Background (White vs Slate)
                         color: colorScheme.surface,
                         border: Border.all(
-                          // Dynamic Border (Grey vs Subtle White)
                           color: isDark ? Colors.white12 : Colors.grey.withValues(alpha: 0.2)
                         ),
                       ),

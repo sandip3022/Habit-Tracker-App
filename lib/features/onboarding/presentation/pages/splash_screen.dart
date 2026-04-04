@@ -23,7 +23,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
   @override
   void initState(){
     super.initState();
-    // 1. Setup Animation (2 Seconds)
     _controller = AnimationController(vsync: this,
     duration: Duration(seconds: 2));
 
@@ -36,19 +35,16 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
   }
 
   Future<void> _getNextScreen() async {
-    // Wait for animation + a little buffer
     await Future.delayed(const Duration(seconds: 2, milliseconds: 500));
   
   if (!mounted) return;
 
-  // logic check
   final settingsBox = Hive.box('settings');
   const secureStorage = FlutterSecureStorage();
   final String? storedPin = await secureStorage.read(key: 'user_pin');
   final bool isOnboardingCompleted = settingsBox.get('onboardingCompleted', defaultValue: false);
   
   if (!isOnboardingCompleted){
-    // CASE A: First Time -> Go to Onboarding
       _navigate(const OnboardingScreen());
   } else {
       final bool hasPin = storedPin != null && storedPin.isNotEmpty;

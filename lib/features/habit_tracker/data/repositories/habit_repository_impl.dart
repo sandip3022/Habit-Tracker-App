@@ -21,7 +21,6 @@ class HabitRepositoryImpl implements IHabitRepository {
     return models.cast<HabitEntity>();
   }
 
-  // --- IMPLEMENTATION OF UPDATE (Missing) ---
   @override
   Future<void> updateHabit(HabitEntity habit) async {
     final habitModel = HabitModel.fromEntity(habit);
@@ -29,7 +28,6 @@ class HabitRepositoryImpl implements IHabitRepository {
     await localDataSource.cacheHabit(habitModel);
   }
 
-  // --- IMPLEMENTATION OF DELETE (Missing) ---
   @override
   Future<void> deleteHabit(String id) async {
     await localDataSource.deleteHabit(id);

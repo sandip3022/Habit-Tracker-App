@@ -6,15 +6,12 @@ class ProgressStats {
   final int stalledCount;
   final double avgCompletionRate;
   
-  // For the 30-Day Bar Chart
   final List<DailyProgress> last30Days; 
   
-  // For the "Perfect/Partial/Missed" counts
   final int perfectDays;
   final int partialDays;
   final int missedDays;
 
-  // For the Leaderboard
   final List<HabitSuccessRate> leaderboard;
 
   ProgressStats({
@@ -54,13 +51,12 @@ class ProgressCalculator {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
-    // --- 1. ACTIVE vs STALLED ---
+    //  ACTIVE vs STALLED 
     // Rule: "Stalled" if not completed in last 7 days (and was created > 7 days ago)
     int active = 0;
     int stalled = 0;
 
     for (var habit in habits) {
-      // Check if completed in last 7 days
       bool performedRecently = false;
       for (int i = 0; i < 7; i++) {
         final dateToCheck = today.subtract(Duration(days: i));
@@ -73,7 +69,7 @@ class ProgressCalculator {
       else stalled++;
     }
 
-    // --- 2. LAST 30 DAYS DATA (Chart + Box Logic) ---
+    // LAST 30 DAYS DATA (Chart + Box Logic) 
     List<DailyProgress> chartData = [];
     int perfect = 0;
     int partial = 0;
@@ -107,18 +103,22 @@ class ProgressCalculator {
         totalRateSum += dailyRate;
 
         // Categorize Day
-        if (dailyRate == 1.0) perfect++;
-        else if (dailyRate == 0.0) missed++;
-        else partial++;
+        if (dailyRate == 1.0) {
+          perfect++;
+        } else if (dailyRate == 0.0) {
+          missed++;
+        }
+        else {
+          partial++;
+        }
       }
       
       chartData.add(DailyProgress(date, dailyRate));
     }
 
-    // --- 3. TOTAL AVERAGE ---
     double avgRate = daysWithHabits == 0 ? 0 : (totalRateSum / daysWithHabits);
 
-    // --- 4. LEADERBOARD ---
+    // LEADERBOARD 
     // Sort by: (Total Completed) / (Total Scheduled Days since creation)
     List<HabitSuccessRate> ranking = [];
     for (var habit in habits) {

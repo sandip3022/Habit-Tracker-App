@@ -202,7 +202,7 @@ class FocusTimerPage extends ConsumerWidget {
           ),
         ),
         child: Text(
-          "minutes".tr(args: [minutes.toString()]), // "5 min", "25 min", etc
+          "minutes".tr(args: [minutes.toString()]), 
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: isSelected

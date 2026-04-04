@@ -26,7 +26,6 @@ class HabitEntity {
     required this.completedDates,
   });
 
-  /// Helper to convert int to Color
   Color get color => Color(colorValue);
 
   /// Checks if the habit is completed on a specific date (Year/Month/Day)
@@ -37,7 +36,6 @@ class HabitEntity {
   }
 
   /// Checks if the habit should appear on the dashboard for this date
-  /// (Currently returns true for everything, can be expanded for specific days later)
   bool isScheduledFor(DateTime date) {
     if (frequency == HabitFrequency.daily) {
       return true;
@@ -61,14 +59,11 @@ class HabitEntity {
         if (isCompletedOn(checkDate)) {
           streak++;
         } else {
-          // If it's today and not done yet, streak isn't broken.
-          // But if it's a past scheduled day and we missed it, break.
           if (!_isSameDay(checkDate, DateTime.now())) {
             break; 
           }
         }
       }
-      // Go back one day
       checkDate = checkDate.subtract(const Duration(days: 1));
     }
     return streak;

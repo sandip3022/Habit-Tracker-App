@@ -25,7 +25,6 @@ class _JournalPageState extends ConsumerState<JournalPage> {
   @override
   void initState() {
     super.initState();
-    // Load habits for the INITIAL date (Today)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final date = ref.read(selectedDateProvider);
       ref.read(habitNotifierProvider.notifier).loadHabits(date);
@@ -35,15 +34,12 @@ class _JournalPageState extends ConsumerState<JournalPage> {
   HabitState get habitState => ref.watch(habitNotifierProvider);
 
   DateTime get selectedDate => ref.watch(selectedDateProvider);
-  // Watch for UI updates
   void _changeDate(int days) {
-    // 1. Update the Date Provider
     final currentDate = ref.read(selectedDateProvider);
     final newDate = currentDate.add(Duration(days: days));
 
     ref.read(selectedDateProvider.notifier).state = newDate;
 
-    // 2. Reload Habits for the NEW date
     ref.read(habitNotifierProvider.notifier).loadHabits(newDate);
   }
 
@@ -63,7 +59,6 @@ class _JournalPageState extends ConsumerState<JournalPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // --- 1. DATE NAVIGATOR ---
             DateSelector(
               selectedDate: selectedDate,
               onPrevious: () => _changeDate(-1),
@@ -72,26 +67,22 @@ class _JournalPageState extends ConsumerState<JournalPage> {
 
             const SizedBox(height: 10),
 
-            // --- 3. HABIT LIST ---
             Expanded(
               child: habitState.habits.isEmpty
                   ? _buildEmptyState()
                   : ReorderableListView.builder(
                       shrinkWrap: true,
                       physics:
-                          const NeverScrollableScrollPhysics(), // If inside a ScrollView
+                          const NeverScrollableScrollPhysics(), 
                       itemCount: habitState.habits.length,
 
-                      // 1. The Drag and Drop trigger
                       onReorder: (oldIndex, newIndex) {
                         ref
                             .read(habitNotifierProvider.notifier)
                             .reorderHabits(oldIndex, newIndex);
-                        // Optional: Add a tiny haptic buzz when dropped!
                         HapticFeedback.lightImpact();
                       },
 
-                      // 2. Keep the dragged item looking clean (matches your Modern Journal theme)
                       proxyDecorator:
                           (
                             Widget child,
@@ -108,14 +99,12 @@ class _JournalPageState extends ConsumerState<JournalPage> {
                       itemBuilder: (context, index) {
                         final habit = habitState.habits[index];
 
-                        // 3. CRITICAL: Reorderable items MUST have a unique Key
                         return Container(
                           key: ValueKey(habit.id),
                           child: HabitTile(
                             habit: habit,
                             isCompletedToday: habit.isCompletedOn(selectedDate),
                             onToggle: () {
-                              // Pass selectedDate so we toggle the correct day!
                               ref
                                   .read(habitNotifierProvider.notifier)
                                   .toggle(habit, selectedDate);

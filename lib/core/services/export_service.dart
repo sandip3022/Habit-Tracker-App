@@ -7,7 +7,6 @@ import '../../../features/habit_tracker/domain/entities/habit_entity.dart';
 class ExportService {
   static Future<bool> exportHabitsToCSV(List<HabitEntity> habits) async {
     try {
-      // 1. Define the CSV Headers
       List<List<dynamic>> rows = [];
       rows.add([
         "Habit Title",
@@ -22,7 +21,6 @@ class ExportService {
         "sys_targetDays",
       ]);
 
-      // 2. Map the habit data into rows
       for (var habit in habits) {
         String completionHistory = habit.completedDates
             .map((date) => DateFormat('yyyy-MM-dd').format(date))
@@ -45,14 +43,11 @@ class ExportService {
         ]);
       }
 
-      // 3. Convert to CSV string, then to Bytes
       String csvData = const ListToCsvConverter().convert(rows);
       Uint8List bytes = Uint8List.fromList(csvData.codeUnits);
 
-      // 4. Create a timestamped file name
       final String timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
       
-      // 5. Trigger the direct Native Download
       final String? resultPath = await FileSaver.instance.saveAs(
         name: 'GroBit_Export_$timestamp',
         bytes: bytes,
@@ -60,7 +55,6 @@ class ExportService {
         mimeType: MimeType.csv,
       );
       
-      // If resultPath is null, the user canceled the download dialog
       return resultPath != null;
       
     } catch (e) {

@@ -83,40 +83,35 @@ class HabitNotifier extends StateNotifier<HabitState> {
         frequency: habit.frequency,
         targetDays: habit.targetDays,
         createdAt:
-            DateTime.now(), // Reset creation date to today? Or keep original? Let's keep original usually, but for a hard reset, maybe Today is better. Let's stick to just clearing progress.
+            DateTime.now(), 
       );
       await _updateUseCase.call(resetHabit);
     }
-    // Reload to refresh UI
     loadHabits(DateTime.now());
   }
 
-  /// 2. DELETE ALL: Wipes everything
   Future<void> deleteAllData() async {
-    // 1. Safely empty the database boxes instantly (much safer than looping)
     await Hive.box<HabitModel>('habits').clear();
     await Hive.box('settings').clear();
 
-    // 2. Reset the local state to an empty list
     state = HabitState([]);
   }
 
   Future<void> reorderHabits(int oldIndex, int newIndex) async {
     final currentHabits = List<HabitEntity>.from(state.habits);
 
-    // ReorderListView has a quirk where newIndex is offset by 1 if moving downwards
     if (oldIndex < newIndex) {
       newIndex -= 1;
     }
 
-    // 1. Swap the items in memory
+    // Swap the items in memory
     final habit = currentHabits.removeAt(oldIndex);
     currentHabits.insert(newIndex, habit);
 
-    // 2. Immediately update UI state for smooth animation
+    // Immediately update UI state for smooth animation
     state = HabitState(currentHabits);
 
-    // 3. Save the new order of IDs to the settings box
+    // Save the new order of IDs to the settings box
     final orderIds = currentHabits.map((h) => h.id).toList();
     final settingsBox = Hive.box('settings');
     await settingsBox.put('habitOrder', orderIds);

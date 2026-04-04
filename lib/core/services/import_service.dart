@@ -3,46 +3,40 @@ import 'dart:io';
 import 'dart:isolate';
 import 'package:file_picker/file_picker.dart';
 import 'package:csv/csv.dart';
-// For Icons
 import '../../../features/habit_tracker/domain/entities/habit_entity.dart';
 
 class ImportService {
   static Future<List<HabitEntity>?> importHabitsFromCSV() async {
-    // 1. Open Native File Browser (Only allow CSVs)
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['csv'],
     );
 
-    // User canceled the picker
     if (result == null || result.files.single.path == null) {
       return null;
     }
 
     // Isolate.run() automatically spins up a background thread, waits for it
-    // to finish, hands the data back, and safely kills the thread.
     return await Isolate.run(
       () => _parseCSVInBackground(result.files.single.path!),
     );
   }
 
-  /// EVERYTHING inside this function runs on a separate CPU core.
-  /// It cannot talk to the UI, Riverpod, or any global variables.
   static Future<List<HabitEntity>> _parseCSVInBackground(
     String filePath,
   ) async {
-    // A. Read the heavy file from disk
+    // Read the heavy file from disk
     final file = File(filePath);
     final String csvString = await file.readAsString();
 
-    // B. Parse the CSV string (This is the heavy CPU math that causes freezing)
+    // Parse the CSV string 
     List<List<dynamic>> csvTable = const CsvToListConverter().convert(
       csvString,
     );
 
     List<HabitEntity> importedHabits = [];
 
-    // C. Convert CSV rows into Habit Entities
+    // Convert CSV rows into Habit Entities
     for (int i = 1; i < csvTable.length; i++) {
       final row = csvTable[i];
 
@@ -56,11 +50,11 @@ class ImportService {
               (e) => e.name.toUpperCase() == row[1].toString().toUpperCase(),
               orElse: () => HabitFrequency.daily,
             ),
-            completedDates: _parseDatesList(row[5].toString()), // [5] is All Completed Dates
+            completedDates: _parseDatesList(row[5].toString()), 
             createdAt: DateTime.tryParse(row[4].toString()) ?? DateTime.now(),             
             iconCode: int.parse(row[7].toString()), 
             colorValue: int.parse(row[8].toString()),
-            targetDays: _parseDaysList(row[9].toString()), // [9] is sys_targetDays
+            targetDays: _parseDaysList(row[9].toString()), 
           ),
         );
       } catch (e) {
@@ -69,7 +63,7 @@ class ImportService {
       }
     }
 
-    // D. Hand the finished list back to the Main Isolate!
+    // Hand the finished list back to the Main Isolate!
     return importedHabits;
   }
 

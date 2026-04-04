@@ -75,7 +75,6 @@ class _StopwatchTabState extends State<StopwatchTab> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            // --- TIME DISPLAY ---
             Text(
               "stopwatch".tr(),
               style: textTheme.displayMedium?.copyWith(fontSize: 24),

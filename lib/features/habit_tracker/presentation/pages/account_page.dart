@@ -29,7 +29,6 @@ class _AccountPageState extends ConsumerState<AccountPage> {
     _loadNotificationSettings();
   }
 
-  // Load saved state (You can also save 'reminderTime' string in Hive if you want persistence)
   void _loadNotificationSettings() {
     // For now, let's assume if Hive says it's on, we default to 9:00 AM or load from DB
     // Since we haven't set up Hive for this specific field yet, we stick to local state for demo
@@ -43,18 +42,15 @@ class _AccountPageState extends ConsumerState<AccountPage> {
     final isDarkMode = currentTheme == ThemeMode.dark;
     final String _userName = ref.watch(userProvider);
 
-    // Access dynamic theme colors
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      // REMOVED: backgroundColor: AppColors.background (Let Theme handle it)
       appBar: AppBar(
         title: Text(
           "account".tr(),
           style: textTheme.displayMedium?.copyWith(fontSize: 24),
         ),
-        // REMOVED: backgroundColor: AppColors.background
         centerTitle: true,
         elevation: 0,
       ),
@@ -62,12 +58,10 @@ class _AccountPageState extends ConsumerState<AccountPage> {
         padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
-            // --- 1. PROFILE SECTION ---
             _buildProfileSection(textTheme, colorScheme, _userName),
 
             const SizedBox(height: 40),
 
-            // --- 2. SETTINGS LIST ---
             _buildSettingsCard(
               context,
               title: "daily_reminder".tr(),
@@ -76,7 +70,6 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Show time if enabled
                     if (_isNotificationOn && _reminderTime != null)
                       Text(
                         _reminderTime!.format(context),
@@ -87,7 +80,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                       ),
                     Switch(
                       value: _isNotificationOn,
-                      activeColor: AppColors.secondary,
+                      activeThumbColor: AppColors.secondary,
                       onChanged: (val) => _toggleNotifications(val),
                     ),
                   ],
@@ -97,7 +90,6 @@ class _AccountPageState extends ConsumerState<AccountPage> {
 
             const SizedBox(height: 16),
 
-            // DARK MODE SWITCH
             _buildSettingsCard(
               context,
               title: "dark_mode".tr(),
@@ -105,7 +97,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
               trailing: ExcludeSemantics(
                 child: Switch(
                   value: isDarkMode,
-                  activeColor: AppColors.secondary,
+                  activeThumbColor: AppColors.secondary,
                   onChanged: (val) {
                     ref.read(themeProvider.notifier).toggleTheme(val);
                   },
@@ -118,12 +110,10 @@ class _AccountPageState extends ConsumerState<AccountPage> {
             _buildSettingsCard(
               context,
               title: "language".tr(),
-                   // Make sure to add "language" to your JSON files
               icon: Icons.language_outlined,
               trailing: ExcludeSemantics(
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<Locale>(
-                    // context.locale comes from easy_localization and holds the current language
                     value: context.locale,
                     icon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
                     dropdownColor: colorScheme.surface,
@@ -143,14 +133,13 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                         child: Text("English"),
                       ),
                       DropdownMenuItem(
-                        value: Locale('mr'), // Official locale code for Marathi
+                        value: Locale('mr'),
                         child: Text("मराठी"),
                       ),
                       DropdownMenuItem(
-                        value: Locale('hi'), // Official locale code for Hindi
+                        value: Locale('hi'),
                         child: Text("हिंदी"),
                       ),
-                
                     ],
                   ),
                 ),
@@ -171,7 +160,6 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                 ),
               ),
               onTap: () {
-                // Navigate to Privacy Lock Page
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const PrivacyLockPage()),
@@ -191,7 +179,6 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                 ),
               ),
               onTap: () async {
-                // 1. Get the current list of habits from the provider
                 final currentHabits = ref.read(habitNotifierProvider).habits;
 
                 if (currentHabits.isEmpty) {
@@ -201,7 +188,6 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                   return;
                 }
 
-                // 2. Trigger the export
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text("Preparing your file...")),
                 );
@@ -211,7 +197,6 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                     currentHabits,
                   );
 
-                  // 👇 3. Show success message if they didn't cancel the dialog
                   if (success && context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -248,14 +233,12 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                 );
 
                 try {
-                  // 1. Open file picker and parse CSV
                   final importedHabits =
                       await ImportService.importHabitsFromCSV();
 
                   if (!context.mounted) return;
 
                   if (importedHabits == null) {
-                    // User canceled the file picker
                     return;
                   }
 
@@ -272,7 +255,6 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                     return;
                   }
 
-                  // 2. Push data to database
                   await ref
                       .read(habitNotifierProvider.notifier)
                       .importHabits(importedHabits);
@@ -313,32 +295,28 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                 ),
               ),
               onTap: () {
-                  final privacyState = ref.read(privacyProvider);
+                final privacyState = ref.read(privacyProvider);
 
-                  if (privacyState.isPinEnabled || privacyState.isBiometricEnabled) {
-                    // If any privacy lock is enabled, require authentication before logging out
-                    ref.read(privacyProvider.notifier).lockApp();
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginScreen()),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("please_setup_security_first".tr()), // Make sure to add this to your JSON files
-        backgroundColor: colorScheme.errorContainer,
-      ),
-    );
-                  }
-
-               
+                if (privacyState.isPinEnabled ||
+                    privacyState.isBiometricEnabled) {
+                  ref.read(privacyProvider.notifier).lockApp();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("please_setup_security_first".tr()),
+                      backgroundColor: colorScheme.errorContainer,
+                    ),
+                  );
+                }
               },
             ),
-            
 
             const SizedBox(height: 40),
 
-            // --- 3. DANGER ZONE ---
             Text(
               "data_management".tr(),
               style: textTheme.labelSmall?.copyWith(
@@ -413,7 +391,9 @@ class _AccountPageState extends ConsumerState<AccountPage> {
     String _userName,
   ) {
     return Semantics(
-      label: "user_profile".tr(args: [_userName, "free_member".tr()]), // Add to JSON: "User Profile: {}, {}"
+      label: "user_profile".tr(
+        args: [_userName, "free_member".tr()],
+      ), // Add to JSON: "User Profile: {}, {}"
       excludeSemantics: true,
       child: Column(
         children: [
@@ -468,8 +448,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
 
     return Container(
       decoration: BoxDecoration(
-        color:
-            colorScheme.surface, 
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -485,10 +464,14 @@ class _AccountPageState extends ConsumerState<AccountPage> {
           leading: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1), // Keep brand tint
+              color: AppColors.primary.withValues(
+                alpha: 0.1,
+              ), // Keep brand tint
               borderRadius: BorderRadius.circular(8),
             ),
-            child: ExcludeSemantics(child: Icon(icon, color: colorScheme.onSurface)),
+            child: ExcludeSemantics(
+              child: Icon(icon, color: colorScheme.onSurface),
+            ),
           ),
           title: Text(
             title,
@@ -569,7 +552,6 @@ class _AccountPageState extends ConsumerState<AccountPage> {
     if (name.isEmpty) return "";
     List<String> nameParts = name.trim().split(" ");
     if (nameParts.length > 1) {
-      // First letter of First Name + First letter of Last Name
       return "${nameParts[0][0]}${nameParts[1][0]}".toUpperCase();
     } else {
       // Just First letter
@@ -591,7 +573,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor, 
+          color: Theme.of(context).scaffoldBackgroundColor,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
@@ -698,6 +680,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
           _isNotificationOn = true;
           _reminderTime = picked;
         });
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("reminder_set".tr(args: [picked.format(context)])),
@@ -705,12 +688,12 @@ class _AccountPageState extends ConsumerState<AccountPage> {
         );
       }
     } else {
-      // 3. DISABLE
       await service.cancelNotifications();
       setState(() {
         _isNotificationOn = false;
         _reminderTime = null;
       });
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("reminders_turned_off".tr())),
       ); // Updated text
