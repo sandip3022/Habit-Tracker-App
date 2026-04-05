@@ -6,9 +6,12 @@ import 'package:habit_tracker_app_2026/core/services/import_service.dart';
 import 'package:habit_tracker_app_2026/core/services/notification_service.dart';
 import 'package:habit_tracker_app_2026/core/services/user_provider.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/pages/privacy_lock_page.dart';
+import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/state_management/notification_provider.dart';
 import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/state_management/privacy_provider.dart';
+import 'package:habit_tracker_app_2026/features/habit_tracker/presentation/widgets/settings_widget.dart';
 import 'package:habit_tracker_app_2026/features/onboarding/presentation/pages/login_screen.dart';
 import 'package:habit_tracker_app_2026/main.dart';
+import 'package:hive/hive.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_provider.dart';
 
@@ -20,8 +23,8 @@ class AccountPage extends ConsumerStatefulWidget {
 }
 
 class _AccountPageState extends ConsumerState<AccountPage> {
-  bool _isNotificationOn = true;
-  TimeOfDay? _reminderTime;
+  bool _isNotificationOn = false;
+  TimeOfDay _notificationTime = const TimeOfDay(hour: 9, minute: 0);
 
   @override
   void initState() {
@@ -30,15 +33,31 @@ class _AccountPageState extends ConsumerState<AccountPage> {
   }
 
   void _loadNotificationSettings() {
-    // For now, let's assume if Hive says it's on, we default to 9:00 AM or load from DB
-    // Since we haven't set up Hive for this specific field yet, we stick to local state for demo
-    // Ideally: _isNotificationOn = box.get('notify', defaultValue: false);
+    final box = Hive.box('settings');
+
+    setState(() {
+      _isNotificationOn = box.get('isNotificationOn', defaultValue: false);
+
+      String? savedTime = box.get('notificationTime');
+
+      if (savedTime != null && savedTime.contains(':')) {
+        final parts = savedTime.split(':');
+        _notificationTime = TimeOfDay(
+          hour: int.parse(parts[0]),
+          minute: int.parse(parts[1]),
+        );
+      } else {
+        // Fallback to default 9:00 AM if nothing is saved
+        _notificationTime = const TimeOfDay(hour: 9, minute: 0);
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     // 1. WATCH THE THEME PROVIDER
     final currentTheme = ref.watch(themeProvider);
+    final notifState = ref.watch(notificationProvider);
     final isDarkMode = currentTheme == ThemeMode.dark;
     final String _userName = ref.watch(userProvider);
 
@@ -61,25 +80,23 @@ class _AccountPageState extends ConsumerState<AccountPage> {
             _buildProfileSection(textTheme, colorScheme, _userName),
 
             const SizedBox(height: 40),
-
-            _buildSettingsCard(
-              context,
+            BuildSettingsCard(
               title: "daily_reminder".tr(),
               icon: Icons.notifications_outlined,
               trailing: ExcludeSemantics(
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (_isNotificationOn && _reminderTime != null)
+                    if (notifState.isNotificationOn)
                       Text(
-                        _reminderTime!.format(context),
+                        _notificationTime.format(context),
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     Switch(
-                      value: _isNotificationOn,
+                      value: notifState.isNotificationOn,
                       activeThumbColor: AppColors.secondary,
                       onChanged: (val) => _toggleNotifications(val),
                     ),
@@ -90,8 +107,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
 
             const SizedBox(height: 16),
 
-            _buildSettingsCard(
-              context,
+            BuildSettingsCard(
               title: "dark_mode".tr(),
               icon: Icons.dark_mode_outlined,
               trailing: ExcludeSemantics(
@@ -107,8 +123,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
 
             const SizedBox(height: 16),
 
-            _buildSettingsCard(
-              context,
+            BuildSettingsCard(
               title: "language".tr(),
               icon: Icons.language_outlined,
               trailing: ExcludeSemantics(
@@ -148,8 +163,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
 
             const SizedBox(height: 16),
 
-            _buildSettingsCard(
-              context,
+            BuildSettingsCard(
               title: "privacy_lock".tr(),
               icon: Icons.lock_outline,
               trailing: ExcludeSemantics(
@@ -167,8 +181,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
               },
             ),
             const SizedBox(height: 16),
-            _buildSettingsCard(
-              context,
+            BuildSettingsCard(
               title: "export_to_csv".tr(),
               icon: Icons.download_outlined,
               trailing: ExcludeSemantics(
@@ -218,8 +231,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
               },
             ),
             const SizedBox(height: 16),
-            _buildSettingsCard(
-              context,
+            BuildSettingsCard(
               title: "restore_from_backup".tr(),
               icon: Icons.upload_file_outlined,
               trailing: const Icon(
@@ -283,8 +295,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
               },
             ),
             const SizedBox(height: 16),
-            _buildSettingsCard(
-              context,
+            BuildSettingsCard(
               title: "log_out".tr(),
               icon: Icons.logout_outlined,
               trailing: ExcludeSemantics(
@@ -328,8 +339,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
             ),
             const SizedBox(height: 16),
 
-            _buildDestructiveCard(
-              context,
+            BuildDestructiveCard(
               title: "reset_progress".tr(),
               subtitle: "keep_habits_but_clear_history".tr(),
               buttonLabel: "resetCap".tr(),
@@ -350,8 +360,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
 
             const SizedBox(height: 16),
 
-            _buildDestructiveCard(
-              context,
+            BuildDestructiveCard(
               title: "delete_everything".tr(),
               subtitle: "delete_everything_message".tr(),
               buttonLabel: "delete".tr(),
@@ -431,117 +440,6 @@ class _AccountPageState extends ConsumerState<AccountPage> {
           Text(
             "free_member".tr(),
             style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSettingsCard(
-    BuildContext context, {
-    required String title,
-    required IconData icon,
-    Widget? trailing,
-    VoidCallback? onTap,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: MergeSemantics(
-        child: ListTile(
-          onTap: onTap,
-          leading: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(
-                alpha: 0.1,
-              ), // Keep brand tint
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ExcludeSemantics(
-              child: Icon(icon, color: colorScheme.onSurface),
-            ),
-          ),
-          title: Text(
-            title,
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              color: colorScheme.onSurface,
-            ),
-          ), // Dynamic Text
-          trailing: trailing,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDestructiveCard(
-    BuildContext context, {
-    required String title,
-    required String subtitle,
-    required String buttonLabel,
-    required VoidCallback onTap,
-    bool isCritical = false,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colorScheme.surface, // <--- Dynamic Surface
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.red.withValues(alpha: 0.1)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          MergeSemantics(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.onSurface,
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: TextStyle(color: Colors.grey, fontSize: 12),
-                ),
-              ],
-            ),
-          ),
-          TextButton(
-            onPressed: onTap,
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
-              backgroundColor: isCritical
-                  ? Colors.red.withValues(alpha: 0.1)
-                  : Colors.transparent,
-              side: isCritical ? null : const BorderSide(color: Colors.red),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: Text(
-              buttonLabel,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
           ),
         ],
       ),
@@ -640,11 +538,11 @@ class _AccountPageState extends ConsumerState<AccountPage> {
   }
 
   Future<void> _toggleNotifications(bool value) async {
-    final service = NotificationService();
+    // 1. Get the notifier from Riverpod
+    final notifier = ref.read(notificationProvider.notifier);
 
     if (value) {
-      // 1. ENABLE: Request Permission First
-      final bool granted = await service.requestPermissions();
+      final bool granted = await NotificationService().requestPermissions();
       if (!granted) {
         if (!mounted) return;
         ScaffoldMessenger.of(
@@ -653,13 +551,11 @@ class _AccountPageState extends ConsumerState<AccountPage> {
         return;
       }
 
-      // 2. Pick Time
       if (!mounted) return;
       final TimeOfDay? picked = await showTimePicker(
         context: context,
-        initialTime: const TimeOfDay(hour: 9, minute: 0),
+        initialTime: ref.read(notificationProvider).selectedTime,
         builder: (context, child) {
-          // Make TimePicker match Dark/Light theme
           final isDark = Theme.of(context).brightness == Brightness.dark;
           return Theme(
             data: isDark
@@ -675,28 +571,37 @@ class _AccountPageState extends ConsumerState<AccountPage> {
       );
 
       if (picked != null) {
-        await service.scheduleDailyNotification(time: picked);
-        setState(() {
-          _isNotificationOn = true;
-          _reminderTime = picked;
-        });
+        await notifier.updateTime(picked);
+        await notifier.toggleNotification(true);
+
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("reminder_set".tr(args: [picked.format(context)])),
+            content: Text(
+              "reminder_set".tr(args: [picked.format(context)]),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
           ),
         );
       }
     } else {
-      await service.cancelNotifications();
-      setState(() {
-        _isNotificationOn = false;
-        _reminderTime = null;
-      });
+      await notifier.toggleNotification(false);
+
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("reminders_turned_off".tr())),
-      ); // Updated text
+        SnackBar(
+          content: Text(
+            "reminders_turned_off".tr(),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+            ),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        ),
+      );
     }
   }
 }
