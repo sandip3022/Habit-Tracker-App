@@ -205,7 +205,7 @@ class _AddHabitPageState extends ConsumerState<AddHabitPage> {
 
             // FREQUENCY
             Text(
-              "frequency_all_cap",
+              "frequency_all_cap".tr(),
               style: textTheme.labelSmall?.copyWith(
                 color: labelColor,
                 letterSpacing: 1.2,

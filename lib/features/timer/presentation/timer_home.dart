@@ -45,6 +45,7 @@ class _TimerHomeState extends State<TimerHome> {
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
+        selectedItemColor: Theme.of(context).colorScheme.secondary,
       ),
     );
   }

@@ -73,9 +73,8 @@ class _JournalPageState extends ConsumerState<JournalPage> {
                   : ReorderableListView.builder(
                       shrinkWrap: true,
                       physics:
-                          const NeverScrollableScrollPhysics(), 
+                          const AlwaysScrollableScrollPhysics(), 
                       itemCount: habitState.habits.length,
-
                       onReorder: (oldIndex, newIndex) {
                         ref
                             .read(habitNotifierProvider.notifier)
@@ -144,7 +143,7 @@ class _JournalPageState extends ConsumerState<JournalPage> {
       ),
 
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.black,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         child:  Icon(Icons.add, color: Colors.white,semanticLabel: "add_new_habit".tr()),
         onPressed: () async {
           // Pass selectedDate to refresh properly after adding

@@ -34,10 +34,9 @@ class HabitTile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       decoration: BoxDecoration(
-        color: colorScheme.surface, // <--- Dynamic Surface (White vs Slate)
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          // Shadow only visible in Light Mode for depth. In Dark Mode, elevation is handled by color difference.
           if (!isDark)
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -78,7 +77,6 @@ class HabitTile extends StatelessWidget {
                             decoration: isCompletedToday
                                 ? TextDecoration.lineThrough
                                 : null,
-                            // Dynamic Text Color (Black vs White)
                             color: isCompletedToday
                                 ? colorScheme.onSurface.withValues(alpha: 0.5)
                                 : colorScheme.onSurface,
@@ -114,7 +112,6 @@ class HabitTile extends StatelessWidget {
                         else
                           Text(
                             "start_your_journey_today".tr(),
-                            // Dynamic Subtitle Color
                             style: textTheme.bodySmall?.copyWith(
                               fontSize: 12,
                               color: colorScheme.onSurface.withValues(
