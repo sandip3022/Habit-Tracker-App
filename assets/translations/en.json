@@ -182,5 +182,6 @@
   "delete_habit": "Delete Habit",
   "delete_habit_confirmation": "Are you sure you want to delete the habit '{}'?",
   "log_out": "Log Out",
-  "please_setup_security_first": "Please set up security first to access this feature."
+  "please_setup_security_first": "Please set up security first to access this feature.",
+  "unlock_with_fingerprint": "Unlock with Fingerprint"
 }
