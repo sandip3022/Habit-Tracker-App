@@ -14,11 +14,26 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
+       static const Map<String, String> _legacyTimezones = {
+    'Asia/Calcutta': 'Asia/Kolkata',
+    'Asia/Ulaanbaatar': 'Asia/Ulan_Bator',
+    'Asia/Katmandu': 'Asia/Kathmandu',
+    'America/Indiana/Indianapolis': 'America/Indianapolis',
+    'America/Kentucky/Louisville': 'America/Louisville',
+    'Pacific/Samoa': 'Pacific/Pago_Pago',
+  };
+
+   String _normalizeTimezone(String timezone) {
+    return _legacyTimezones[timezone] ?? timezone;
+  }
+
   Future<void> init() async {
     tz.initializeTimeZones();
 
-     final String localTimeZone = await FlutterTimezone.getLocalTimezone();
-  tz.setLocalLocation(tz.getLocation(localTimeZone));
+    final String rawTimezone = await FlutterTimezone.getLocalTimezone();
+
+     final String localTimeZone  = _normalizeTimezone(rawTimezone);
+     tz.setLocalLocation(tz.getLocation(localTimeZone));
 
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@drawable/ic_notification');

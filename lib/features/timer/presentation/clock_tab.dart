@@ -104,7 +104,8 @@ class _ClockTabState extends State<ClockTab> {
                               DateFormat(
                                 AppConstants.timeFormat,
                               ).format(_currentTime),
-                              style: GoogleFonts.shareTechMono(
+                              style: TextStyle(
+                                fontFamily: 'ShareTechMono',
                                 fontSize: 48,
                                 color: Theme.of(context).colorScheme.secondary,
                               ),
