@@ -30,18 +30,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   // Pre-defined habits for Step 2
   final List<Map<String, dynamic>> _starterHabits = [
-    {'title': "exercise".tr(), 'icon': 0xe0b0, 'color': 0xFF0984E3}, // Blue
-    {'title': "read_books".tr(), 'icon': 0xe198, 'color': 0xFF6C5CE7}, // Purple
+    {'title': "exercise".tr(), 'icon': 57997, 'color': 0xFF0984E3}, // Blue
+    {'title': "read_books".tr(), 'icon': 58333, 'color': 0xFF6C5CE7}, // Purple
     {
       'title': "healthy_eating".tr(),
-      'icon': 0xeb43,
+      'icon': 58674,
       'color': 0xFFFF6B6B,
     }, // Coral
-    {'title': "meditation".tr(), 'icon': 0xe318, 'color': 0xFF00B894}, // Teal
-    {'title': "journaling".tr(), 'icon': 0xe156, 'color': 0xFFE17055}, // Orange
+    {'title': "meditation".tr(), 'icon': 58735, 'color': 0xFF00B894}, // Teal
+    {'title': "journaling".tr(), 'icon': 57535, 'color': 0xFFE17055}, // Orange
     {
       'title': "Early_sleep".tr(),
-      'icon': 0xf06b,
+      'icon': 57559,
       'color': 0xFF0984E3,
     }, // Midnight
   ];
