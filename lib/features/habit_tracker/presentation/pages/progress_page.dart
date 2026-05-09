@@ -23,21 +23,18 @@ class ProgressPage extends ConsumerWidget {
     final labelColor = colorScheme.onSurface.withValues(alpha: 0.6);
 
     return Scaffold(
-      // No backgroundColor needed (Scaffold uses Theme default)
       appBar: AppBar(
         title: Text(
           "progress_insights".tr(),
           style: textTheme.displayMedium?.copyWith(fontSize: 24),
         ),
         centerTitle: false,
-        // No backgroundColor needed
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ROW 1: 3 BOXES
             Row(
               children: [
                 Expanded(
@@ -214,7 +211,7 @@ class ProgressPage extends ConsumerWidget {
         decoration: BoxDecoration(
           color: colorScheme.surface, // <--- Dynamic Surface
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.1), width: 1),
+          border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
         ),
         child: Column(
           children: [
